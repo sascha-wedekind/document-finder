@@ -1,0 +1,65 @@
+plugins {
+    id 'java'
+    id 'idea'
+}
+
+ext {
+    lombokVersion = '1.18.22'
+    slf4jVersion = '1.7.32'
+    logbackVersion = '1.2.6'
+    luceneVersion = '8.10.1'
+    junitVersion = '5.8.1'
+    mockitoVersion = '4.0.0'
+    assertjVersion = '3.21.0'
+    reactorVersion = '3.4.11'
+}
+
+group 'com.bytedompteur'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    //  ============================================
+    //  Runtime
+    //  ============================================
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    implementation "ch.qos.logback:logback-classic:${logbackVersion}"
+    implementation "org.apache.lucene:lucene-core:${luceneVersion}"
+    implementation "org.apache.lucene:lucene-queryparser:${luceneVersion}"
+    implementation "org.apache.lucene:lucene-analyzers-common:${luceneVersion}"
+    implementation "io.projectreactor:reactor-core:${reactorVersion}"
+
+
+    //  ============================================
+    //  Compile only
+    //  ============================================
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+
+    //  ============================================
+    //  Test
+    //  ============================================
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+
+    testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+    testImplementation "org.assertj:assertj-core:${assertjVersion}"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
