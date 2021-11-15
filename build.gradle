@@ -12,6 +12,7 @@ ext {
     mockitoVersion = '4.0.0'
     assertjVersion = '3.21.0'
     reactorVersion = '3.4.11'
+    guavaVersion = '31.0.1-jre'
 }
 
 group 'com.bytedompteur'
@@ -19,6 +20,12 @@ version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 dependencies {
@@ -31,6 +38,7 @@ dependencies {
     implementation "org.apache.lucene:lucene-queryparser:${luceneVersion}"
     implementation "org.apache.lucene:lucene-analyzers-common:${luceneVersion}"
     implementation "io.projectreactor:reactor-core:${reactorVersion}"
+    implementation "com.google.guava:guava:${guavaVersion}"
 
 
     //  ============================================

@@ -2,6 +2,9 @@ package com.bytedompteur.documentfinder.directorywatcher.core;
 
 import static java.util.Objects.nonNull;
 
+import com.bytedompteur.documentfinder.directorywatcher.adapter.in.DirectoryWatcher;
+import com.bytedompteur.documentfinder.directorywatcher.adapter.in.FileWatchEvent;
+import com.bytedompteur.documentfinder.directorywatcher.adapter.in.FileWatchEvent.Type;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -22,7 +25,7 @@ import reactor.core.publisher.Sinks;
 import reactor.core.publisher.Sinks.Many;
 
 @Slf4j
-public class DirectoryWatcher {
+public class DirectoryWatcherImpl implements DirectoryWatcher {
   private final Map<WatchKey, Path> pathByWatchKey = new ConcurrentHashMap<>();
   private final Map<Path, WatchKey> watchKeyByPath = new ConcurrentHashMap<>();
   private final AtomicBoolean started = new AtomicBoolean(false);
@@ -32,13 +35,13 @@ public class DirectoryWatcher {
   private Flux<AbsolutePathWatchEvent> eventEmitter;
   private Many<AbsolutePathWatchEvent> sink;
 
-  public DirectoryWatcher() throws IOException {
+  public DirectoryWatcherImpl() throws IOException {
     createSinkAndFlux();
     watchService = FileSystems.getDefault().newWatchService();
     pollHandler = new WatchServicePollHandler(this);
   }
 
-  protected DirectoryWatcher(WatchServicePollHandler pollHandler, WatchService watchService) {
+  protected DirectoryWatcherImpl(WatchServicePollHandler pollHandler, WatchService watchService) {
     createSinkAndFlux();
     this.pollHandler = pollHandler;
     this.watchService = watchService;
@@ -48,10 +51,12 @@ public class DirectoryWatcher {
     return Collections.unmodifiableMap(pathByWatchKey);
   }
 
-  public Flux<AbsolutePathWatchEvent> fileEvents() {
-    return eventEmitter;
+  @Override
+  public Flux<FileWatchEvent> fileEvents() {
+    return eventEmitter.map(this::mapToFileWatchEvent);
   }
 
+  @Override
   public void watchIncludingSubdirectories(Path value) throws IOException {
     if (nonNull(value) && !isAlreadyRegistered(value)) {
       Files.walkFileTree(value, new SimpleFileVisitor<>() {
@@ -64,6 +69,7 @@ public class DirectoryWatcher {
     }
   }
 
+  @Override
   public void unwatchIncludingSubdirectories(Path value) throws IOException {
     if (nonNull(value) && isAlreadyRegistered(value)) {
       Files.walkFileTree(value, new SimpleFileVisitor<>() {
@@ -76,7 +82,8 @@ public class DirectoryWatcher {
     }
   }
 
-  protected void startWatching() {
+  @Override
+  public void startWatching() {
     if (started.compareAndSet(false, true)) {
       new Thread(this::doWatch).start();
     }
@@ -98,8 +105,14 @@ public class DirectoryWatcher {
     started.compareAndSet(true, false);
   }
 
-  protected void stopWatching() {
+  @Override
+  public void stopWatching() {
     shouldStop.compareAndSet(false, true);
+  }
+
+  @Override
+  public boolean isWatching() {
+    return started.get();
   }
 
   private void deregisterAtWatchService(Path path) {
@@ -139,5 +152,17 @@ public class DirectoryWatcher {
     // Non serialized and thread safe.
     sink = Sinks.unsafe().many().multicast().onBackpressureBuffer();
     eventEmitter = sink.asFlux();
+  }
+
+  private FileWatchEvent mapToFileWatchEvent(AbsolutePathWatchEvent e) {
+    Type type;
+    if (StandardWatchEventKinds.ENTRY_CREATE.equals(e.kind())) {
+      type = Type.CREATE;
+    } else if (StandardWatchEventKinds.ENTRY_MODIFY.equals(e.kind())) {
+      type = Type.UPDATE;
+    } else {
+      type = Type.DELETE;
+    }
+    return new FileWatchEvent(type, e.context());
   }
 }

@@ -11,11 +11,11 @@ public class Playground {
     File directory = new File("X:\\OneDrive\\Dokumente\\DokumentePrivate\\_ERFASSUNGEN");
     Path path = Paths.get(directory.getAbsolutePath());
 
-    DirectoryWatcher directoryWatcher = new DirectoryWatcher();
+    DirectoryWatcherImpl directoryWatcher = new DirectoryWatcherImpl();
     directoryWatcher.watchIncludingSubdirectories(path);
 
     directoryWatcher.fileEvents().subscribe(e -> {
-      System.out.println(e.kind() + " --> " + e.context());
+      System.out.println(e.getType() + " --> " + e.getPath());
     });
 
     directoryWatcher.startWatching();

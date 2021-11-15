@@ -17,10 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 class WatchServicePollHandler {
 
   private final Map<WatchKey, Path> pathByWatchKey;
-  private final DirectoryWatcher directoryWatcher;
+  private final DirectoryWatcherImpl directoryWatcher;
   private final AbsolutePathWatchEventByKindComparator comparator = new AbsolutePathWatchEventByKindComparator();
 
-  WatchServicePollHandler(DirectoryWatcher directoryWatcher) {
+  WatchServicePollHandler(DirectoryWatcherImpl directoryWatcher) {
     this.directoryWatcher = directoryWatcher;
     this.pathByWatchKey = directoryWatcher.getPathByWatchKey();
   }
