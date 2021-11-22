@@ -6,7 +6,7 @@ import lombok.Value;
 @Value
 public class FileEvent {
 
-  public enum Type {CREATE,UPDATE,DELETE}
+  public enum Type {CREATE,UPDATE,DELETE,UNKNOWN}
 
   Type type;
 
