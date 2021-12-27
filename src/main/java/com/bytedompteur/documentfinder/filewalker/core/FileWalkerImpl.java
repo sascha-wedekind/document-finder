@@ -5,6 +5,7 @@ import com.bytedompteur.documentfinder.filewalker.adapter.in.FileWalkerAlreadyRu
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class FileWalkerImpl implements FileWalker {
   private final AtomicBoolean started = new AtomicBoolean(false);
   private final AtomicReference<WalkerRunnable> walkerReference = new AtomicReference<>();
   private final WalkerFactory walkerFactory;
+  private final ExecutorService executorService;
 
   @Override
   public boolean isRunning() {
@@ -40,7 +42,7 @@ public class FileWalkerImpl implements FileWalker {
         PathUtil.removeChildPaths(pathsToWalk)
       );
       walkerReference.set(walker);
-      new Thread(walker).start();
+      executorService.submit(walker);
       return sink
         .asFlux()
         .doOnComplete(() -> {

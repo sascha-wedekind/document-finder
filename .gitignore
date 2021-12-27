@@ -167,3 +167,6 @@ gradle-app.setting
 /.idea/jarRepositories.xml
 /.idea/misc.xml
 /.idea/vcs.xml
+/index-dev/
+
+src/main/generated

@@ -6,23 +6,25 @@ import java.util.Optional;
 import java.util.function.Function;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ReactiveAdapter {
 
   /**
+   * @param <S> the source type
    * @param mapperFunction mapper function, that maps a source type into a FileEvent (Flux.map(...))
    * @param publisher a source type publisher to subscribe to.
    * @param queue the queue to add the file events to.
-   * @param <S> the source type
+   * @return
    */
-  public static <S> void subscribe(
+  public static <S> Disposable subscribe(
     Function<S, FileEvent> mapperFunction,
     Flux<S> publisher,
     PersistedUniqueFileEventQueue queue
   ) {
-    publisher
+    return publisher
       .map(mapperFunction)
       .buffer(Duration.of(250, ChronoUnit.MILLIS))
       .subscribe(queue::pushOrOverwrite);

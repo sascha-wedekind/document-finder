@@ -3,10 +3,8 @@ package com.bytedompteur.documentfinder.filewalker.core;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.nonNull;
 
-import com.google.common.base.Preconditions;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +19,10 @@ public class FileEndingMatcher implements FileMatcher {
     checkArgument(nonNull(fileEndings) && !fileEndings.isEmpty(), "'fileEndings' is null or empty");
     this.fileEndings = fileEndings;
     pattern = buildPattern(fileEndings);
+  }
+
+  public Set<String> getFileEndings() {
+    return Collections.unmodifiableSet(fileEndings);
   }
 
   @Override

@@ -6,13 +6,15 @@ plugins {
 ext {
     lombokVersion = '1.18.22'
     slf4jVersion = '1.7.32'
-    logbackVersion = '1.2.6'
-    luceneVersion = '8.10.1'
+    logbackVersion = '1.2.7'
+    luceneVersion = '8.11.0'
     junitVersion = '5.8.1'
-    mockitoVersion = '4.0.0'
+    mockitoVersion = '4.1.0'
     assertjVersion = '3.21.0'
     reactorVersion = '3.4.12'
     guavaVersion = '31.0.1-jre'
+    tikaVersion = '2.1.0'
+    daggerVersion = '2.40.1'
 }
 
 group 'com.bytedompteur'
@@ -39,6 +41,13 @@ dependencies {
     implementation "org.apache.lucene:lucene-analyzers-common:${luceneVersion}"
     implementation "io.projectreactor:reactor-core:${reactorVersion}"
     implementation "com.google.guava:guava:${guavaVersion}"
+    implementation "org.apache.tika:tika-core:${tikaVersion}"
+    implementation "org.apache.tika:tika-parser-pdf-module:${tikaVersion}"
+    implementation "org.apache.tika:tika-parser-miscoffice-module:${tikaVersion}"
+    implementation "org.apache.tika:tika-parser-microsoft-module:${tikaVersion}"
+    implementation "org.apache.tika:tika-parser-apple-module:${tikaVersion}"
+    implementation "org.apache.tika:tika-parser-text-module:${tikaVersion}"
+    implementation "com.google.dagger:dagger:${daggerVersion}"
 
 
     //  ============================================
@@ -46,6 +55,7 @@ dependencies {
     //  ============================================
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
 
 
     //  ============================================
@@ -70,5 +80,7 @@ idea {
     module {
         downloadJavadoc = true
         downloadSources = true
+        // Subdirectory in the project which acts as the application home dir while developing.
+        excludeDirs += file("index-dev")
     }
 }

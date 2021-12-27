@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
+import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,6 +24,7 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
   private final Set<Long> knownPaths = new TreeSet<>();
   private final HashFunction hashFunction;
 
+  @Inject
   public PersistedUniqueFileEventQueueImpl() {
     hashFunction = Hashing.murmur3_128();
   }
@@ -58,8 +60,10 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
   private void pushOrOverwriteSingle(FileEvent value) {
     long pathHash = getPathHash(value);
     if (knownPaths.contains(pathHash)) {
+      log.debug("Replacing '{}' int queue", value);
       replaceEvent(value);
     } else{
+      log.debug("Adding '{}' to queue", value);
       inMemoryEventsQueue.add(value);
       knownPaths.add(pathHash);
     }
