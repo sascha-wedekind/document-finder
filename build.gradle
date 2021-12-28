@@ -1,24 +1,28 @@
 plugins {
     id 'java'
     id 'idea'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.10'
 }
 
 ext {
     lombokVersion = '1.18.22'
     slf4jVersion = '1.7.32'
-    logbackVersion = '1.2.7'
+    logbackVersion = '1.2.9'
     luceneVersion = '8.11.0'
-    junitVersion = '5.8.1'
-    mockitoVersion = '4.1.0'
+    junitVersion = '5.8.2'
+    mockitoVersion = '4.2.0'
     assertjVersion = '3.21.0'
-    reactorVersion = '3.4.12'
+    reactorVersion = '3.4.13'
     guavaVersion = '31.0.1-jre'
     tikaVersion = '2.1.0'
-    daggerVersion = '2.40.1'
+    daggerVersion = '2.40.5'
+    javaFxVersion = '17.0.1'
 }
 
 group 'com.bytedompteur'
 version '1.0-SNAPSHOT'
+mainClassName = 'com.bytedompteur.documentfinder.ui.DocumentFinderMain'
 
 repositories {
     mavenCentral()
@@ -83,4 +87,10 @@ idea {
         // Subdirectory in the project which acts as the application home dir while developing.
         excludeDirs += file("index-dev")
     }
+}
+
+//As documented here https://openjfx.io/openjfx-docs/#gradle
+javafx {
+    version = "${javaFxVersion}"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
