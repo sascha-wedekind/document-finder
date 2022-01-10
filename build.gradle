@@ -18,11 +18,11 @@ ext {
     tikaVersion = '2.1.0'
     daggerVersion = '2.40.5'
     javaFxVersion = '17.0.1'
+    defaultMainClass = 'com.bytedompteur.documentfinder.ui.DocumentFinderMain'
 }
 
 group 'com.bytedompteur'
 version '1.0-SNAPSHOT'
-mainClassName = 'com.bytedompteur.documentfinder.ui.DocumentFinderMain'
 
 repositories {
     mavenCentral()
@@ -67,13 +67,16 @@ dependencies {
     //  ============================================
     testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
     testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
 
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
-    implementation "io.projectreactor:reactor-test:${reactorVersion}"
+    testImplementation "io.projectreactor:reactor-test:${reactorVersion}"
+    testImplementation "org.testfx:testfx-core:4.0.16-alpha"
+    testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
 }
 
 test {
@@ -92,5 +95,9 @@ idea {
 //As documented here https://openjfx.io/openjfx-docs/#gradle
 javafx {
     version = "${javaFxVersion}"
-    modules = [ 'javafx.controls', 'javafx.fxml' ]
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing' ]
+}
+
+application {
+    mainClass = project.hasProperty('applicationMainClassOverwrite') ? project.getProperty('applicationMainClassOverwrite') : project.defaultMainClass
 }

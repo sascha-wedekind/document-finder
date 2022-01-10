@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bytedompteur.documentfinder.ui.mainwindow.SearchResultTableController">
+   <children>
+      <TableView fx:id="resultTable" items="${controller.searchResults}" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+          <columns>
+              <TableColumn fx:id="pathIconColumn" editable="false" maxWidth="28.0" minWidth="28.0" prefWidth="28.0" resizable="false" text="">
+                  <cellValueFactory>
+                      <PropertyValueFactory property="icon" />
+                  </cellValueFactory>
+              </TableColumn>
+              <TableColumn fx:id="pathNameColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Name">
+                  <cellValueFactory>
+                      <PropertyValueFactory property="fileOrDirectoryName" />
+                  </cellValueFactory>
+              </TableColumn>
+              <TableColumn fx:id="pathParentColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Directory">
+                  <cellValueFactory>
+                      <PropertyValueFactory property="directoryName" />
+                  </cellValueFactory>
+              </TableColumn>
+          </columns>
+      </TableView>
+   </children>
+</AnchorPane>

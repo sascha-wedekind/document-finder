@@ -1,14 +1,11 @@
 package com.bytedompteur.documentfinder.ui;
 
-import java.io.IOException;
-import java.net.URL;
+import com.bytedompteur.documentfinder.ui.mainwindow.dagger.DaggerMainWindowComponent;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class DocumentFinderMain extends Application {
 
@@ -18,8 +15,13 @@ public class DocumentFinderMain extends Application {
 
   @Override
   public void start(Stage primaryStage) throws IOException {
-    Parent root = FXMLLoader.load(getClass().getResource("/fxml/MainView.fxml"));
-    Scene scene = new Scene(root, 640, 480);
+
+    var uiComponent = DaggerMainWindowComponent.builder().build();
+    var lazyNode = uiComponent.mainViewNode();
+    var node = lazyNode.get();
+
+
+    Scene scene = new Scene(node, 640, 480);
     primaryStage.setScene(scene);
     primaryStage.show();
   }
