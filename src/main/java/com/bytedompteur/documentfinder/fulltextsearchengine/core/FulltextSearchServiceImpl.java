@@ -1,9 +1,12 @@
 package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
+
+import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class FulltextSearchServiceImpl implements FulltextSearchService {
@@ -39,5 +42,10 @@ public class FulltextSearchServiceImpl implements FulltextSearchService {
   @Override
   public void commitScannedFiles() {
     indexRepository.commit();
+  }
+
+  @Override
+  public Flux<Path> getCurrentPathProcessed() {
+    return this.fileEventHandler.getCurrentPathProcessed();
   }
 }

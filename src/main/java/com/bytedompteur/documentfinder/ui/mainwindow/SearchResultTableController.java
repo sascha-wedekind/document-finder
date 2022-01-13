@@ -5,18 +5,15 @@ import com.bytedompteur.documentfinder.ui.mainwindow.dagger.MainWindowScope;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.TableView;
 import lombok.RequiredArgsConstructor;
 
 import javax.inject.Inject;
-import java.net.URL;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 @MainWindowScope
-public class SearchResultTableController implements Initializable, FxController {
+public class SearchResultTableController implements FxController {
 
   private final SearchResultTableContextMenu contextMenu;
 
@@ -29,8 +26,8 @@ public class SearchResultTableController implements Initializable, FxController 
     return searchResults;
   }
 
-  @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  @FXML
+  public void initialize() {
     resultTable.setContextMenu(contextMenu);
     resultTable.setOnContextMenuRequested(event -> Optional
       .ofNullable(resultTable.getSelectionModel().getSelectedItem())

@@ -16,7 +16,7 @@ public class DocumentFinderMain extends Application {
   @Override
   public void start(Stage primaryStage) throws IOException {
 
-    var uiComponent = DaggerMainWindowComponent.builder().build();
+    var uiComponent = DaggerMainWindowComponent.builder().numberOfThreads(1).build();
     var lazyNode = uiComponent.mainViewNode();
     var node = lazyNode.get();
 

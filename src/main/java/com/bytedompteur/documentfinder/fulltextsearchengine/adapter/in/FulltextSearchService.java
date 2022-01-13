@@ -1,5 +1,9 @@
 package com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in;
 
+import reactor.core.publisher.Flux;
+
+import java.nio.file.Path;
+
 public interface FulltextSearchService {
 
   void startInboundFileEventProcessing();
@@ -11,4 +15,6 @@ public interface FulltextSearchService {
   int getScannedFiles();
 
   void commitScannedFiles();
+
+  Flux<Path> getCurrentPathProcessed();
 }

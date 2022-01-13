@@ -4,6 +4,11 @@ import com.bytedompteur.documentfinder.ui.FileSystemAdapter;
 import dagger.Module;
 import dagger.Provides;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 @Module(includes = BaseMainWindowModule.class)
 public abstract class MainWindowModule {
 
@@ -12,4 +17,9 @@ public abstract class MainWindowModule {
     return new FileSystemAdapter();
   }
 
+  @Provides
+  @Singleton
+  static ExecutorService provideExecutorService(@Named("numberOfThreads") int numberOfThreads) {
+    return Executors.newFixedThreadPool(Math.max(1, numberOfThreads));
+  }
 }

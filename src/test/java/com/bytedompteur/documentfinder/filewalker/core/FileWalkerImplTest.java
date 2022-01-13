@@ -9,7 +9,10 @@ import com.bytedompteur.documentfinder.filewalker.adapter.in.FileWalkerAlreadyRu
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,8 +28,12 @@ class FileWalkerImplTest {
   @Mock
   WalkerFactory mockedWalkerFactory;
 
-  @InjectMocks
   FileWalkerImpl sut;
+
+  @BeforeEach
+  void setUp() {
+    sut = new FileWalkerImpl(mockedWalkerFactory, Executors.newFixedThreadPool(1));
+  }
 
   @Test
   void findFilesWithEndings_emitsPathsInFluxThatAreProvidedByWalkerRunnable() {
@@ -69,6 +76,8 @@ class FileWalkerImplTest {
   void findFilesWithEndings_throwsFileWalkerAlreadyRunningException() {
     // Arrange
     // Implementation detail: Because flux.onComplete() won't be called, FileWalker stays in the running state forever.
+    Mockito
+      .when(mockedWalkerFactory.create(any(), any(), any())).thenReturn(mock(WalkerRunnable.class));
     sut.findFilesWithEndings(Set.of("ingore"), Set.of(Path.of("ingore")));
 
     // Act
