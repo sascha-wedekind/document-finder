@@ -1,8 +1,9 @@
 package com.bytedompteur.documentfinder.filewalker.adapter.in;
 
+import reactor.core.publisher.Flux;
+
 import java.nio.file.Path;
 import java.util.Set;
-import reactor.core.publisher.Flux;
 
 public interface FileWalker {
 

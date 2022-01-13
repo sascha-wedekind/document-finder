@@ -1,6 +1,8 @@
 package com.bytedompteur.documentfinder.filewalker.core;
 
-import static java.util.Objects.requireNonNullElse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Sinks.Many;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -9,9 +11,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Sinks.Many;
+
+import static java.util.Objects.requireNonNullElse;
 
 @RequiredArgsConstructor
 @Slf4j

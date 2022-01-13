@@ -3,6 +3,7 @@ package com.bytedompteur.documentfinder;
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.FileEvent;
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.FileEvent.Type;
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.ReactiveAdapter;
+
 import java.nio.file.Path;
 import java.util.Set;
 

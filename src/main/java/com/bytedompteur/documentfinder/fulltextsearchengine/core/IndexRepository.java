@@ -1,10 +1,5 @@
 package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import javax.inject.Inject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.document.Document;
@@ -14,6 +9,12 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 @Slf4j

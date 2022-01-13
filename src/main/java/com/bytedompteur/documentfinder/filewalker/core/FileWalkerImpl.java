@@ -2,17 +2,18 @@ package com.bytedompteur.documentfinder.filewalker.core;
 
 import com.bytedompteur.documentfinder.filewalker.adapter.in.FileWalker;
 import com.bytedompteur.documentfinder.filewalker.adapter.in.FileWalkerAlreadyRunningException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
+import reactor.core.publisher.Sinks.Many;
+
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Sinks;
-import reactor.core.publisher.Sinks.Many;
 
 @RequiredArgsConstructor
 @Slf4j

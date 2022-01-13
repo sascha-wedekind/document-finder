@@ -1,7 +1,8 @@
 package com.bytedompteur.documentfinder.persistedqueue.adapter.in;
 
-import java.nio.file.Path;
 import lombok.Value;
+
+import java.nio.file.Path;
 
 @Value
 public class FileEvent {

@@ -4,16 +4,11 @@ import com.bytedompteur.documentfinder.persistedqueue.adapter.in.FileEvent;
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.PersistedUniqueFileEventQueue;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.Semaphore;
-import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.inject.Inject;
+import java.util.*;
+import java.util.concurrent.Semaphore;
 
 @Slf4j
 public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEventQueue {

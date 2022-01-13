@@ -1,6 +1,6 @@
 package com.bytedompteur.documentfinder.directorywatcher.core;
 
-import static java.util.Objects.nonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
+
+import static java.util.Objects.nonNull;
 
 @Slf4j
 class WatchServicePollHandler {

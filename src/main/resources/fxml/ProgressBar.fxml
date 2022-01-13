@@ -4,7 +4,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.layout.HBox?>
-
 <HBox maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefWidth="400.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bytedompteur.documentfinder.ui.mainwindow.AnalyzeFilesProgressBarController">
    <children>
       <ProgressIndicator fx:id="progressIndicator" maxHeight="20.0" maxWidth="20.0">

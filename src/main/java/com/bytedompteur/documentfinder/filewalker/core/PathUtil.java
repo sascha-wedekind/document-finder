@@ -1,15 +1,10 @@
 package com.bytedompteur.documentfinder.filewalker.core;
 
-import static java.util.Objects.nonNull;
-
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.nonNull;
 
 public class PathUtil {
 

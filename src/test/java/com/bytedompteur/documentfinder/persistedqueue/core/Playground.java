@@ -2,11 +2,12 @@ package com.bytedompteur.documentfinder.persistedqueue.core;
 
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.FileEvent;
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.FileEvent.Type;
-import java.nio.file.Path;
-import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
+
+import java.nio.file.Path;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class Playground {

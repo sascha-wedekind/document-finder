@@ -1,13 +1,14 @@
 package com.bytedompteur.documentfinder.persistedqueue.adapter.in;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.Optional;
-import java.util.function.Function;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.Optional;
+import java.util.function.Function;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ReactiveAdapter {

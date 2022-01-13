@@ -4,6 +4,7 @@ import com.bytedompteur.documentfinder.persistedqueue.adapter.in.PersistedUnique
 import com.bytedompteur.documentfinder.persistedqueue.core.PersistedUniqueFileEventQueueImpl;
 import dagger.Module;
 import dagger.Provides;
+
 import javax.inject.Singleton;
 
 @Module

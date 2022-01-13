@@ -1,13 +1,14 @@
 package com.bytedompteur.documentfinder.filewalker.core;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.nonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Set;
 import java.util.regex.Pattern;
-import lombok.extern.slf4j.Slf4j;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.nonNull;
 
 @Slf4j
 public class FileEndingMatcher implements FileMatcher {

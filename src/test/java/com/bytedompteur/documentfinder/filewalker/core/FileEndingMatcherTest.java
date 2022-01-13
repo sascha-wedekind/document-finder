@@ -1,11 +1,12 @@
 package com.bytedompteur.documentfinder.filewalker.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.Set;
-import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 class FileEndingMatcherTest {
 

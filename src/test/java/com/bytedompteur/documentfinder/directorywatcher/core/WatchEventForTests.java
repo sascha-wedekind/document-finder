@@ -1,8 +1,9 @@
 package com.bytedompteur.documentfinder.directorywatcher.core;
 
-import java.nio.file.WatchEvent;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+
+import java.nio.file.WatchEvent;
 
 @RequiredArgsConstructor
 @EqualsAndHashCode

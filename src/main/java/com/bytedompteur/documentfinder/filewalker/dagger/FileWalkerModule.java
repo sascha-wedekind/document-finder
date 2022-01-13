@@ -6,8 +6,9 @@ import com.bytedompteur.documentfinder.filewalker.core.WalkFileTreeAdapterImpl;
 import com.bytedompteur.documentfinder.filewalker.core.WalkerFactory;
 import dagger.Module;
 import dagger.Provides;
-import java.util.concurrent.ExecutorService;
+
 import javax.inject.Singleton;
+import java.util.concurrent.ExecutorService;
 
 @Module
 public class FileWalkerModule {

@@ -1,7 +1,6 @@
 package com.bytedompteur.documentfinder.ui.mainwindow.dagger;
 
 import com.bytedompteur.documentfinder.fulltextsearchengine.dagger.FulltextSearchEngineModule;
-import com.bytedompteur.documentfinder.persistedqueue.dagger.PersistedQueueModule;
 import com.bytedompteur.documentfinder.ui.FxController;
 import com.bytedompteur.documentfinder.ui.FxmlFile;
 import com.bytedompteur.documentfinder.ui.dagger.FxControllerMapKey;

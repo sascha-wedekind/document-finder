@@ -1,28 +1,22 @@
 package com.bytedompteur.documentfinder.directorywatcher.core;
 
-import static java.util.Objects.nonNull;
-
 import com.bytedompteur.documentfinder.directorywatcher.adapter.in.DirectoryWatcher;
 import com.bytedompteur.documentfinder.directorywatcher.adapter.in.FileWatchEvent;
 import com.bytedompteur.documentfinder.directorywatcher.adapter.in.FileWatchEvent.Type;
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
+import reactor.core.publisher.Sinks.Many;
+
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Sinks;
-import reactor.core.publisher.Sinks.Many;
+
+import static java.util.Objects.nonNull;
 
 @Slf4j
 public class DirectoryWatcherImpl implements DirectoryWatcher {

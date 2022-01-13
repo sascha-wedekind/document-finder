@@ -1,8 +1,5 @@
 package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenStream;
@@ -14,6 +11,10 @@ import org.apache.lucene.analysis.miscellaneous.WordDelimiterGraphFilterFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 class PlaygroundTest {
 

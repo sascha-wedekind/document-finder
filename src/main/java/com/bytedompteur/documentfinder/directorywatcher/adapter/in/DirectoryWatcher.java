@@ -1,9 +1,10 @@
 package com.bytedompteur.documentfinder.directorywatcher.adapter.in;
 
 
+import reactor.core.publisher.Flux;
+
 import java.io.IOException;
 import java.nio.file.Path;
-import reactor.core.publisher.Flux;
 
 public interface DirectoryWatcher {
 

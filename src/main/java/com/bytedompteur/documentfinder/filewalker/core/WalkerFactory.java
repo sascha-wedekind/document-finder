@@ -1,9 +1,10 @@
 package com.bytedompteur.documentfinder.filewalker.core;
 
-import java.nio.file.Path;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Sinks.Many;
+
+import java.nio.file.Path;
+import java.util.Set;
 
 @RequiredArgsConstructor
 public class WalkerFactory {

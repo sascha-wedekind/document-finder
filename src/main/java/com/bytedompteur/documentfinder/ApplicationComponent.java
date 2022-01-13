@@ -8,9 +8,10 @@ import com.bytedompteur.documentfinder.persistedqueue.adapter.in.PersistedUnique
 import com.bytedompteur.documentfinder.persistedqueue.dagger.PersistedQueueModule;
 import dagger.BindsInstance;
 import dagger.Component;
-import java.util.concurrent.ExecutorService;
+
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.concurrent.ExecutorService;
 
 @Singleton
 @Component(modules = {

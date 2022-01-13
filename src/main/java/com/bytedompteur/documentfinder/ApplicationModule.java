@@ -2,10 +2,11 @@ package com.bytedompteur.documentfinder;
 
 import dagger.Module;
 import dagger.Provides;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Module
 public class ApplicationModule {

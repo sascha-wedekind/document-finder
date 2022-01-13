@@ -11,11 +11,12 @@ import com.bytedompteur.documentfinder.persistedqueue.adapter.in.PersistedUnique
 import com.bytedompteur.documentfinder.persistedqueue.dagger.PersistedQueueModule;
 import dagger.Module;
 import dagger.Provides;
-import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.index.IndexWriter;
+
+import javax.inject.Singleton;
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
 
 @Module(includes = PersistedQueueModule.class)
 @Slf4j

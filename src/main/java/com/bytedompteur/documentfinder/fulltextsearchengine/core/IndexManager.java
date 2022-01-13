@@ -1,11 +1,5 @@
 package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 
-import static java.nio.file.Files.notExists;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +13,13 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
+
+import static java.nio.file.Files.notExists;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter

@@ -1,17 +1,18 @@
 package com.bytedompteur.documentfinder.persistedqueue.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.FileEvent;
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.FileEvent.Type;
+import org.junit.jupiter.api.Test;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class PersistedUniqueFileEventQueueImplTest {
 

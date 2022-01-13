@@ -1,20 +1,17 @@
 package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PipedReader;
-import java.io.PipedWriter;
-import java.io.Reader;
-import java.nio.file.Path;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.xml.sax.SAXException;
+
+import java.io.*;
+import java.nio.file.Path;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 public class FileParserTask implements Runnable {

@@ -1,13 +1,14 @@
 package com.bytedompteur.documentfinder.directorywatcher.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
-import java.nio.file.StandardWatchEventKinds;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.nio.file.StandardWatchEventKinds;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AbsolutePathWatchEventByKindComparatorTest {
