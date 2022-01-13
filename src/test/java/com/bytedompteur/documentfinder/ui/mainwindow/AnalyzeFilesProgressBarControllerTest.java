@@ -11,18 +11,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import reactor.core.publisher.Flux;
 import reactor.test.publisher.TestPublisher;
+import reactor.test.scheduler.VirtualTimeScheduler;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(ApplicationExtension.class)
@@ -31,6 +33,7 @@ class AnalyzeFilesProgressBarControllerTest {
 
   private TestPublisher<Path> testPublisher;
   private FulltextSearchService mockedFulltextSearchService;
+  private final VirtualTimeScheduler virtualTimeScheduler = VirtualTimeScheduler.getOrSet();
 
   @Start
   void start(Stage stage) {
@@ -54,7 +57,7 @@ class AnalyzeFilesProgressBarControllerTest {
   protected Flux<Path> createFluxAndRegisterToTestClass() {
     log.info("Creating new TestPublisher");
     testPublisher = TestPublisher.create();
-    return testPublisher.flux();
+    return testPublisher.flux().publishOn(virtualTimeScheduler);
   }
 
   @Test
@@ -66,6 +69,7 @@ class AnalyzeFilesProgressBarControllerTest {
 
     //Act
     testPublisher.next(path); // do not complete stream
+    robot.interrupt(); // Wait until all events on the FX event thread are completed
 
     // Assert
     assertThat(progressIndicator.isVisible()).isTrue();
@@ -82,16 +86,17 @@ class AnalyzeFilesProgressBarControllerTest {
 
     //Act
     testPublisher.next(path); // do not complete stream
-    Thread.sleep(6000);
+    virtualTimeScheduler.advanceTimeBy(Duration.ofSeconds(6)); // Forward time by 6 seconds in virtual spring reactor scheduler
+    robot.interrupt(); // Wait until all events on the FX event thread are completed
 
     // Assert
     assertThat(progressIndicator.isVisible()).isFalse();
     assertThat(currentFileProcessedLabel.getText()).isEqualTo("The index contains 10 analyzed files"); // see mock config above
-//    verify(mockedFulltextSearchService, times(2)).getCurrentPathProcessed(); // assert resubscribe
+    verify(mockedFulltextSearchService, times(2)).getCurrentPathProcessed(); // assert resubscribe
   }
 
   @Test
-  void controller_resetsLabelToShowingNumberOfAnalyzedFilesAndProgressIndicatorToHiddenAndResubscribesFlux_whenFLuxCompletes(FxRobot robot) throws InterruptedException {
+  void controller_resetsLabelToShowingNumberOfAnalyzedFilesAndProgressIndicatorToHidden_whenFLuxCompletes(FxRobot robot) throws InterruptedException {
     // Arrange
     var progressIndicator = robot.lookup("#progressIndicator").queryAs(ProgressIndicator.class);
     var currentFileProcessedLabel = robot.lookup("#currentFileProcessedLabel").queryAs(Label.class);
@@ -100,12 +105,12 @@ class AnalyzeFilesProgressBarControllerTest {
     //Act
     testPublisher.next(path); // do not complete stream
     testPublisher.complete();
-    Thread.sleep(500);
+    robot.interrupt(); // Wait until all events on the FX event thread are completed
 
     // Assert
     assertThat(progressIndicator.isVisible()).isFalse();
     assertThat(currentFileProcessedLabel.getText()).isEqualTo("The index contains 10 analyzed files"); // see mock config above
-//    verify(mockedFulltextSearchService, times(2)).getCurrentPathProcessed(); // assert resubscribe
+    verify(mockedFulltextSearchService).getCurrentPathProcessed(); // assert no resubscribe
   }
 
   @Test
@@ -118,13 +123,13 @@ class AnalyzeFilesProgressBarControllerTest {
 
     //Act
     testPublisher.next(path); // do not complete stream
-    Thread.sleep(5500);
+    virtualTimeScheduler.advanceTimeBy(Duration.ofSeconds(6)); // Forward time by 6 seconds in virtual spring reactor scheduler
     testPublisher.next(path2);
-    Thread.sleep(1000);
+    robot.interrupt(); // Wait until all events on the FX event thread are completed
 
     // Assert
     assertThat(progressIndicator.isVisible()).isTrue();
     assertThat(currentFileProcessedLabel.getText()).isEqualTo(path2.toString()); // see mock config above
-//    verify(mockedFulltextSearchService, times(2)).getCurrentPathProcessed(); // assert resubscribe
+    verify(mockedFulltextSearchService, times(2)).getCurrentPathProcessed(); // assert resubscribe
   }
 }
