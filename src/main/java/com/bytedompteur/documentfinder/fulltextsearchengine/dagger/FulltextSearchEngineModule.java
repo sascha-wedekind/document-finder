@@ -3,15 +3,13 @@ package com.bytedompteur.documentfinder.fulltextsearchengine.dagger;
 import com.bytedompteur.documentfinder.DaggerProvideException;
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.out.PersistedUniqueFileEventQueueAdapter;
-import com.bytedompteur.documentfinder.fulltextsearchengine.core.FileEventHandler;
-import com.bytedompteur.documentfinder.fulltextsearchengine.core.FulltextSearchServiceImpl;
-import com.bytedompteur.documentfinder.fulltextsearchengine.core.IndexManager;
-import com.bytedompteur.documentfinder.fulltextsearchengine.core.IndexRepository;
+import com.bytedompteur.documentfinder.fulltextsearchengine.core.*;
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.PersistedUniqueFileEventQueue;
 import com.bytedompteur.documentfinder.persistedqueue.dagger.PersistedQueueModule;
 import dagger.Module;
 import dagger.Provides;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 
 import javax.inject.Singleton;
@@ -42,8 +40,18 @@ public class FulltextSearchEngineModule {
 
   @Provides
   @Singleton
-  public IndexRepository provideIndexRepository(IndexWriter value) {
-    return new IndexRepository(value);
+  public IndexReader provideIndexReader(IndexManager value) {
+    try {
+      return value.buildIndexReader();
+    } catch (IOException e) {
+      throw new DaggerProvideException("Unable to create IndexReader", e);
+    }
+  }
+
+  @Provides
+  @Singleton
+  public IndexRepository provideIndexRepository(IndexWriter writer, IndexReader reader) {
+    return new IndexRepository(writer, new IndexSearcherFactory(reader));
   }
 
   @Provides

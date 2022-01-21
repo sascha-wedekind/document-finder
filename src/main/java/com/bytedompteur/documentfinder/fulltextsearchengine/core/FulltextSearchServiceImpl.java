@@ -13,7 +13,7 @@ public class FulltextSearchServiceImpl implements FulltextSearchService {
 
   private final FileEventHandler fileEventHandler;
   private final IndexRepository indexRepository;
-  private AtomicBoolean eventHandlingStarted = new AtomicBoolean(false);
+  private final AtomicBoolean eventHandlingStarted = new AtomicBoolean(false);
 
   @Override
   public void startInboundFileEventProcessing() {
@@ -47,5 +47,10 @@ public class FulltextSearchServiceImpl implements FulltextSearchService {
   @Override
   public Flux<Path> getCurrentPathProcessed() {
     return this.fileEventHandler.getCurrentPathProcessed();
+  }
+
+  @Override
+  public Flux<Path> findFilesWithNamesOrContentMatching(CharSequence charSequence) {
+    return indexRepository.findByFileNameOrContent(charSequence);
   }
 }

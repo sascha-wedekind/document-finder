@@ -6,8 +6,14 @@ import java.nio.file.Path;
 
 public interface FulltextSearchService {
 
+  /**
+   * Starts the service
+   */
   void startInboundFileEventProcessing();
 
+  /**
+   * Stops the service
+   */
   void stopInboundFileEventProcessing();
 
   boolean inboundFileEventProcessingRunning();
@@ -17,4 +23,6 @@ public interface FulltextSearchService {
   void commitScannedFiles();
 
   Flux<Path> getCurrentPathProcessed();
+
+  Flux<Path> findFilesWithNamesOrContentMatching(CharSequence charSequence);
 }
