@@ -18,6 +18,8 @@ ext {
     tikaVersion = '2.1.0'
     daggerVersion = '2.40.5'
     javaFxVersion = '17.0.1'
+    fontAwesomeFxVersion = '2.2.0-9.1.2'
+    testFxVersion = '4.0.16-alpha'
     defaultMainClass = 'com.bytedompteur.documentfinder.ui.DocumentFinderMain'
 }
 
@@ -52,6 +54,7 @@ dependencies {
     implementation "org.apache.tika:tika-parser-apple-module:${tikaVersion}"
     implementation "org.apache.tika:tika-parser-text-module:${tikaVersion}"
     implementation "com.google.dagger:dagger:${daggerVersion}"
+    implementation "de.jensd:fontawesomefx-materialicons:${fontAwesomeFxVersion}"
 
 
     //  ============================================
@@ -75,8 +78,8 @@ dependencies {
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
     testImplementation "io.projectreactor:reactor-test:${reactorVersion}"
-    testImplementation "org.testfx:testfx-core:4.0.16-alpha"
-    testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
+    testImplementation "org.testfx:testfx-core:${testFxVersion}"
+    testImplementation "org.testfx:testfx-junit5:${testFxVersion}"
 }
 
 test {

@@ -1,5 +1,6 @@
 package com.bytedompteur.documentfinder.filewalker.core;
 
+import com.bytedompteur.documentfinder.PathUtil;
 import com.bytedompteur.documentfinder.filewalker.adapter.in.FileWalker;
 import com.bytedompteur.documentfinder.filewalker.adapter.in.FileWalkerAlreadyRunningException;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class FileWalkerImpl implements FileWalker {
   private final AtomicReference<WalkerRunnable> walkerReference = new AtomicReference<>();
   private final WalkerFactory walkerFactory;
   private final ExecutorService executorService;
+  private final PathUtil pathUtil;
 
   @Override
   public boolean isRunning() {
@@ -40,7 +42,7 @@ public class FileWalkerImpl implements FileWalker {
       WalkerRunnable walker = walkerFactory.create(
         sink,
         matcher,
-        PathUtil.removeChildPaths(pathsToWalk)
+        pathUtil.removeChildPaths(pathsToWalk)
       );
       walkerReference.set(walker);
       executorService.submit(walker);

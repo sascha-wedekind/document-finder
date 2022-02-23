@@ -1,5 +1,6 @@
 package com.bytedompteur.documentfinder.filewalker.core;
 
+import com.bytedompteur.documentfinder.PathUtil;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Sinks.Many;
 
@@ -10,12 +11,13 @@ import java.util.Set;
 public class WalkerFactory {
 
   private final WalkFileTreeAdapter walkFileTreeAdapter;
+  private final PathUtil pathUtil;
 
   public WalkerRunnable create(Many<Path> sink, FileEndingMatcher matcher, Set<Path> pathsToWalk) {
     return new WalkerRunnable(
       sink,
       matcher,
-      PathUtil.removeChildPaths(pathsToWalk),
+      pathUtil.removeChildPaths(pathsToWalk),
       walkFileTreeAdapter
     );
   }

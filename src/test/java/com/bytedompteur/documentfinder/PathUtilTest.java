@@ -1,4 +1,4 @@
-package com.bytedompteur.documentfinder.filewalker.core;
+package com.bytedompteur.documentfinder;
 
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +11,8 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PathUtilTest {
+
+  private final PathUtil sut = new PathUtil();
 
   @Test
   void removeChildPaths_returnsAListContainingOnlyParentPaths() {
@@ -26,7 +28,7 @@ class PathUtilTest {
     Collections.shuffle(pathList);
 
     // Act
-    Set<Path> result = PathUtil.removeChildPaths(pathList);
+    Set<Path> result = sut.removeChildPaths(pathList);
 
     // Assert
     assertThat(System.identityHashCode(result) == System.identityHashCode(pathList)).isFalse();
@@ -42,7 +44,7 @@ class PathUtilTest {
     List<Path> emptyList = List.of();
 
     // Act
-    Set<Path> result = PathUtil.removeChildPaths(emptyList);
+    Set<Path> result = sut.removeChildPaths(emptyList);
 
     // Assert
     assertThat(result).isEmpty();
@@ -51,7 +53,7 @@ class PathUtilTest {
   @Test
   void removeChildPaths_returnsEmptyList_whenGivenListIsNull() {
     // Act
-    Set<Path> result = PathUtil.removeChildPaths(null);
+    Set<Path> result = sut .removeChildPaths(null);
 
     // Assert
     assertThat(result).isEmpty();

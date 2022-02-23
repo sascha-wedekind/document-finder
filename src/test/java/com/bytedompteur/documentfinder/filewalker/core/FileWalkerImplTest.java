@@ -1,16 +1,20 @@
 package com.bytedompteur.documentfinder.filewalker.core;
 
+import com.bytedompteur.documentfinder.PathUtil;
 import com.bytedompteur.documentfinder.filewalker.adapter.in.FileWalkerAlreadyRunningException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Sinks.Many;
 import reactor.test.StepVerifier;
 
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -27,11 +31,14 @@ class FileWalkerImplTest {
   @Mock
   WalkerFactory mockedWalkerFactory;
 
+  @Spy
+  PathUtil mockedPathUtil;
+
   FileWalkerImpl sut;
 
   @BeforeEach
   void setUp() {
-    sut = new FileWalkerImpl(mockedWalkerFactory, Executors.newFixedThreadPool(1));
+    sut = new FileWalkerImpl(mockedWalkerFactory, Executors.newFixedThreadPool(1), mockedPathUtil);
   }
 
   @Test

@@ -1,8 +1,11 @@
 package com.bytedompteur.documentfinder.ui.mainwindow;
 
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
+import com.bytedompteur.documentfinder.ui.FxController;
 import com.bytedompteur.documentfinder.ui.FxmlFile;
+import com.bytedompteur.documentfinder.ui.UITestInitHelper;
 import com.bytedompteur.documentfinder.ui.dagger.FxmlLoaderFactory;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
@@ -23,6 +26,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Map;
 
+import static com.bytedompteur.documentfinder.ui.UITestInitHelper.addNodeUnderTestToStage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -47,12 +51,14 @@ class AnalyzeFilesProgressBarControllerTest {
       .when(mockedFulltextSearchService.getScannedFiles())
       .thenReturn(10);
 
-    var controller = new AnalyzeFilesProgressBarController(mockedFulltextSearchService);
-    var fxmlLoaderFactory = new FxmlLoaderFactory(Map.of(AnalyzeFilesProgressBarController.class, () -> controller));
-    var node = fxmlLoaderFactory.createParentNode(FxmlFile.PROGRESS_BAR);
-    stage.setScene(new Scene(node, 100, 50));
+    addNodeUnderTestToStage(
+      FxmlFile.PROGRESS_BAR,
+      new AnalyzeFilesProgressBarController(mockedFulltextSearchService),
+      stage
+    );
     stage.show();
   }
+
 
   protected Flux<Path> createFluxAndRegisterToTestClass() {
     log.info("Creating new TestPublisher");
@@ -78,7 +84,7 @@ class AnalyzeFilesProgressBarControllerTest {
   }
 
   @Test
-  void controller_resetsLabelToShowingNumberOfAnalyzedFilesAndProgressIndicatorToHiddenAndResubscribesFlux_whenFLuxDidNotEmitWithin5Seconds(FxRobot robot) throws InterruptedException {
+  void controller_resetsLabelToShowingNumberOfAnalyzedFilesAndProgressIndicatorToHiddenAndResubscribesFlux_whenFLuxDidNotEmitWithin5Seconds(FxRobot robot) {
     // Arrange
     var progressIndicator = robot.lookup("#progressIndicator").queryAs(ProgressIndicator.class);
     var currentFileProcessedLabel = robot.lookup("#currentFileProcessedLabel").queryAs(Label.class);
@@ -96,7 +102,7 @@ class AnalyzeFilesProgressBarControllerTest {
   }
 
   @Test
-  void controller_resetsLabelToShowingNumberOfAnalyzedFilesAndProgressIndicatorToHidden_whenFLuxCompletes(FxRobot robot) throws InterruptedException {
+  void controller_resetsLabelToShowingNumberOfAnalyzedFilesAndProgressIndicatorToHidden_whenFLuxCompletes(FxRobot robot) {
     // Arrange
     var progressIndicator = robot.lookup("#progressIndicator").queryAs(ProgressIndicator.class);
     var currentFileProcessedLabel = robot.lookup("#currentFileProcessedLabel").queryAs(Label.class);
@@ -114,7 +120,7 @@ class AnalyzeFilesProgressBarControllerTest {
   }
 
   @Test
-  void controller_continuesShowingSettingLabelToProcessedPath_afterFluxTimeout(FxRobot robot) throws InterruptedException {
+  void controller_continuesShowingSettingLabelToProcessedPath_afterFluxTimeout(FxRobot robot) {
     // Arrange
     var progressIndicator = robot.lookup("#progressIndicator").queryAs(ProgressIndicator.class);
     var currentFileProcessedLabel = robot.lookup("#currentFileProcessedLabel").queryAs(Label.class);
