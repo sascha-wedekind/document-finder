@@ -1,7 +1,6 @@
 package com.bytedompteur.documentfinder.ui;
 
 import com.bytedompteur.documentfinder.ui.dagger.FxmlLoaderFactory;
-import com.bytedompteur.documentfinder.ui.mainwindow.AnalyzeFilesProgressBarController;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import lombok.AccessLevel;

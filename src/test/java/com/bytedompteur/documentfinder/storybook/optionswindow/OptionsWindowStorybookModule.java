@@ -5,8 +5,6 @@ import com.bytedompteur.documentfinder.ui.optionswindow.dagger.BaseOptionsWindow
 import dagger.Module;
 import dagger.Provides;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import javax.inject.Singleton;
 import java.util.Collection;

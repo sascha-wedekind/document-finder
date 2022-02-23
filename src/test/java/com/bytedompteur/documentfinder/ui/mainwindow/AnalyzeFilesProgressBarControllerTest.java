@@ -1,12 +1,7 @@
 package com.bytedompteur.documentfinder.ui.mainwindow;
 
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
-import com.bytedompteur.documentfinder.ui.FxController;
 import com.bytedompteur.documentfinder.ui.FxmlFile;
-import com.bytedompteur.documentfinder.ui.UITestInitHelper;
-import com.bytedompteur.documentfinder.ui.dagger.FxmlLoaderFactory;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.stage.Stage;
@@ -24,7 +19,6 @@ import reactor.test.scheduler.VirtualTimeScheduler;
 
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Map;
 
 import static com.bytedompteur.documentfinder.ui.UITestInitHelper.addNodeUnderTestToStage;
 import static org.assertj.core.api.Assertions.assertThat;
