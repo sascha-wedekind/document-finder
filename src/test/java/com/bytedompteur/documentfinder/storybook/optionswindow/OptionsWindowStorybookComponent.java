@@ -12,5 +12,4 @@ import javax.inject.Singleton;
 @OptionsWindowScope
 public interface OptionsWindowStorybookComponent extends OptionsWindowComponent {
 
-
 }

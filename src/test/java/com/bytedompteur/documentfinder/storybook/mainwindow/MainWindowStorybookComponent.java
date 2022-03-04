@@ -18,6 +18,10 @@ public interface MainWindowStorybookComponent extends MainWindowComponent {
   interface Builder {
     @BindsInstance
     MainWindowStorybookComponent.Builder numberOfThreads(@Named("numberOfThreads") int value);
+
+    @BindsInstance
+    MainWindowStorybookComponent.Builder applicationHomeDirectory(@Named("applicationHomeDirectory") String value);
+
     MainWindowStorybookComponent build();
   }
 

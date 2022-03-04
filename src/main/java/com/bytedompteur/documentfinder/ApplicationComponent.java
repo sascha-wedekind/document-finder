@@ -34,6 +34,10 @@ public interface ApplicationComponent {
   interface Builder {
     @BindsInstance
     Builder numberOfThreads(@Named("numberOfThreads") int value);
+
+    @BindsInstance
+    Builder applicationHomeDirectory(@Named("applicationHomeDirectory") String value);
+
     ApplicationComponent build();
   }
 }

@@ -1,8 +1,7 @@
 package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.core.WhitespaceTokenizerFactory;
@@ -17,42 +16,33 @@ import org.apache.lucene.store.FSDirectory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
+import java.nio.file.Paths;
 
 import static java.nio.file.Files.notExists;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 @Getter
 @Slf4j
 public class IndexManager {
 
-  private static IndexManager instance;
+  private IndexManager instance;
   private boolean initialized = false;
   private FSDirectory directory;
   private IndexWriterConfig writerConfig;
-
-  public static IndexManager getInstance() {
-    return Optional
-      .ofNullable(instance)
-      .orElseGet(() -> {
-        var manager = new IndexManager();
-        manager.init();
-        instance = manager;
-        return manager;
-      });
-  }
+  private final String applicationHomeDir;
 
   public IndexWriter buildIndexWriter() throws IOException {
     return new IndexWriter(directory, writerConfig);
   }
 
-  public IndexReader buildIndexReader() throws IOException {
-    return DirectoryReader.open(directory);
+  public IndexReader buildIndexReader(IndexWriter value) throws IOException {
+//    return DirectoryReader.open(directory);
+    return DirectoryReader.open(value);
   }
 
   public void init() {
     try {
-      Path indexDirectory = determineIndexDirectory();
+      var indexDirectory = Paths.get(applicationHomeDir, "index");
       ensureIndexDirectoryExists(indexDirectory);
       createLuceneDirectory(indexDirectory);
       createIndexWriterConfig();
@@ -61,18 +51,6 @@ public class IndexManager {
       log.error("Failed to initialize", e);
     }
 
-  }
-
-  private Path determineIndexDirectory() {
-    var indexDirectory = Optional
-      .ofNullable(System.getProperty("documentfinder.indexdir"))
-      .map(Path::of)
-      .orElseGet(() -> {
-        var indexDirName = ".documentfinder";
-        return Path.of(System.getProperty("user.home"), indexDirName);
-      });
-    log.info("Determined index directory '{}'", indexDirectory);
-    return indexDirectory;
   }
 
   protected void ensureIndexDirectoryExists(Path indexDirectory) throws IOException {

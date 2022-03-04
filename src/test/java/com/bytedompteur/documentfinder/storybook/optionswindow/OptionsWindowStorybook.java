@@ -26,7 +26,7 @@ public class OptionsWindowStorybook {
 
     @Override
     public void start(Stage primaryStage) {
-      primaryStage.initStyle(StageStyle.UNIFIED);
+      primaryStage.initStyle(StageStyle.DECORATED);
       primaryStage.setTitle(getClass().getSimpleName());
 
       var playbookComponent = DaggerOptionsWindowStorybookComponent.builder().build();

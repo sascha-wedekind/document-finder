@@ -5,8 +5,6 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-
 public class DocumentFinderMain extends Application {
 
   public static void main(String[] args) {
@@ -14,9 +12,13 @@ public class DocumentFinderMain extends Application {
   }
 
   @Override
-  public void start(Stage primaryStage) throws IOException {
+  public void start(Stage primaryStage) {
 
-    var uiComponent = DaggerMainWindowComponent.builder().numberOfThreads(1).build();
+    var uiComponent = DaggerMainWindowComponent
+      .builder()
+      .numberOfThreads(1)
+      .applicationHomeDirectory(com.bytedompteur.documentfinder.Application.determineApplicationHomeDirectory())
+      .build();
     var lazyNode = uiComponent.mainViewNode();
     var node = lazyNode.get();
 

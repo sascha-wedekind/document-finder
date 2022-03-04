@@ -1,6 +1,5 @@
 package com.bytedompteur.documentfinder.ui.mainwindow.dagger;
 
-import com.bytedompteur.documentfinder.fulltextsearchengine.dagger.FulltextSearchEngineModule;
 import com.bytedompteur.documentfinder.ui.FxController;
 import com.bytedompteur.documentfinder.ui.FxmlFile;
 import com.bytedompteur.documentfinder.ui.dagger.FxControllerMapKey;
@@ -18,7 +17,7 @@ import javafx.scene.Parent;
 import javax.inject.Provider;
 import java.util.Map;
 
-@Module(includes = {FulltextSearchEngineModule.class})
+@Module
 public abstract class BaseMainWindowModule {
 
   @Binds

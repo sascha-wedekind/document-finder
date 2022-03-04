@@ -19,6 +19,7 @@ public class MainWindowStorybook {
   public static void main(String[] args) throws TimeoutException, InterruptedException {
     FxToolkit.registerPrimaryStage();
     FxToolkit.setupApplication(MainWindowPlaybookApplication::new);
+    FxToolkit.showStage();
     countDownLatch.await();
   }
 
@@ -26,10 +27,14 @@ public class MainWindowStorybook {
 
     @Override
     public void start(Stage primaryStage) {
-      primaryStage.initStyle(StageStyle.UNIFIED);
+      primaryStage.initStyle(StageStyle.DECORATED);
       primaryStage.setTitle(getClass().getSimpleName());
 
-      var playbookComponent = DaggerMainWindowStorybookComponent.builder().build();
+      var playbookComponent = DaggerMainWindowStorybookComponent
+        .builder()
+        .numberOfThreads(1)
+        .applicationHomeDirectory("NO_DIR_BECAUSE_RUNNING_IN_PLAYBOOK")
+        .build();
       var lazyNode = playbookComponent.mainViewNode();
       var node = lazyNode.get();
 
@@ -49,7 +54,7 @@ public class MainWindowStorybook {
 
       Scene scene = new Scene(borderPane);
       primaryStage.setScene(scene);
-      primaryStage.show();
+//      primaryStage.show();
     }
 
   }

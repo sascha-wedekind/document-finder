@@ -22,6 +22,10 @@ public interface MainWindowComponent {
   interface Builder {
     @BindsInstance
     MainWindowComponent.Builder numberOfThreads(@Named("numberOfThreads") int value);
+
+    @BindsInstance
+    MainWindowComponent.Builder applicationHomeDirectory(@Named("applicationHomeDirectory") String value);
+
     MainWindowComponent build();
   }
 }

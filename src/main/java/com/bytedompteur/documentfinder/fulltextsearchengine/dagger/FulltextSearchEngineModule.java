@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -22,8 +23,8 @@ public class FulltextSearchEngineModule {
 
   @Provides
   @Singleton
-  public IndexManager provideIndexManager() {
-    var indexManager = IndexManager.getInstance();
+  public IndexManager provideIndexManager(@Named("applicationHomeDirectory") String value) {
+    var indexManager = new IndexManager(value);
     indexManager.init();
     return indexManager;
   }
@@ -40,9 +41,9 @@ public class FulltextSearchEngineModule {
 
   @Provides
   @Singleton
-  public IndexReader provideIndexReader(IndexManager value) {
+  public IndexReader provideIndexReader(IndexManager value, IndexWriter indexWriter) {
     try {
-      return value.buildIndexReader();
+      return value.buildIndexReader(indexWriter);
     } catch (IOException e) {
       throw new DaggerProvideException("Unable to create IndexReader", e);
     }

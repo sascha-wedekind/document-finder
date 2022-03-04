@@ -20,6 +20,8 @@ ext {
     javaFxVersion = '17.0.1'
     fontAwesomeFxVersion = '2.2.0-9.1.2'
     testFxVersion = '4.0.16-alpha'
+    gsonVersion = "2.9.0"
+    jsonAssertVersion = '1.5.0'
     defaultMainClass = 'com.bytedompteur.documentfinder.ui.DocumentFinderMain'
 }
 
@@ -55,6 +57,8 @@ dependencies {
     implementation "org.apache.tika:tika-parser-text-module:${tikaVersion}"
     implementation "com.google.dagger:dagger:${daggerVersion}"
     implementation "de.jensd:fontawesomefx-materialicons:${fontAwesomeFxVersion}"
+    implementation "com.google.code.gson:gson:${gsonVersion}"
+
 
 
     //  ============================================
@@ -80,6 +84,8 @@ dependencies {
     testImplementation "io.projectreactor:reactor-test:${reactorVersion}"
     testImplementation "org.testfx:testfx-core:${testFxVersion}"
     testImplementation "org.testfx:testfx-junit5:${testFxVersion}"
+    testImplementation "org.skyscreamer:jsonassert:${jsonAssertVersion}"
+
 }
 
 test {
