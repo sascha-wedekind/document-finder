@@ -1,6 +1,5 @@
 package com.bytedompteur.documentfinder.ui.optionswindow;
 
-import com.bytedompteur.documentfinder.ui.FxController;
 import com.bytedompteur.documentfinder.ui.optionswindow.dagger.OptionsWindowScope;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -10,7 +9,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
@@ -19,9 +17,8 @@ import reactor.core.publisher.Mono;
 import javax.inject.Inject;
 
 @Slf4j
-@RequiredArgsConstructor(onConstructor = @__(@Inject))
 @OptionsWindowScope
-public class FileTypeOptionsController implements FxController {
+public class FileTypeOptionsController extends BaseOptionsController {
 
   private final ObservableList<String> fileTypesList = FXCollections.observableArrayList();
 
@@ -36,6 +33,11 @@ public class FileTypeOptionsController implements FxController {
 
   @FXML
   public Button removeSelectedFileTypeButton;
+
+  @Inject
+  public FileTypeOptionsController(OkCancelButtonHandler okCancelButtonHandler) {
+    super(okCancelButtonHandler);
+  }
 
   @FXML
   public void initialize() {
@@ -60,11 +62,11 @@ public class FileTypeOptionsController implements FxController {
   }
 
   public void handleOkButtonClick(ActionEvent ignored) {
-
+    emitOkButtonClicked();
   }
 
   public void handleCancelButtonClick(ActionEvent ignored) {
-
+    emitCancelButtonClicked();
   }
 
   public void removeByIndicesFromFileTypeList(ObservableList<Integer> indices) {

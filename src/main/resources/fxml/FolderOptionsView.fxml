@@ -36,8 +36,8 @@
       <TextField fx:id="pathToAddTextField" GridPane.rowIndex="1" />
       <ButtonBar buttonMinWidth="100.0" prefHeight="40.0" prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="3">
          <buttons>
-            <Button mnemonicParsing="false" text="Ok" />
-            <Button mnemonicParsing="false" text="Cancel" />
+            <Button mnemonicParsing="false" onAction="#handleOkButtonClick" text="Ok" />
+            <Button mnemonicParsing="false" onAction="#handleCancelButtonClick" text="Cancel" />
          </buttons>
          <padding>
             <Insets left="10.0" />

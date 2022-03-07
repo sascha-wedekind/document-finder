@@ -27,7 +27,7 @@ class FileTypeOptionsControllerTest {
 
   @Start
   void start(Stage stage) {
-    sut = new FileTypeOptionsController();
+    sut = new FileTypeOptionsController(new OkCancelButtonHandler());
     UITestInitHelper.addNodeUnderTestToStage(FxmlFile.FILE_TYPE_OPTIONS, sut, stage);
 
     removeSelectedFileTypeButton = sut.removeSelectedFileTypeButton;

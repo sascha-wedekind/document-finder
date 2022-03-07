@@ -33,7 +33,7 @@ class FolderOptionsControllerTest {
 
   @Start
   void start(Stage stage) {
-    sut = new FolderOptionsController(mockedPathUtil);
+    sut = new FolderOptionsController(new OkCancelButtonHandler(), mockedPathUtil);
     UITestInitHelper.addNodeUnderTestToStage(FxmlFile.FOLDER_OPTIONS, sut, stage);
 
     addToPathsListViewButton = sut.addToPathsListViewButton;

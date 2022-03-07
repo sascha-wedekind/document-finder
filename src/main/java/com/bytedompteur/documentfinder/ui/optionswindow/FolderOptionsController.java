@@ -1,7 +1,6 @@
 package com.bytedompteur.documentfinder.ui.optionswindow;
 
 import com.bytedompteur.documentfinder.PathUtil;
-import com.bytedompteur.documentfinder.ui.FxController;
 import com.bytedompteur.documentfinder.ui.optionswindow.dagger.OptionsWindowScope;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -11,7 +10,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
@@ -23,9 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-@RequiredArgsConstructor(onConstructor = @__(@Inject))
 @OptionsWindowScope
-public class FolderOptionsController implements FxController {
+public class FolderOptionsController extends BaseOptionsController {
 
   private final ObservableList<String> pathsList = FXCollections.observableArrayList();
   private final PathUtil pathUtil;
@@ -41,6 +38,12 @@ public class FolderOptionsController implements FxController {
 
   @FXML
   public Button removeSelectedPathsButton;
+
+  @Inject
+  public FolderOptionsController(OkCancelButtonHandler okCancelButtonHandler, PathUtil pathUtil) {
+    super(okCancelButtonHandler);
+    this.pathUtil = pathUtil;
+  }
 
   @FXML
   public void initialize() {
@@ -125,7 +128,7 @@ public class FolderOptionsController implements FxController {
     addToPathListIfNotAlreadyContained(pathToAddTextField.getText());
   }
 
-  public void addToPathListIfNotAlreadyContained(String ...paths) {
+  public void addToPathListIfNotAlreadyContained(String... paths) {
     Flux
       .fromArray(paths)
       .subscribe(this::addToPathListIfNotAlreadyContained);
@@ -168,4 +171,13 @@ public class FolderOptionsController implements FxController {
     }
     return isDirectory;
   }
+
+  public void handleOkButtonClick(ActionEvent ignore) {
+    emitOkButtonClicked();
+  }
+
+  public void handleCancelButtonClick(ActionEvent ignore) {
+    emitCancelButtonClicked();
+  }
+
 }
