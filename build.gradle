@@ -7,16 +7,16 @@ plugins {
 
 ext {
     lombokVersion = '1.18.22'
-    slf4jVersion = '1.7.32'
-    logbackVersion = '1.2.9'
-    luceneVersion = '8.11.0'
+    slf4jVersion = '1.7.36'
+    logbackVersion = '1.2.10'
+    luceneVersion = '9.0.0'
     junitVersion = '5.8.2'
-    mockitoVersion = '4.2.0'
-    assertjVersion = '3.21.0'
-    reactorVersion = '3.4.13'
+    mockitoVersion = '4.3.1'
+    assertjVersion = '3.22.0'
+    reactorVersion = '3.4.14'
     guavaVersion = '31.0.1-jre'
     tikaVersion = '2.1.0'
-    daggerVersion = '2.40.5'
+    daggerVersion = '2.41'
     javaFxVersion = '17.0.1'
     fontAwesomeFxVersion = '2.2.0-9.1.2'
     testFxVersion = '4.0.16-alpha'
@@ -46,7 +46,7 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:${logbackVersion}"
     implementation "org.apache.lucene:lucene-core:${luceneVersion}"
     implementation "org.apache.lucene:lucene-queryparser:${luceneVersion}"
-    implementation "org.apache.lucene:lucene-analyzers-common:${luceneVersion}"
+    implementation "org.apache.lucene:lucene-analysis-common:${luceneVersion}"
     implementation "io.projectreactor:reactor-core:${reactorVersion}"
     implementation "com.google.guava:guava:${guavaVersion}"
     implementation "org.apache.tika:tika-core:${tikaVersion}"
