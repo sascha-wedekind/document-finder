@@ -6,6 +6,8 @@ import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextS
 import com.bytedompteur.documentfinder.fulltextsearchengine.dagger.FulltextSearchEngineModule;
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.PersistedUniqueFileEventQueue;
 import com.bytedompteur.documentfinder.persistedqueue.dagger.PersistedQueueModule;
+import com.bytedompteur.documentfinder.settings.adapter.in.SettingsService;
+import com.bytedompteur.documentfinder.settings.dagger.SettingsModule;
 import dagger.BindsInstance;
 import dagger.Component;
 
@@ -18,7 +20,8 @@ import java.util.concurrent.ExecutorService;
   ApplicationModule.class,
   PersistedQueueModule.class,
   FulltextSearchEngineModule.class,
-  FileWalkerModule.class
+  FileWalkerModule.class,
+  SettingsModule.class
 })
 public interface ApplicationComponent {
 
@@ -29,6 +32,8 @@ public interface ApplicationComponent {
   PersistedUniqueFileEventQueue queue();
 
   ExecutorService executorService();
+
+  SettingsService settingsService();
 
   @Component.Builder
   interface Builder {

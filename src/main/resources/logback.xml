@@ -1,14 +1,25 @@
 <configuration>
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <!-- encoders are assigned the type
-         ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
     <encoder>
       <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
 
-  <root level="debug">
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>${APPLICATION_HOME_DIRECTORY}/document-finder.log</file>
+
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="org.apache.pdfbox.pdmodel.font" level="ERROR" />
+  <logger name="org.apache.fontbox.ttf.CmapSubtable" level="ERROR" />
+
+<!--  sascha: Make appenders conditional: https://logback.qos.ch/manual/configuration.html#conditional-->
+  <root level="info">
     <appender-ref ref="STDOUT" />
+    <appender-ref ref="FILE" />
   </root>
 </configuration>

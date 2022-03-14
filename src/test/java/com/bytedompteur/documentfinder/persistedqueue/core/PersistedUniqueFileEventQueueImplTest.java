@@ -2,7 +2,9 @@ package com.bytedompteur.documentfinder.persistedqueue.core;
 
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.FileEvent;
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.FileEvent.Type;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -16,10 +18,20 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 class PersistedUniqueFileEventQueueImplTest {
 
+  private PersistedUniqueFileEventQueueImpl sut;
+
+  @BeforeEach
+  void setUp() {
+    var mockedRepository = Mockito.mock(QueueRepository.class);
+    Mockito
+      .when(mockedRepository.readCompactedQueueLog())
+      .thenReturn(List.of());
+    sut = new PersistedUniqueFileEventQueueImpl(mockedRepository);
+  }
+
   @Test
   void pushAndPop10Events() throws InterruptedException {
     // Arrange
-    PersistedUniqueFileEventQueueImpl sut = new PersistedUniqueFileEventQueueImpl();
     CountDownLatch totalQueueModificationsExpected = new CountDownLatch(20);
     List<FileEvent> eventsToAdd = List.of(
       new FileEvent(Type.CREATE, Path.of("4203589")),
@@ -78,7 +90,6 @@ class PersistedUniqueFileEventQueueImplTest {
   @Test
   void queueAvoidsMoreThanOneEventWithSamePath() throws InterruptedException {
     // Arrange
-    PersistedUniqueFileEventQueueImpl sut = new PersistedUniqueFileEventQueueImpl();
     List<FileEvent> eventsToAdd = List.of(
       new FileEvent(Type.CREATE, Path.of("4203589")),
       new FileEvent(Type.DELETE, Path.of("4203589")),
@@ -108,7 +119,6 @@ class PersistedUniqueFileEventQueueImplTest {
   @Test
   void queuePreservesOrder() throws InterruptedException {
     // Arrange
-    PersistedUniqueFileEventQueueImpl sut = new PersistedUniqueFileEventQueueImpl();
     List<FileEvent> eventsToAdd = List.of(
       new FileEvent(Type.CREATE, Path.of("1")),
       new FileEvent(Type.DELETE, Path.of("2")),

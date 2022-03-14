@@ -7,6 +7,7 @@ import com.google.common.hash.Hashing;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 
@@ -17,11 +18,13 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
   private final Semaphore readSemaphore = new Semaphore(1, true);
   private final LinkedList<FileEvent> inMemoryEventsQueue = new LinkedList<>();
   private final Set<Long> knownPaths = new TreeSet<>();
-  private final HashFunction hashFunction;
+  private final HashFunction hashFunction = Hashing.murmur3_128();
+  private final QueueRepository queueRepository;
 
   @Inject
-  public PersistedUniqueFileEventQueueImpl() {
-    hashFunction = Hashing.murmur3_128();
+  public PersistedUniqueFileEventQueueImpl(QueueRepository queueRepository) {
+    this.queueRepository = queueRepository;
+    importPersistedQueueItems();
   }
 
   @Override
@@ -62,6 +65,12 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
       inMemoryEventsQueue.add(value);
       knownPaths.add(pathHash);
     }
+
+    try {
+      queueRepository.save(value, QueueModificationType.ADDED);
+    } catch (IOException e) {
+      log.error("While saving '{}' in repository ", value, e);
+    }
   }
 
   private boolean replaceEvent(FileEvent value) {
@@ -85,6 +94,9 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
       FileEvent event = inMemoryEventsQueue.pop();
       result = Optional.of(event);
       knownPaths.remove(getPathHash(event));
+      queueRepository.save(event, QueueModificationType.REMOVED);
+    } catch (IOException e) {
+        log.error("While marking '{}' as removed in repository ", result.get(), e);
     } catch (NoSuchElementException e) {
       // IGNORE - thrown when queue is empty
     } catch (Exception e) {
@@ -117,5 +129,12 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
 
   private long getPathHash(FileEvent value) {
     return hashFunction.hashUnencodedChars(value.getPath().toString()).asLong();
+  }
+
+  protected void importPersistedQueueItems() {
+    var fileEvents = queueRepository.readCompactedQueueLog();
+    if (!fileEvents.isEmpty()) {
+      pushOrOverwrite(fileEvents);
+    }
   }
 }
