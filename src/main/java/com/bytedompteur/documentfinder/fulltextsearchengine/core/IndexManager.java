@@ -25,7 +25,6 @@ import static java.nio.file.Files.notExists;
 @Slf4j
 public class IndexManager {
 
-  private IndexManager instance;
   private boolean initialized = false;
   private FSDirectory directory;
   private IndexWriterConfig writerConfig;
@@ -36,7 +35,6 @@ public class IndexManager {
   }
 
   public IndexReader buildIndexReader(IndexWriter value) throws IOException {
-//    return DirectoryReader.open(directory);
     return DirectoryReader.open(value);
   }
 

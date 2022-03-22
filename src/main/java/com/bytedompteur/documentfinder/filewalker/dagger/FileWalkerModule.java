@@ -16,12 +16,6 @@ public class FileWalkerModule {
 
   @Provides
   @Singleton
-  public PathUtil providePathUtil() {
-    return new PathUtil();
-  }
-
-  @Provides
-  @Singleton
   public WalkerFactory provideWalkFileTreeAdapter(PathUtil pathUtil) {
     return new WalkerFactory(new WalkFileTreeAdapterImpl(), pathUtil);
   }

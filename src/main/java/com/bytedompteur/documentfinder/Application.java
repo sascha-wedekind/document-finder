@@ -40,7 +40,8 @@ public class Application {
 
     var disposable = ReactiveAdapter.subscribe(
       path -> new FileEvent(Type.CREATE, path),
-      fileWalker.findFilesWithEndings(new HashSet<>(settingsService.getDefaultSettings().getFileTypes()),
+      fileWalker.findFilesWithEndings(
+        new HashSet<>(settingsService.getDefaultSettings().getFileTypes()),
 //        Set.of(Path.of("X:\\OneDrive\\Dokumente\\DokumentePrivate\\Sureness_Networking"))),
         Set.of(Path.of("X:\\OneDrive - Byte Dompteur\\DocumentsSecured_encrypted"))),
       queue
@@ -56,7 +57,7 @@ public class Application {
 
 
     fulltextSearchService.commitScannedFiles();
-    disposable.dispose();
+//    disposable.dispose();
     fulltextSearchService.stopInboundFileEventProcessing();
 
     System.out.println("FileWalker running: " + fileWalker.isRunning());

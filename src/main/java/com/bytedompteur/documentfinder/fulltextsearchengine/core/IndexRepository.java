@@ -135,4 +135,15 @@ public class IndexRepository {
       log.error("Failed to commit", e);
     }
   }
+
+  public void clear() {
+    try {
+      log.info("Clearing index");
+      indexWriter.deleteAll();
+      indexWriter.commit();
+      log.info("Index cleared");
+    } catch (IOException e) {
+      log.error("Failed to clear index", e);
+    }
+  }
 }

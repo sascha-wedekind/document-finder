@@ -18,6 +18,7 @@ public abstract class MainWindowModule {
     return new FileSystemAdapter();
   }
 
+  // sascha: Delete when window system is connected with application or vice versa
   @Provides
   @Singleton
   static ExecutorService provideExecutorService(@Named("numberOfThreads") int numberOfThreads) {

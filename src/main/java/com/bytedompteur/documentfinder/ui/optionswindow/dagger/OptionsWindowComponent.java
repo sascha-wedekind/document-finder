@@ -33,6 +33,9 @@ public interface OptionsWindowComponent {
     @BindsInstance
     OptionsWindowComponent.Builder applicationHomeDirectory(@Named("applicationHomeDirectory") String value);
 
+    @BindsInstance
+    OptionsWindowComponent.Builder numberOfThreads(@Named("numberOfThreads") int value);
+
     OptionsWindowComponent build();
   }
 }

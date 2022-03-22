@@ -18,8 +18,10 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
   private final Semaphore readSemaphore = new Semaphore(1, true);
   private final LinkedList<FileEvent> inMemoryEventsQueue = new LinkedList<>();
   private final Set<Long> knownPaths = new TreeSet<>();
-  private final HashFunction hashFunction = Hashing.murmur3_128();
   private final QueueRepository queueRepository;
+
+  @SuppressWarnings("UnstableApiUsage")
+  private final HashFunction hashFunction = Hashing.murmur3_128();
 
   @Inject
   public PersistedUniqueFileEventQueueImpl(QueueRepository queueRepository) {
@@ -73,7 +75,7 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
     }
   }
 
-  private boolean replaceEvent(FileEvent value) {
+  private void replaceEvent(FileEvent value) {
     boolean replaced = false;
     ListIterator<FileEvent> iterator = inMemoryEventsQueue.listIterator();
     while (iterator.hasNext() && !replaced) {
@@ -83,7 +85,6 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
         replaced = true;
       }
     }
-    return replaced;
   }
 
   @Override
@@ -91,6 +92,7 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
     Optional<FileEvent> result = Optional.empty();
     try {
       readSemaphore.acquire();
+      writeSemaphore.acquire();
       FileEvent event = inMemoryEventsQueue.pop();
       result = Optional.of(event);
       knownPaths.remove(getPathHash(event));
@@ -102,6 +104,7 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
     } catch (Exception e) {
       log.error("While pop from in memory queue", e);
     } finally {
+      writeSemaphore.release();
       readSemaphore.release();
     }
     return result;
@@ -123,6 +126,30 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
       readSemaphore.acquire();
       return inMemoryEventsQueue.size();
     } finally {
+      readSemaphore.release();
+    }
+  }
+
+  @Override
+  public void clear() {
+    try {
+      readSemaphore.acquire();
+      writeSemaphore.acquire();
+      log.info("Start clearing the queue");
+      var queueItemsRemoved = inMemoryEventsQueue.size();
+      inMemoryEventsQueue.forEach(fileEvent -> {
+        try {
+          queueRepository.save(fileEvent, QueueModificationType.REMOVED);
+        } catch (IOException e) {
+          // Ignore
+        }
+      });
+      inMemoryEventsQueue.clear();
+      log.info("Removed {} items from the queue", queueItemsRemoved);
+    } catch (InterruptedException e) {
+      log.error("While clearing the queue", e);
+    } finally {
+      writeSemaphore.release();
       readSemaphore.release();
     }
   }

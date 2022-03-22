@@ -58,21 +58,19 @@ public abstract class BaseOptionsWindowModule {
   }
 
   @Provides
-  static Map<OptionsView.Name, OptionsView> provideOptionViewsByNameMap(
+  static Map<OptionsViewHelper.Name, OptionsViewHelper> provideOptionViewsByNameMap(
     @FxmlParent(FxmlFile.FILE_TYPE_OPTIONS) Lazy<Parent> fileTypeOptionsView,
     @FxmlParent(FxmlFile.FOLDER_OPTIONS) Lazy<Parent> folderOptionsView,
     Map<Class<? extends FxController>, Provider<FxController>> controllerFactoriesByClassMap
   ) {
     return Map.of(
-      OptionsView.Name.FILE_TYPES_VIEW, new OptionsView(
+      OptionsViewHelper.Name.FILE_TYPES_VIEW, new FileTypeOptionsViewHelper(
         fileTypeOptionsView.get(),
-        (OptionsController) controllerFactoriesByClassMap.get(FileTypeOptionsController.class).get(),
-        OptionsView.Name.FILE_TYPES_VIEW
+        (FileTypeOptionsController) controllerFactoriesByClassMap.get(FileTypeOptionsController.class).get()
       ),
-      OptionsView.Name.FOLDER_VIEW, new OptionsView(
+      OptionsViewHelper.Name.FOLDER_VIEW, new FolderOptionsViewHelper(
         folderOptionsView.get(),
-        (OptionsController) controllerFactoriesByClassMap.get(FolderOptionsController.class).get(),
-        OptionsView.Name.FOLDER_VIEW
+        (FolderOptionsController) controllerFactoriesByClassMap.get(FolderOptionsController.class).get()
       )
     );
   }

@@ -53,4 +53,9 @@ public class FulltextSearchServiceImpl implements FulltextSearchService {
   public Flux<Path> findFilesWithNamesOrContentMatching(CharSequence charSequence) {
     return indexRepository.findByFileNameOrContent(charSequence);
   }
+
+  @Override
+  public void clearIndex() {
+    indexRepository.clear();
+  }
 }

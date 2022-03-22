@@ -44,6 +44,8 @@ dependencies {
     //  ============================================
     //  Runtime
     //  ============================================
+    implementation 'dev.failsafe:failsafe:3.2.3'
+
     implementation "org.slf4j:slf4j-api:${slf4jVersion}"
     implementation "ch.qos.logback:logback-classic:${logbackVersion}"
     implementation "org.slf4j:jcl-over-slf4j:${jclOverSlf4jVersion}" // Route Apache Tika logs to Logback

@@ -17,4 +17,9 @@ public class ApplicationModule {
     return Executors.newFixedThreadPool(numberOfThreads);
   }
 
+  @Provides
+  @Singleton
+  public PathUtil providePathUtil() {
+    return new PathUtil();
+  }
 }

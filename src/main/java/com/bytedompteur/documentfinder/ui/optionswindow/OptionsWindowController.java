@@ -1,5 +1,7 @@
 package com.bytedompteur.documentfinder.ui.optionswindow;
 
+import com.bytedompteur.documentfinder.commands.StartAllCommand;
+import com.bytedompteur.documentfinder.commands.StopAllCommand;
 import com.bytedompteur.documentfinder.settings.adapter.in.Settings;
 import com.bytedompteur.documentfinder.settings.adapter.in.SettingsService;
 import com.bytedompteur.documentfinder.ui.FxController;
@@ -22,11 +24,13 @@ import static java.util.Objects.nonNull;
 @Slf4j
 public class OptionsWindowController implements FxController {
   private final SettingsService settingsService;
-  private final Lazy<Map<OptionsView.Name, OptionsView>> lazyOptionViewsByNameMap;
+  private final Lazy<Map<OptionsViewHelper.Name, OptionsViewHelper>> lazyOptionViewsByNameMap;
+  private final StopAllCommand stopAllCommand;
+  private final StartAllCommand startAllCommand;
 
   private Settings settings;
-  private Map<OptionsView.Name, OptionsView> optionViewsByNameMap;
-  private OptionsView currentView;
+  private Map<OptionsViewHelper.Name, OptionsViewHelper> optionViewsByNameMap;
+  private OptionsViewHelper currentView;
 
   @FXML
   protected BorderPane optionsContentPane;
@@ -35,77 +39,52 @@ public class OptionsWindowController implements FxController {
   protected void initialize() {
     settings = settingsService.read().orElse(settingsService.getDefaultSettings());
     optionViewsByNameMap = lazyOptionViewsByNameMap.get();
-    showView(OptionsView.Name.FILE_TYPES_VIEW);
+    showView(OptionsViewHelper.Name.FILE_TYPES_VIEW);
   }
 
   public void handleFileTypeOptionsSectionClick(ActionEvent ignore) {
-    showView(OptionsView.Name.FILE_TYPES_VIEW);
+    showView(OptionsViewHelper.Name.FILE_TYPES_VIEW);
   }
 
   public void handleFolderOptionsSectionClick(ActionEvent ignore) {
-    showView(OptionsView.Name.FOLDER_VIEW);
+    showView(OptionsViewHelper.Name.FOLDER_VIEW);
   }
 
   public void handleCommonOptionsSectionClick(ActionEvent ignore) {
-    System.out.println();
     var pane = new Pane();
     pane.setStyle("-fx-background-color: green;");
     optionsContentPane.setCenter(pane);
   }
 
-  protected void showView(OptionsView.Name viewName) {
-    if (nonNull(currentView) && viewName == currentView.getName()) {
-      return;
-    }
-
+  protected void showView(OptionsViewHelper.Name viewName) {
     if (nonNull(currentView)) {
-      switch (currentView.getName()) {
-        case FOLDER_VIEW -> hideFolderOptionsView();
-        case FILE_TYPES_VIEW -> hideFileTypeOptionsView();
-      }
+      if (viewName == currentView.getName()) return;
+      settings = currentView.extractSettingsFromController(settings);
     }
-
-    switch (viewName) {
-      case FOLDER_VIEW -> showFolderOptionsView();
-      case FILE_TYPES_VIEW -> showFileTypeOptionsView();
-    }
+    setCurrentView(optionViewsByNameMap.get(viewName));
   }
 
-  private void showFileTypeOptionsView() {
-    var view = optionViewsByNameMap.get(OptionsView.Name.FILE_TYPES_VIEW);
-    ((FileTypeOptionsController) view.getController()).addToFileTypesListIfNotAlreadyContained(settings.getFileTypes().toArray(new String[0]));
-    optionsContentPane.setCenter(view.getViewInstance());
-    setCurrentView(view);
-  }
-
-  private void showFolderOptionsView() {
-    OptionsView view = optionViewsByNameMap.get(OptionsView.Name.FOLDER_VIEW);
-    ((FolderOptionsController) view.getController()).addToPathListIfNotAlreadyContained(settings.getFolders().toArray(new String[0]));
-    optionsContentPane.setCenter(view.getViewInstance());
-    setCurrentView(view);
-  }
-
-  private void setCurrentView(OptionsView view) {
+  private void setCurrentView(OptionsViewHelper view) {
     if (nonNull(currentView)) {
-      currentView.getController().beforeViewHide();
+      currentView.beforeViewHide();
     }
 
-    var optionsController = (OptionsController) view.getController();
-    optionsController.cancelButtonClicked().subscribe(this::cancelButtonClicked);
-    optionsController.okButtonClicked().subscribe(this::okButtonClicked);
-
+    optionsContentPane.setCenter(view.getViewInstance());
+    view.insertSettingsInController(settings);
+    view.cancelButtonClicked().subscribe(this::cancelButtonClicked);
+    view.okButtonClicked().subscribe(this::okButtonClicked);
     currentView = view;
   }
 
-  private void hideFileTypeOptionsView() {
-    OptionsView view = optionViewsByNameMap.get(OptionsView.Name.FILE_TYPES_VIEW);
-    settings = settings
-      .toBuilder()
-      .fileTypes(((FileTypeOptionsController) view.getController()).getFileTypesList())
-      .build();
-  }
-
   private void okButtonClicked(Object unused) {
+    settingsService.save(settings);
+    // == Restart all ==
+    // stop filewalker
+    // stop dirwatcher
+    // stop fulltextsearchengine
+    // clear queue
+    // delete fulltextsearchengine dir
+
     log.info("OK button clicked in {}", currentView.getName());
   }
 
@@ -113,11 +92,4 @@ public class OptionsWindowController implements FxController {
     log.info("CANCEL button clicked in {}", currentView.getName());
   }
 
-  private void hideFolderOptionsView() {
-    OptionsView view = optionViewsByNameMap.get(OptionsView.Name.FOLDER_VIEW);
-    settings = settings
-      .toBuilder()
-      .folders(((FolderOptionsController) view.getController()).getPathsList())
-      .build();
-  }
 }

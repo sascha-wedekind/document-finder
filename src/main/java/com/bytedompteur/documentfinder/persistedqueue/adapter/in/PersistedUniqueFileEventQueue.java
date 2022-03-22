@@ -14,4 +14,6 @@ public interface PersistedUniqueFileEventQueue {
   boolean isEmpty() throws InterruptedException;
 
   int size() throws InterruptedException;
+
+  void clear();
 }

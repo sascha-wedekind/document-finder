@@ -1,6 +1,8 @@
 package com.bytedompteur.documentfinder.storybook.optionswindow;
 
 import com.bytedompteur.documentfinder.PathUtil;
+import com.bytedompteur.documentfinder.commands.StartAllCommand;
+import com.bytedompteur.documentfinder.commands.StopAllCommand;
 import com.bytedompteur.documentfinder.settings.adapter.in.SettingsService;
 import com.bytedompteur.documentfinder.settings.core.FilesReadWriteAdapter;
 import com.bytedompteur.documentfinder.settings.core.SettingsServiceImpl;
@@ -38,4 +40,15 @@ public abstract class OptionsWindowStorybookModule {
     return new SettingsServiceImpl("SAMPLE_DIRECTOR_FOR_STORYBOOK", mockedAdapter);
   }
 
+  @Provides
+  @Singleton
+  static StopAllCommand provideStopAllCommand() {
+    return Mockito.mock(StopAllCommand.class);
+  }
+
+  @Provides
+  @Singleton
+  static StartAllCommand provideStartAllCommand() {
+    return Mockito.mock(StartAllCommand.class);
+  }
 }
