@@ -14,13 +14,27 @@ public class WindowManager {
   private final Stage stage;
   private final MainWindowComponent.Builder mainWindowComponentBuilder;
   private final OptionsWindowComponent.Builder optionsWindowComponentBuilder;
+  private MainWindowComponent mainWindowComponent;
+  private OptionsWindowComponent optionsWindowComponent;
+  private FxController currentController;
+
 
   public void showMainWindow() {
-    show(mainWindowComponentBuilder.build().mainViewNode().get());
+    if (mainWindowComponent == null) {
+      mainWindowComponent = mainWindowComponentBuilder.build();
+    }
+    currentController = mainWindowComponent.mainWindowController();
+    show(mainWindowComponent.mainViewNode().get());
   }
 
   public void showOptionsWindow() {
-    show(optionsWindowComponentBuilder.build().optionsViewNode().get());
+    if (optionsWindowComponent == null) {
+      optionsWindowComponent = optionsWindowComponentBuilder.build();
+    }
+    if (currentController != null) {
+      currentController.beforeViewHide();
+    }
+    show(optionsWindowComponent.optionsViewNode().get());
   }
 
   protected void show(Parent value) {

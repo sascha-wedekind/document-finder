@@ -12,8 +12,8 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -82,8 +82,13 @@ public class IndexRepository {
     Flux<Path> result = Flux.empty();
     if (isNotBlank(searchText)) {
       try {
-        var parser = new MultiFieldQueryParser(new String[]{"path", "payload"}, new StandardAnalyzer());
-        var query = parser.parse(searchText.toString());
+        Query query;
+        var searchTextString = searchText.toString().toLowerCase();
+        if (isQuerySearchTextSupposedForParser(searchTextString)) {
+          query = createQueryFromParseSearchText(searchTextString);
+        } else {
+          query = createPathContainsOrBodyConainsPrefixedWordQuery(searchTextString);
+        }
         var indexSearcher = indexSearcherFactory.build();
         var docs = indexSearcher.search(query, MAX_RESULT_LIMIT);
         result = createSearchResultFlux(indexSearcher, docs.scoreDocs);
@@ -92,6 +97,35 @@ public class IndexRepository {
       }
     }
     return result;
+  }
+
+  private Query createPathContainsOrBodyConainsPrefixedWordQuery(String searchTextString) {
+    Query query;
+    var prefixQuery = new PrefixQuery(new Term("payload", searchTextString));
+    var regexpQuery = new RegexpQuery(new Term("path", String.format(".*%s.*", searchTextString)));
+    query = new BooleanQuery.Builder()
+      .add(regexpQuery, BooleanClause.Occur.SHOULD)
+      .add(prefixQuery, BooleanClause.Occur.SHOULD)
+      .build();
+    return query;
+  }
+
+  private Query createQueryFromParseSearchText(String searchText) throws ParseException {
+    Query query;
+    var parser = new MultiFieldQueryParser(new String[]{"path", "payload"}, new StandardAnalyzer());
+    parser.setDefaultOperator(QueryParser.Operator.OR);
+    query = parser.parse(searchText);
+    return query;
+  }
+
+  private boolean isQuerySearchTextSupposedForParser(String searchTextString) {
+    return searchTextString.contains("AND")
+      || searchTextString.contains("OR")
+      || searchTextString.contains("(")
+      || searchTextString.contains(")")
+      || searchTextString.contains("[")
+      || searchTextString.contains("]")
+      || searchTextString.contains(":");
   }
 
   protected Flux<Path> createSearchResultFlux(IndexSearcher indexSearcher, ScoreDoc[] scoreDocs) {

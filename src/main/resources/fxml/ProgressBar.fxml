@@ -6,17 +6,17 @@
 <?import javafx.scene.layout.HBox?>
 <HBox maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefWidth="400.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bytedompteur.documentfinder.ui.mainwindow.AnalyzeFilesProgressBarController">
    <children>
-      <ProgressIndicator fx:id="progressIndicator" maxHeight="20.0" maxWidth="20.0">
+      <ProgressIndicator fx:id="progressIndicator" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" prefHeight="20.0" prefWidth="20.0">
          <HBox.margin>
             <Insets right="10.0" />
          </HBox.margin></ProgressIndicator>
-      <Label fx:id="currentFileProcessedLabel" text="---" HBox.hgrow="ALWAYS">
+      <Label fx:id="currentFileProcessedLabel" text="---" textOverrun="LEADING_ELLIPSIS" HBox.hgrow="ALWAYS">
          <padding>
             <Insets top="1.0" />
          </padding>
       </Label>
    </children>
    <padding>
-      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      <Insets bottom="5.0" right="5.0" top="5.0" />
    </padding>
 </HBox>

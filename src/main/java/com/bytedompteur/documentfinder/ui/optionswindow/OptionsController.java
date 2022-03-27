@@ -12,5 +12,4 @@ public interface OptionsController extends FxController {
 
   Flux<Object> cancelButtonClicked();
 
-  void beforeViewHide();
 }

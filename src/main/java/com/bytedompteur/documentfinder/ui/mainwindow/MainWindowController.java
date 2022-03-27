@@ -56,4 +56,9 @@ public class MainWindowController implements FxController {
   public void initialize() {
     // EMPTY
   }
+
+  @Override
+  public void beforeViewHide() {
+    progressBarController.beforeViewHide();
+  }
 }

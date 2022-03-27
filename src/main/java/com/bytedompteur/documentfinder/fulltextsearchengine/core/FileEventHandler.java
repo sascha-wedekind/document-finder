@@ -15,9 +15,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 @RequiredArgsConstructor
 @Slf4j
 public class FileEventHandler {
@@ -26,14 +23,16 @@ public class FileEventHandler {
   private final IndexRepository indexRepository;
   private final PersistedUniqueFileEventQueueAdapter adapter;
   private final AtomicLong filesToProcess = new AtomicLong(0);
-  private Sinks.Many<Path> currentPathProcessedSink;
+  private final Sinks.Many<Path> currentPathProcessedSink = Sinks.many().multicast().directBestEffort();
   private Disposable subscription;
+  private Flux<Path> publish;
 
   public Flux<Path> getCurrentPathProcessed() {
-    if (isNull(currentPathProcessedSink)) {
-      currentPathProcessedSink = Sinks.many().multicast().onBackpressureBuffer();
+    if (publish == null) {
+//      publish = currentPathProcessedSink.asFlux().publishOn(Schedulers.fromExecutorService(executorService));
+      publish = currentPathProcessedSink.asFlux();
     }
-    return currentPathProcessedSink.asFlux().publish();
+    return publish;
   }
 
   public void startEventHandling() {
@@ -43,12 +42,12 @@ public class FileEventHandler {
   }
 
   public void stopEventHandling() {
-    Optional
-      .ofNullable(currentPathProcessedSink)
-      .ifPresent(it -> {
-        currentPathProcessedSink.tryEmitComplete();
-        currentPathProcessedSink = null;
-      });
+//    Optional
+//      .ofNullable(currentPathProcessedSink)
+//      .ifPresent(it -> {
+//        currentPathProcessedSink.tryEmitComplete();
+//        currentPathProcessedSink = null;
+//      });
 
     Optional
       .ofNullable(subscription)
@@ -62,9 +61,8 @@ public class FileEventHandler {
   }
 
   protected void handleFileEvent(FileEvent event) {
-    if (nonNull(currentPathProcessedSink)) {
-      currentPathProcessedSink.tryEmitNext(event.getPath());
-    }
+    log.info("Emitting {}", event.getPath());
+    currentPathProcessedSink.tryEmitNext(event.getPath());
     filesToProcess.incrementAndGet();
     if (event.getType() == Type.DELETE) {
       handleFileDelete(event.getPath());

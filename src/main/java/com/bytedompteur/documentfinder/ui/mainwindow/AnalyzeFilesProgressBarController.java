@@ -24,13 +24,13 @@ public class AnalyzeFilesProgressBarController implements FxController {
 
   public static final Path RESET_PROGRESS_INDICATOR_PATH = Path.of("DEFAULT");
   private final FulltextSearchService fulltextSearchService;
+  private AtomicReference<Disposable> ref = new AtomicReference<>();
 
   @FXML
   public ProgressIndicator progressIndicator;
 
   @FXML
   public Label currentFileProcessedLabel;
-
 
   @FXML
   protected void initialize() {
@@ -40,13 +40,15 @@ public class AnalyzeFilesProgressBarController implements FxController {
 
   private void subscribeFlux(Flux<Path> pathProcessedFlux) {
     log.debug("Subscribing to 'fulltextSearchService'");
-    AtomicReference<Disposable> ref = new AtomicReference<>();
 
     var processTimeoutFlux = Flux
       .fromArray(new Path[]{RESET_PROGRESS_INDICATOR_PATH})
       .doFinally(signalType -> {
         log.debug("Resubscribing to 'fulltextSearchService' ... {}", signalType);
-        ref.get().dispose();
+        if (ref.get() != null) {
+          ref.get().dispose();
+          ref.set(null);
+        }
         subscribeFlux(fulltextSearchService.getCurrentPathProcessed());
         log.debug("... resubscribed to 'fulltextSearchService'");
       });
@@ -72,6 +74,7 @@ public class AnalyzeFilesProgressBarController implements FxController {
     log.debug("Show progress '{}'", value);
     Platform.runLater(() -> {
       progressIndicator.setVisible(true);
+      progressIndicator.setManaged(true);
       currentFileProcessedLabel.setText(value);
     });
   }
@@ -81,10 +84,18 @@ public class AnalyzeFilesProgressBarController implements FxController {
     log.debug("Show number of scanned files");
     Platform.runLater(() -> {
       progressIndicator.setVisible(false);
+      progressIndicator.setManaged(false);
       var numberOfFilesInIndex = fulltextSearchService.getScannedFiles();
       var text = String.format("The index contains %s analyzed files", numberOfFilesInIndex);
       currentFileProcessedLabel.setText(text);
     });
   }
 
+  @Override
+  public void beforeViewHide() {
+    var disposable = ref.get();
+    if (disposable != null) {
+      disposable.dispose();
+    }
+  }
 }

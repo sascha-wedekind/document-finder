@@ -61,6 +61,11 @@ public class OptionsWindowController implements FxController {
     optionsContentPane.setCenter(pane);
   }
 
+  @Override
+  public void beforeViewHide() {
+    // IGNORE
+  }
+
   protected void showView(OptionsViewHelper.Name viewName) {
     if (nonNull(currentView)) {
       if (viewName == currentView.getName()) return;
@@ -108,5 +113,4 @@ public class OptionsWindowController implements FxController {
       .map(it -> it.extractSettingsFromController(settings))
       .orElse(settings);
   }
-
 }
