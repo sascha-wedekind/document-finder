@@ -58,4 +58,9 @@ public class FulltextSearchServiceImpl implements FulltextSearchService {
   public void clearIndex() {
     indexRepository.clear();
   }
+
+  @Override
+  public long getNumberOfEventsNotYetProcessed() {
+    return fileEventHandler.getNumberOfEventsNotYetProcessed();
+  }
 }

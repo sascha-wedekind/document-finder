@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import de.jensd.fx.glyphs.materialicons.MaterialIconView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
@@ -13,7 +14,15 @@
                   <Insets />
                </HBox.margin>
             </TextField>
-            <Button fx:id="findButton" mnemonicParsing="false" onAction="#handleFindButtonClick" text="Find" />
+            <Button fx:id="findButton" mnemonicParsing="false" onAction="#handleFindButtonClick">
+               <graphic>
+                  <MaterialIconView glyphName="SEARCH" size="17" />
+               </graphic></Button>
+            <Button fx:id="showOptionsButton" mnemonicParsing="false" onAction="#handleOptionsButtonClick">
+               <graphic>
+                  <MaterialIconView glyphName="SETTINGS" size="17" />
+               </graphic>
+            </Button>
          </children>
          <BorderPane.margin>
             <Insets bottom="15.0" />

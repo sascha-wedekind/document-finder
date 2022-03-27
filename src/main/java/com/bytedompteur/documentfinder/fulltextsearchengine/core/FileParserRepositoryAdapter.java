@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.concurrent.atomic.AtomicLong;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -15,6 +16,7 @@ public class FileParserRepositoryAdapter implements Runnable {
   private final IndexRepository repository;
   private final FileParserTask parserTask;
   private final Path path;
+  private final AtomicLong decrementWhenFinished;
 
   @Override
   public void run() {
@@ -25,7 +27,9 @@ public class FileParserRepositoryAdapter implements Runnable {
       var reader = parserTask.getReader();
       repository.save(new FileRecord(path, reader, timeCreated.toInstant(), timeUpdated.toInstant()));
     } catch (IOException e) {
-      log.error("", e);
+      log.error("Could not save '{}' to repository", path, e);
+    } finally {
+      decrementWhenFinished.decrementAndGet();
     }
   }
 }

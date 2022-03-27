@@ -91,6 +91,12 @@ public class QueueRepository implements AutoCloseable {
     }
   }
 
+  public void flush() throws IOException {
+    if (nonNull(writer)) {
+      writer.flush();
+    }
+  }
+
   private void deleteLog(Path filePath) {
     try {
       filesReadWriteAdapter.deleteIfExists(filePath);

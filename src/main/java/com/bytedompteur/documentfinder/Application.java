@@ -1,25 +1,16 @@
 package com.bytedompteur.documentfinder;
 
-import com.bytedompteur.documentfinder.persistedqueue.adapter.in.FileEvent;
-import com.bytedompteur.documentfinder.persistedqueue.adapter.in.FileEvent.Type;
-import com.bytedompteur.documentfinder.persistedqueue.adapter.in.ReactiveAdapter;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
-//@Slf4j
 public class Application {
 
-  public static void main(String[] args) throws InterruptedException {
+  public static void main(String[] args) throws Exception {
     var applicationHomeDirectory = determineApplicationHomeDirectory();
     System.setProperty("APPLICATION_HOME_DIRECTORY", applicationHomeDirectory);
-
-//    LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-//    var joranConfigurator = new JoranConfigurator();
-//    joranConfigurator.setContext(context);
 
     var log = LoggerFactory.getLogger(Application.class);
     log.info("Starting Document Finder");
@@ -27,41 +18,34 @@ public class Application {
 
     var applicationComponent = DaggerApplicationComponent
       .builder()
-      .numberOfThreads(4)
+      .numberOfThreads(0)
       .applicationHomeDirectory(applicationHomeDirectory)
       .build();
 
+    applicationComponent.clearAllCommand().run();
+    applicationComponent.startAllCommand().run();
+
     var fulltextSearchService = applicationComponent.fulltextSearchService();
-    fulltextSearchService.startInboundFileEventProcessing();
-
-    var fileWalker = applicationComponent.fileWalker();
     var queue = applicationComponent.queue();
-    var settingsService = applicationComponent.settingsService();
 
-    var disposable = ReactiveAdapter.subscribe(
-      path -> new FileEvent(Type.CREATE, path),
-      fileWalker.findFilesWithEndings(
-        new HashSet<>(settingsService.getDefaultSettings().getFileTypes()),
-//        Set.of(Path.of("X:\\OneDrive\\Dokumente\\DokumentePrivate\\Sureness_Networking"))),
-        Set.of(Path.of("X:\\OneDrive - Byte Dompteur\\DocumentsSecured_encrypted"))),
-      queue
-    );
+    // Ramp up phase
+    Thread.sleep(2000);
 
-    while (fileWalker.isRunning() || !queue.isEmpty()) {
-      Thread.sleep(1000);
-      fulltextSearchService.commitScannedFiles();
-    }
+    CompletableFuture
+      .runAsync(applicationComponent.waitUntilPersistedQueueIsEmptyCommand(), applicationComponent.executorService())
+      .thenRunAsync(applicationComponent.waitUntilFulltextSearchServiceProcessedAllEventsCommand(), applicationComponent.executorService())
+      .join();
 
 
-//    Thread.sleep(Duration.ofMinutes(10).toMillis());
+    log.info("Added to queue:" + queue.getNumberOfFilesAdded() + ", removed: " + queue.getNumberOfFilesRemoved());
+    log.info("Number of scanned files is {}", fulltextSearchService.getScannedFiles());
 
-
-    fulltextSearchService.commitScannedFiles();
-//    disposable.dispose();
-    fulltextSearchService.stopInboundFileEventProcessing();
-
-    System.out.println("FileWalker running: " + fileWalker.isRunning());
-    System.out.println(fulltextSearchService.getScannedFiles());
+    log.info("STOPPING ALL GRACEFUL");
+    applicationComponent.stopAllGracefulCommand().run();
+    log.info("Shutdown Executor service");
+    applicationComponent.executorService().shutdown();
+    log.info("Executor service shut down");
+    System.exit(0);
   }
 
   public static String determineApplicationHomeDirectory() {

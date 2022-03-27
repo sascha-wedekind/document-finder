@@ -1,8 +1,8 @@
 package com.bytedompteur.documentfinder.ui;
 
-import com.bytedompteur.documentfinder.ui.mainwindow.dagger.DaggerMainWindowComponent;
+
+import com.bytedompteur.documentfinder.ui.dagger.DaggerUIComponent;
 import javafx.application.Application;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class DocumentFinderMain extends Application {
@@ -14,17 +14,13 @@ public class DocumentFinderMain extends Application {
   @Override
   public void start(Stage primaryStage) {
 
-    var uiComponent = DaggerMainWindowComponent
+    var uiComponent = DaggerUIComponent
       .builder()
-      .numberOfThreads(1)
+      .numberOfThreads(4)
       .applicationHomeDirectory(com.bytedompteur.documentfinder.Application.determineApplicationHomeDirectory())
+      .primaryStage(primaryStage)
       .build();
-    var lazyNode = uiComponent.mainViewNode();
-    var node = lazyNode.get();
 
-
-    Scene scene = new Scene(node, 640, 480);
-    primaryStage.setScene(scene);
-    primaryStage.show();
+    uiComponent.windowManager().showMainWindow();
   }
 }

@@ -1,19 +1,12 @@
 package com.bytedompteur.documentfinder.ui.optionswindow.dagger;
 
-import com.bytedompteur.documentfinder.settings.adapter.in.SettingsService;
-import com.bytedompteur.documentfinder.settings.dagger.SettingsModule;
 import com.bytedompteur.documentfinder.ui.FxmlFile;
 import com.bytedompteur.documentfinder.ui.dagger.FxmlParent;
-import dagger.BindsInstance;
-import dagger.Component;
 import dagger.Lazy;
+import dagger.Subcomponent;
 import javafx.scene.Parent;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
-
-@Singleton
-@Component(modules = {OptionsWindowModule.class, SettingsModule.class})
+@Subcomponent(modules = {OptionsWindowModule.class})
 @OptionsWindowScope
 public interface OptionsWindowComponent {
 
@@ -26,16 +19,8 @@ public interface OptionsWindowComponent {
   @FxmlParent(FxmlFile.FOLDER_OPTIONS)
   Lazy<Parent> folderOptionsView();
 
-  SettingsService settingsService();
-
-  @Component.Builder
+  @Subcomponent.Builder
   interface Builder {
-    @BindsInstance
-    OptionsWindowComponent.Builder applicationHomeDirectory(@Named("applicationHomeDirectory") String value);
-
-    @BindsInstance
-    OptionsWindowComponent.Builder numberOfThreads(@Named("numberOfThreads") int value);
-
     OptionsWindowComponent build();
   }
 }

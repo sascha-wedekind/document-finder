@@ -16,4 +16,8 @@ public interface PersistedUniqueFileEventQueue {
   int size() throws InterruptedException;
 
   void clear();
+
+  Long getNumberOfFilesAdded();
+
+  Long getNumberOfFilesRemoved();
 }

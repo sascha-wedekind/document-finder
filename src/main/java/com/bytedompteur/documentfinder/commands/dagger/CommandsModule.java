@@ -123,4 +123,40 @@ public abstract class CommandsModule {
       startFileWalkerCommand
     );
   }
+
+  @Provides
+  @Singleton
+  static WaitUntilPersistedQueueIsEmptyCommand provideWaitUntilPersistedQueueIsEmptyCommand(
+    PersistedUniqueFileEventQueue queue
+  ) {
+    return new WaitUntilPersistedQueueIsEmptyCommand(queue);
+  }
+
+  @Provides
+  @Singleton
+  static WaitUntilFulltextSearchServiceProcessedAllEventsCommand provideWaitUntilFulltextSearchServiceProcessedAllEventsCommand(
+    FulltextSearchService searchService
+  ) {
+    return new WaitUntilFulltextSearchServiceProcessedAllEventsCommand(searchService);
+  }
+
+  @Provides
+  @Singleton
+  static StopAllGracefulCommand provideStopAllGracefulCommand(
+    ExecutorService executorService,
+    StopDirectoryWatcherCommand stopDirectoryWatcherCommand,
+    StopFileWalkerCommand stopFileWalkerCommand,
+    StopFulltextSearchServiceCommand stopFulltextSearchServiceCommand,
+    WaitUntilPersistedQueueIsEmptyCommand waitUntilPersistedQueueIsEmptyCommand,
+    WaitUntilFulltextSearchServiceProcessedAllEventsCommand waitUntilFulltextSearchServiceProcessedAllEventsCommand
+  ) {
+    return new StopAllGracefulCommand(
+      executorService,
+      stopDirectoryWatcherCommand,
+      stopFileWalkerCommand,
+      stopFulltextSearchServiceCommand,
+      waitUntilPersistedQueueIsEmptyCommand,
+      waitUntilFulltextSearchServiceProcessedAllEventsCommand
+    );
+  }
 }

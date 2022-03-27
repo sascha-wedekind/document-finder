@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -24,6 +25,7 @@ public class FileEventHandler {
   private final ExecutorService executorService;
   private final IndexRepository indexRepository;
   private final PersistedUniqueFileEventQueueAdapter adapter;
+  private final AtomicLong filesToProcess = new AtomicLong(0);
   private Sinks.Many<Path> currentPathProcessedSink;
   private Disposable subscription;
 
@@ -53,10 +55,17 @@ public class FileEventHandler {
       .ifPresent(Disposable::dispose);
   }
 
+  public long getNumberOfEventsNotYetProcessed() {
+    var result = filesToProcess.get();
+    log.debug("Number of events to process is {}", result);
+    return result;
+  }
+
   protected void handleFileEvent(FileEvent event) {
     if (nonNull(currentPathProcessedSink)) {
       currentPathProcessedSink.tryEmitNext(event.getPath());
     }
+    filesToProcess.incrementAndGet();
     if (event.getType() == Type.DELETE) {
       handleFileDelete(event.getPath());
     } else {
@@ -68,7 +77,7 @@ public class FileEventHandler {
     try {
       var parserTask = FileParserTask.create(path);
       executorService.submit(parserTask);// Producer
-      var adapter = new FileParserRepositoryAdapter(indexRepository, parserTask, path);
+      var adapter = new FileParserRepositoryAdapter(indexRepository, parserTask, path, filesToProcess);
       executorService.submit(adapter); // Consumer
     } catch (IOException e) {
       log.error("Error while processing file create or update of '{}'. File ignored", path, e);
@@ -78,6 +87,7 @@ public class FileEventHandler {
   protected void handleFileDelete(Path path) {
     try {
       indexRepository.delete(path);
+      filesToProcess.decrementAndGet();
     } catch (IOException e) {
       log.error("Error while deleting '{}' from index", path, e);
     }

@@ -9,16 +9,22 @@ import lombok.extern.slf4j.Slf4j;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Slf4j
 public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEventQueue {
 
-  private final Semaphore writeSemaphore = new Semaphore(1, true);
-  private final Semaphore readSemaphore = new Semaphore(1, true);
+  public static final int FLUSH_REPOSITORY_THRESHOLD = 100;
+
   private final LinkedList<FileEvent> inMemoryEventsQueue = new LinkedList<>();
   private final Set<Long> knownPaths = new TreeSet<>();
   private final QueueRepository queueRepository;
+  private Long numberOfFilesAdded = 0L;
+  private Long numberOfFilesRemoved = 0L;
+  private int flushRepoCounter = 0;
+  private final ReadWriteLock rwLock = new ReentrantReadWriteLock(true);
 
   @SuppressWarnings("UnstableApiUsage")
   private final HashFunction hashFunction = Hashing.murmur3_128();
@@ -31,29 +37,23 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
 
   @Override
   public void pushOrOverwrite(FileEvent value) {
+    Lock writeLock = rwLock.writeLock();
     try {
-      readSemaphore.acquire();
-      writeSemaphore.acquire();
+      writeLock.lock();
       pushOrOverwriteSingle(value);
-    } catch (InterruptedException e) {
-      log.error("While pushing {} to in memory queue", value, e);
     } finally {
-      writeSemaphore.release();
-      readSemaphore.release();
+      writeLock.unlock();
     }
   }
 
   @Override
   public void pushOrOverwrite(List<FileEvent> value) {
+    Lock writeLock = rwLock.writeLock();
     try {
-      readSemaphore.acquire();
-      writeSemaphore.acquire();
+      writeLock.lock();
       value.forEach(this::pushOrOverwriteSingle);
-    } catch (InterruptedException e) {
-      log.error("While pushing {} to in memory queue", value, e);
     } finally {
-      writeSemaphore.release();
-      readSemaphore.release();
+      writeLock.unlock();
     }
   }
 
@@ -62,17 +62,20 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
     if (knownPaths.contains(pathHash)) {
       log.debug("Replacing '{}' int queue", value);
       replaceEvent(value);
-    } else{
+    } else {
       log.debug("Adding '{}' to queue", value);
       inMemoryEventsQueue.add(value);
       knownPaths.add(pathHash);
+      numberOfFilesAdded++;
+
+      try {
+        queueRepository.save(value, QueueModificationType.ADDED);
+      } catch (IOException e) {
+        log.error("While saving '{}' in repository ", value, e);
+      }
     }
 
-    try {
-      queueRepository.save(value, QueueModificationType.ADDED);
-    } catch (IOException e) {
-      log.error("While saving '{}' in repository ", value, e);
-    }
+    flushRepoWhenCounterExceedThreshold();
   }
 
   private void replaceEvent(FileEvent value) {
@@ -90,51 +93,58 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
   @Override
   public Optional<FileEvent> pop() {
     Optional<FileEvent> result = Optional.empty();
+    var writeLock = rwLock.writeLock();
     try {
-      readSemaphore.acquire();
-      writeSemaphore.acquire();
-      FileEvent event = inMemoryEventsQueue.pop();
-      result = Optional.of(event);
-      knownPaths.remove(getPathHash(event));
-      queueRepository.save(event, QueueModificationType.REMOVED);
+      writeLock.lock();
+      if (!inMemoryEventsQueue.isEmpty()) {
+        FileEvent event = inMemoryEventsQueue.pop();
+        result = Optional.of(event);
+        knownPaths.remove(getPathHash(event));
+        queueRepository.save(event, QueueModificationType.REMOVED);
+        numberOfFilesRemoved++;
+        flushRepoWhenCounterExceedThreshold();
+      }
     } catch (IOException e) {
-        log.error("While marking '{}' as removed in repository ", result.get(), e);
+      log.error("While marking '{}' as removed in repository ", result.get(), e);
     } catch (NoSuchElementException e) {
-      // IGNORE - thrown when queue is empty
+      log.error("", e);
     } catch (Exception e) {
       log.error("While pop from in memory queue", e);
     } finally {
-      writeSemaphore.release();
-      readSemaphore.release();
+      writeLock.unlock();
     }
     return result;
   }
 
   @Override
   public boolean isEmpty() throws InterruptedException {
+    var readLock = rwLock.readLock();
     try {
-      readSemaphore.acquire();
-      return inMemoryEventsQueue.isEmpty();
+      readLock.lock();
+      var result = Objects.equals(getNumberOfFilesAdded(), getNumberOfFilesRemoved());
+      log.debug("Is empty? Items added {} == items removed {} -> result {} -> items in actual in list {}", getNumberOfFilesAdded(), getNumberOfFilesRemoved(), result, inMemoryEventsQueue.size());
+      return result;
     } finally {
-      readSemaphore.release();
+      readLock.unlock();
     }
   }
 
   @Override
   public int size() throws InterruptedException {
+    var readLock = rwLock.readLock();
     try {
-      readSemaphore.acquire();
+      readLock.lock();
       return inMemoryEventsQueue.size();
     } finally {
-      readSemaphore.release();
+      readLock.unlock();
     }
   }
 
   @Override
   public void clear() {
+    var writeLock = rwLock.writeLock();
     try {
-      readSemaphore.acquire();
-      writeSemaphore.acquire();
+      writeLock.lock();
       log.info("Start clearing the queue");
       var queueItemsRemoved = inMemoryEventsQueue.size();
       inMemoryEventsQueue.forEach(fileEvent -> {
@@ -145,13 +155,25 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
         }
       });
       inMemoryEventsQueue.clear();
+      numberOfFilesAdded = 0L;
+      numberOfFilesRemoved = 0L;
+      queueRepository.flush();
       log.info("Removed {} items from the queue", queueItemsRemoved);
-    } catch (InterruptedException e) {
-      log.error("While clearing the queue", e);
+    } catch (IOException e) {
+      // Ignore
     } finally {
-      writeSemaphore.release();
-      readSemaphore.release();
+      writeLock.unlock();
     }
+  }
+
+  @Override
+  public Long getNumberOfFilesAdded() {
+    return numberOfFilesAdded;
+  }
+
+  @Override
+  public Long getNumberOfFilesRemoved() {
+    return numberOfFilesRemoved;
   }
 
   private long getPathHash(FileEvent value) {
@@ -162,6 +184,18 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
     var fileEvents = queueRepository.readCompactedQueueLog();
     if (!fileEvents.isEmpty()) {
       pushOrOverwrite(fileEvents);
+    }
+  }
+
+  protected void flushRepoWhenCounterExceedThreshold() {
+    flushRepoCounter++;
+    if (flushRepoCounter > FLUSH_REPOSITORY_THRESHOLD) {
+      try {
+        queueRepository.flush();
+      } catch (IOException e) {
+        log.error("While periodically flushing repository", e);
+      }
+      flushRepoCounter = 0;
     }
   }
 }

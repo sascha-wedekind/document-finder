@@ -3,6 +3,7 @@ package com.bytedompteur.documentfinder.ui.mainwindow;
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
 import com.bytedompteur.documentfinder.ui.FileSystemAdapter;
 import com.bytedompteur.documentfinder.ui.FxController;
+import com.bytedompteur.documentfinder.ui.WindowManager;
 import com.bytedompteur.documentfinder.ui.mainwindow.dagger.MainWindowScope;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -21,6 +22,7 @@ public class MainWindowController implements FxController {
   private final AnalyzeFilesProgressBarController progressBarController;
   private final FulltextSearchService fulltextSearchService;
   private final FileSystemAdapter fileSystemAdapter;
+  private final WindowManager windowManager;
 
   @FXML
   public TextField searchTextField;
@@ -43,6 +45,11 @@ public class MainWindowController implements FxController {
       ))
       .subscribe(it -> searchResultTable.getSearchResults().add(it));
 
+  }
+
+  @SuppressWarnings("java:S1172")
+  public void handleOptionsButtonClick(ActionEvent ignore) {
+    windowManager.showOptionsWindow();
   }
 
   @FXML

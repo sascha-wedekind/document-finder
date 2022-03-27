@@ -1,10 +1,12 @@
 package com.bytedompteur.documentfinder.ui.optionswindow;
 
+import com.bytedompteur.documentfinder.commands.ClearAllCommand;
 import com.bytedompteur.documentfinder.commands.StartAllCommand;
 import com.bytedompteur.documentfinder.commands.StopAllCommand;
 import com.bytedompteur.documentfinder.settings.adapter.in.Settings;
 import com.bytedompteur.documentfinder.settings.adapter.in.SettingsService;
 import com.bytedompteur.documentfinder.ui.FxController;
+import com.bytedompteur.documentfinder.ui.WindowManager;
 import com.bytedompteur.documentfinder.ui.optionswindow.dagger.OptionsWindowScope;
 import dagger.Lazy;
 import javafx.event.ActionEvent;
@@ -16,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.Objects.nonNull;
 
@@ -27,6 +30,8 @@ public class OptionsWindowController implements FxController {
   private final Lazy<Map<OptionsViewHelper.Name, OptionsViewHelper>> lazyOptionViewsByNameMap;
   private final StopAllCommand stopAllCommand;
   private final StartAllCommand startAllCommand;
+  private final ClearAllCommand clearAllCommand;
+  private final WindowManager windowManager;
 
   private Settings settings;
   private Map<OptionsViewHelper.Name, OptionsViewHelper> optionViewsByNameMap;
@@ -59,7 +64,7 @@ public class OptionsWindowController implements FxController {
   protected void showView(OptionsViewHelper.Name viewName) {
     if (nonNull(currentView)) {
       if (viewName == currentView.getName()) return;
-      settings = currentView.extractSettingsFromController(settings);
+      settings = extractedSettingsFromCurrentView();
     }
     setCurrentView(optionViewsByNameMap.get(viewName));
   }
@@ -77,19 +82,31 @@ public class OptionsWindowController implements FxController {
   }
 
   private void okButtonClicked(Object unused) {
-    settingsService.save(settings);
-    // == Restart all ==
-    // stop filewalker
-    // stop dirwatcher
-    // stop fulltextsearchengine
-    // clear queue
-    // delete fulltextsearchengine dir
+    settingsService.save(extractedSettingsFromCurrentView());
 
-    log.info("OK button clicked in {}", currentView.getName());
+    log.info("Executing stop all command");
+    stopAllCommand.run();
+
+    log.info("Executing stop all command");
+    clearAllCommand.run();
+
+    log.info("Executing run all command");
+    startAllCommand.run();
+
+    log.debug("OK button clicked in {}", currentView.getName());
+    windowManager.showMainWindow();
   }
 
   private void cancelButtonClicked(Object unused) {
-    log.info("CANCEL button clicked in {}", currentView.getName());
+    log.debug("CANCEL button clicked in {}", currentView.getName());
+    windowManager.showMainWindow();
+  }
+
+  private Settings extractedSettingsFromCurrentView() {
+    return Optional
+      .ofNullable(currentView)
+      .map(it -> it.extractSettingsFromController(settings))
+      .orElse(settings);
   }
 
 }

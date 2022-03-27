@@ -27,4 +27,6 @@ public interface FulltextSearchService {
   Flux<Path> findFilesWithNamesOrContentMatching(CharSequence charSequence);
 
   void clearIndex();
+
+  long getNumberOfEventsNotYetProcessed();
 }

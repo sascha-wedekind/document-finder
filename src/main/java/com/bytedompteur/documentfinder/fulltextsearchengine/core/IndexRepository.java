@@ -74,6 +74,7 @@ public class IndexRepository {
     var idTerm = new Term("id", pathString);
     indexWriter.deleteDocuments(idTerm);
     indexWriter.addDocument(document);
+    indexWriter.commit();
     log.debug("Entry for '{}' added", pathString);
   }
 

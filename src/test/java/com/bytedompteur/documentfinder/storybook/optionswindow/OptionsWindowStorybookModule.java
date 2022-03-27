@@ -1,12 +1,14 @@
 package com.bytedompteur.documentfinder.storybook.optionswindow;
 
 import com.bytedompteur.documentfinder.PathUtil;
+import com.bytedompteur.documentfinder.commands.ClearAllCommand;
 import com.bytedompteur.documentfinder.commands.StartAllCommand;
 import com.bytedompteur.documentfinder.commands.StopAllCommand;
 import com.bytedompteur.documentfinder.settings.adapter.in.SettingsService;
 import com.bytedompteur.documentfinder.settings.core.FilesReadWriteAdapter;
 import com.bytedompteur.documentfinder.settings.core.SettingsServiceImpl;
-import com.bytedompteur.documentfinder.ui.optionswindow.dagger.BaseOptionsWindowModule;
+import com.bytedompteur.documentfinder.ui.WindowManager;
+import com.bytedompteur.documentfinder.ui.optionswindow.dagger.OptionsWindowModule;
 import dagger.Module;
 import dagger.Provides;
 import org.mockito.Mockito;
@@ -14,7 +16,7 @@ import org.mockito.Mockito;
 import javax.inject.Singleton;
 import java.io.IOException;
 
-@Module(includes = BaseOptionsWindowModule.class)
+@Module(includes = OptionsWindowModule.class)
 public abstract class OptionsWindowStorybookModule {
 
   @Provides
@@ -50,5 +52,17 @@ public abstract class OptionsWindowStorybookModule {
   @Singleton
   static StartAllCommand provideStartAllCommand() {
     return Mockito.mock(StartAllCommand.class);
+  }
+
+  @Provides
+  @Singleton
+  static ClearAllCommand provideClearAllCommand() {
+    return Mockito.mock(ClearAllCommand.class);
+  }
+
+  @Provides
+  @Singleton
+  static WindowManager provideWindowManager() {
+    return Mockito.mock(WindowManager.class);
   }
 }

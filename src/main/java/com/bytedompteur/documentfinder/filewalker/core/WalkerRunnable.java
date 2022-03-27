@@ -23,9 +23,13 @@ class WalkerRunnable extends SimpleFileVisitor<Path> implements Runnable {
   private final Set<Path> pathsToWalk;
   private final AtomicBoolean shallStop = new AtomicBoolean(false);
   private final WalkFileTreeAdapter walkFileTreeAdapter;
+  private Long numberOfMatchingFiles = 0L;
+  private Long numberOfNonMatchingFiles = 0L;
 
   @Override
   public void run() {
+    numberOfMatchingFiles = 0L;
+    numberOfNonMatchingFiles = 0L;
     requireNonNullElse(pathsToWalk, Set.<Path>of())
       .forEach(it -> {
       try {
@@ -36,6 +40,7 @@ class WalkerRunnable extends SimpleFileVisitor<Path> implements Runnable {
         log.error("While walking directory '{}'", it, e);
       }
     });
+    log.info("Found {} files matching and {} files not matching", numberOfMatchingFiles, numberOfNonMatchingFiles);
     sink.tryEmitComplete();
   }
 
@@ -49,7 +54,10 @@ class WalkerRunnable extends SimpleFileVisitor<Path> implements Runnable {
   public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
     if (fileEndingMatcher.matches(file)) {
       log.debug("File '{}' matches filter options", file);
+      numberOfMatchingFiles++;
       sink.tryEmitNext(file);
+    } else {
+      numberOfNonMatchingFiles++;
     }
     return shallStop.get() ? FileVisitResult.TERMINATE : FileVisitResult.CONTINUE;
   }
