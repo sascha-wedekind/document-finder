@@ -14,6 +14,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.Objects.nonNull;
@@ -26,16 +27,19 @@ public class DirectoryWatcherImpl implements DirectoryWatcher {
   private final AtomicBoolean shouldStop = new AtomicBoolean(false);
   private final WatchServicePollHandler pollHandler;
   private final WatchService watchService;
+  private final ExecutorService executorService;
   private Flux<AbsolutePathWatchEvent> eventEmitter;
   private Many<AbsolutePathWatchEvent> sink;
 
-  public DirectoryWatcherImpl() throws IOException {
+  public DirectoryWatcherImpl(ExecutorService executorService) throws IOException {
+    this.executorService = executorService;
     createSinkAndFlux();
     watchService = FileSystems.getDefault().newWatchService();
     pollHandler = new WatchServicePollHandler(this);
   }
 
-  protected DirectoryWatcherImpl(WatchServicePollHandler pollHandler, WatchService watchService) {
+  protected DirectoryWatcherImpl(WatchServicePollHandler pollHandler, WatchService watchService, ExecutorService executorService) {
+    this.executorService = executorService;
     createSinkAndFlux();
     this.pollHandler = pollHandler;
     this.watchService = watchService;
@@ -79,7 +83,7 @@ public class DirectoryWatcherImpl implements DirectoryWatcher {
   @Override
   public void startWatching() {
     if (started.compareAndSet(false, true)) {
-      new Thread(this::doWatch).start();
+      executorService.submit(this::doWatch);
     }
   }
 

@@ -123,6 +123,7 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
       readLock.lock();
       var result = Objects.equals(getNumberOfFilesAdded(), getNumberOfFilesRemoved());
       log.debug("Is empty? Items added {} == items removed {} -> result {} -> items in actual in list {}", getNumberOfFilesAdded(), getNumberOfFilesRemoved(), result, inMemoryEventsQueue.size());
+      flushRepository();
       return result;
     } finally {
       readLock.unlock();
@@ -134,6 +135,7 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
     var readLock = rwLock.readLock();
     try {
       readLock.lock();
+      flushRepository();
       return inMemoryEventsQueue.size();
     } finally {
       readLock.unlock();
@@ -157,10 +159,8 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
       inMemoryEventsQueue.clear();
       numberOfFilesAdded = 0L;
       numberOfFilesRemoved = 0L;
-      queueRepository.flush();
+      flushRepository();
       log.info("Removed {} items from the queue", queueItemsRemoved);
-    } catch (IOException e) {
-      // Ignore
     } finally {
       writeLock.unlock();
     }
@@ -190,12 +190,16 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
   protected void flushRepoWhenCounterExceedThreshold() {
     flushRepoCounter++;
     if (flushRepoCounter > FLUSH_REPOSITORY_THRESHOLD) {
-      try {
-        queueRepository.flush();
-      } catch (IOException e) {
-        log.error("While periodically flushing repository", e);
-      }
+      flushRepository();
       flushRepoCounter = 0;
+    }
+  }
+
+  private void flushRepository() {
+    try {
+      queueRepository.flush();
+    } catch (IOException e) {
+      log.error("While periodically flushing repository", e);
     }
   }
 }

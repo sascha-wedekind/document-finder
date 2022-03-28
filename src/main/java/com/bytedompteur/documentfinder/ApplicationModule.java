@@ -16,10 +16,15 @@ public class ApplicationModule {
   @Provides
   @Singleton
   public ExecutorService provideExecutorService(@Named("numberOfThreads") int numberOfThreads) {
+    var threadFactory = new CustomNamePrefixThreadFactory();
     var maxPoolSize = numberOfThreads > 0 ? numberOfThreads : Integer.MAX_VALUE;
-    return new ThreadPoolExecutor(0, maxPoolSize,
-      10L, TimeUnit.SECONDS,
-      new SynchronousQueue<>());
+    return new ThreadPoolExecutor(
+      0,
+      maxPoolSize,
+      30L,
+      TimeUnit.SECONDS,
+      new SynchronousQueue<>(),threadFactory
+    );
   }
 
   @Provides

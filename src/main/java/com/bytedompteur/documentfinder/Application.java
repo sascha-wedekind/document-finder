@@ -1,10 +1,12 @@
 package com.bytedompteur.documentfinder;
 
 import org.slf4j.LoggerFactory;
+import reactor.core.scheduler.Schedulers;
 
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public class Application {
 
@@ -43,7 +45,9 @@ public class Application {
     log.info("STOPPING ALL GRACEFUL");
     applicationComponent.stopAllGracefulCommand().run();
     log.info("Shutdown Executor service");
-    applicationComponent.executorService().shutdown();
+    applicationComponent.executorService().shutdownNow();
+    applicationComponent.executorService().awaitTermination(10, TimeUnit.SECONDS);
+    Schedulers.shutdownNow();
     log.info("Executor service shut down");
     System.exit(0);
   }

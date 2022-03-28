@@ -29,7 +29,6 @@ public class FileEventHandler {
 
   public Flux<Path> getCurrentPathProcessed() {
     if (publish == null) {
-//      publish = currentPathProcessedSink.asFlux().publishOn(Schedulers.fromExecutorService(executorService));
       publish = currentPathProcessedSink.asFlux();
     }
     return publish;
@@ -42,13 +41,6 @@ public class FileEventHandler {
   }
 
   public void stopEventHandling() {
-//    Optional
-//      .ofNullable(currentPathProcessedSink)
-//      .ifPresent(it -> {
-//        currentPathProcessedSink.tryEmitComplete();
-//        currentPathProcessedSink = null;
-//      });
-
     Optional
       .ofNullable(subscription)
       .ifPresent(Disposable::dispose);
@@ -61,7 +53,7 @@ public class FileEventHandler {
   }
 
   protected void handleFileEvent(FileEvent event) {
-    log.info("Emitting {}", event.getPath());
+    log.debug("Emitting {}", event.getPath());
     currentPathProcessedSink.tryEmitNext(event.getPath());
     filesToProcess.incrementAndGet();
     if (event.getType() == Type.DELETE) {
