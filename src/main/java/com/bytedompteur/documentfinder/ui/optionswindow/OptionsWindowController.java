@@ -44,7 +44,11 @@ public class OptionsWindowController implements FxController {
   protected void initialize() {
     settings = settingsService.read().orElse(settingsService.getDefaultSettings());
     optionViewsByNameMap = lazyOptionViewsByNameMap.get();
-    showView(OptionsViewHelper.Name.FILE_TYPES_VIEW);
+  }
+
+  @Override
+  public void afterViewShown() {
+    setCurrentView(optionViewsByNameMap.get(OptionsViewHelper.Name.FILE_TYPES_VIEW));
   }
 
   public void handleFileTypeOptionsSectionClick(ActionEvent ignore) {
@@ -59,11 +63,6 @@ public class OptionsWindowController implements FxController {
     var pane = new Pane();
     pane.setStyle("-fx-background-color: green;");
     optionsContentPane.setCenter(pane);
-  }
-
-  @Override
-  public void beforeViewHide() {
-    // IGNORE
   }
 
   protected void showView(OptionsViewHelper.Name viewName) {

@@ -2,6 +2,7 @@ package com.bytedompteur.documentfinder.ui;
 
 import com.bytedompteur.documentfinder.ui.mainwindow.dagger.MainWindowComponent;
 import com.bytedompteur.documentfinder.ui.optionswindow.dagger.OptionsWindowComponent;
+import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -23,18 +24,32 @@ public class WindowManager {
     if (mainWindowComponent == null) {
       mainWindowComponent = mainWindowComponentBuilder.build();
     }
+    notifyCurrentControllerBeforeViewHide();
     currentController = mainWindowComponent.mainWindowController();
     show(mainWindowComponent.mainViewNode().get());
+    notifyCurrentControllerAfterViewShown();
   }
 
   public void showOptionsWindow() {
     if (optionsWindowComponent == null) {
       optionsWindowComponent = optionsWindowComponentBuilder.build();
     }
-    if (currentController != null) {
-      currentController.beforeViewHide();
-    }
+    notifyCurrentControllerBeforeViewHide();
+    currentController = optionsWindowComponent.optionsWindowController();
     show(optionsWindowComponent.optionsViewNode().get());
+    notifyCurrentControllerAfterViewShown();
+  }
+
+  private void notifyCurrentControllerAfterViewShown() {
+    if (currentController != null) {
+      Platform.runLater(() -> currentController.afterViewShown());
+    }
+  }
+
+  private void notifyCurrentControllerBeforeViewHide() {
+    if (currentController != null) {
+      Platform.runLater(() -> currentController.beforeViewHide());
+    }
   }
 
   protected void show(Parent value) {

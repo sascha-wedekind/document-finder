@@ -5,6 +5,11 @@ package com.bytedompteur.documentfinder.ui;
  */
 public interface FxController {
 
-  void beforeViewHide();
+  default void beforeViewHide(){
+    // IGNORE
+  };
 
+  default void afterViewShown() {
+    // IGNORE
+  }
 }

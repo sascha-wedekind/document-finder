@@ -36,9 +36,4 @@ public class SearchResultTableController implements FxController {
         contextMenu.show(event.getPickResult().getIntersectedNode(), event.getScreenX(), event.getScreenY());
       }));
   }
-
-  @Override
-  public void beforeViewHide() {
-    // IGNORE
-  }
 }
