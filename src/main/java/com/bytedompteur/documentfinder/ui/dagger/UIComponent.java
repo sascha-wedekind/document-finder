@@ -1,5 +1,8 @@
 package com.bytedompteur.documentfinder.ui.dagger;
 
+import com.bytedompteur.documentfinder.commands.ExitApplicationCommand;
+import com.bytedompteur.documentfinder.commands.StartDirectoryWatcherCommand;
+import com.bytedompteur.documentfinder.commands.StartFulltextSearchServiceCommand;
 import com.bytedompteur.documentfinder.ui.WindowManager;
 import dagger.BindsInstance;
 import dagger.Component;
@@ -13,6 +16,12 @@ import javax.inject.Singleton;
 public interface UIComponent {
 
   WindowManager windowManager();
+
+  ExitApplicationCommand exitApplicationCommand();
+
+  StartDirectoryWatcherCommand startDirectoryWatcherCommand();
+
+  StartFulltextSearchServiceCommand startFulltextSearchServiceCommand();
 
   @Component.Builder
   interface Builder {

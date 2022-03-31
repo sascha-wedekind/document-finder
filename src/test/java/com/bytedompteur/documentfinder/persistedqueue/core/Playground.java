@@ -19,7 +19,7 @@ public class Playground {
 
   @Test
   void name2() throws InterruptedException {
-    var mockedRepository = Mockito.mock(QueueRepository.class);
+    var mockedRepository = Mockito.mock(QueueRepositoryImpl.class);
     Mockito
       .when(mockedRepository.readCompactedQueueLog())
       .thenReturn(List.of());

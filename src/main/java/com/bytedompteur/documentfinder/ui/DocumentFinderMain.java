@@ -21,6 +21,10 @@ public class DocumentFinderMain extends Application {
       .primaryStage(primaryStage)
       .build();
 
+    // execute exit application command
+    primaryStage.setOnCloseRequest(it -> uiComponent.exitApplicationCommand().run());
+    uiComponent.startFulltextSearchServiceCommand().run();
+    uiComponent.startDirectoryWatcherCommand().run();
     uiComponent.windowManager().showMainWindow();
   }
 }

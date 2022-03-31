@@ -2,9 +2,10 @@ package com.bytedompteur.documentfinder.commands;
 
 import lombok.RequiredArgsConstructor;
 
+import javax.inject.Inject;
 import java.util.concurrent.CompletableFuture;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class StopAndClearAll implements Runnable {
 
   private final StopAllCommand stopAllCommand;

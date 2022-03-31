@@ -1,6 +1,7 @@
 package com.bytedompteur.documentfinder.persistedqueue.core;
 
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.FileEvent;
+import com.bytedompteur.documentfinder.persistedqueue.adapter.out.FilesReadWriteAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +24,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class QueueRepositoryTest {
+class QueueRepositoryImplTest {
 
   private static final String TEST_APPLICATION_HOME_DIR = "TEST_APPLICATION_HOME_DIR";
 
@@ -36,11 +37,11 @@ class QueueRepositoryTest {
   @Mock
   BufferedWriter mockedBufferedWriter;
 
-  private QueueRepository sut;
+  private QueueRepositoryImpl sut;
 
   @BeforeEach
   void setUp() {
-    sut = new QueueRepository(
+    sut = new QueueRepositoryImpl(
       mockedCompactor,
       TEST_APPLICATION_HOME_DIR,
       mockedFilesReadWriteAdapter,
@@ -60,7 +61,7 @@ class QueueRepositoryTest {
     sut.save(event, QueueModificationType.ADDED);
 
     // Assert
-    var expectedPath = Path.of(TEST_APPLICATION_HOME_DIR, QueueRepository.REPOSITORY_FILE_NAME);
+    var expectedPath = Path.of(TEST_APPLICATION_HOME_DIR, QueueRepositoryImpl.REPOSITORY_FILE_NAME);
     var expectedOptions = new OpenOption[]{
       StandardOpenOption.WRITE,
       StandardOpenOption.APPEND,
@@ -83,7 +84,7 @@ class QueueRepositoryTest {
 
     // Act
     Exception exception = null;
-    try (QueueRepository r = sut) {
+    try (QueueRepositoryImpl r = sut) {
       r.save(event, QueueModificationType.ADDED);
     } catch (Exception e) {
       exception = e;
@@ -100,7 +101,7 @@ class QueueRepositoryTest {
     var result = sut.readCompactedQueueLog();
 
     // Assert
-    var expectedPath = Path.of(TEST_APPLICATION_HOME_DIR, QueueRepository.REPOSITORY_FILE_NAME);
+    var expectedPath = Path.of(TEST_APPLICATION_HOME_DIR, QueueRepositoryImpl.REPOSITORY_FILE_NAME);
     verify(mockedFilesReadWriteAdapter).deleteIfExists(expectedPath);
   }
 

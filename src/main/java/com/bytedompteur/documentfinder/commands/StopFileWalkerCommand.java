@@ -5,9 +5,10 @@ import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import lombok.RequiredArgsConstructor;
 
+import javax.inject.Inject;
 import java.time.Duration;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class StopFileWalkerCommand implements Runnable {
 
   public static final int MAX_RETRIES = 20;

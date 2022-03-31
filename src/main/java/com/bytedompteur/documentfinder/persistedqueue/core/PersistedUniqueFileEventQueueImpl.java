@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -20,7 +21,7 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
 
   private final LinkedList<FileEvent> inMemoryEventsQueue = new LinkedList<>();
   private final Set<Long> knownPaths = new TreeSet<>();
-  private final QueueRepository queueRepository;
+  private final QueueRepositoryImpl queueRepository;
   private Long numberOfFilesAdded = 0L;
   private Long numberOfFilesRemoved = 0L;
   private int flushRepoCounter = 0;
@@ -30,7 +31,7 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
   private final HashFunction hashFunction = Hashing.murmur3_128();
 
   @Inject
-  public PersistedUniqueFileEventQueueImpl(QueueRepository queueRepository) {
+  public PersistedUniqueFileEventQueueImpl(QueueRepositoryImpl queueRepository) {
     this.queueRepository = queueRepository;
     importPersistedQueueItems();
   }
@@ -58,6 +59,10 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
   }
 
   private void pushOrOverwriteSingle(FileEvent value) {
+    if (!isPathValid(value)) {
+      return;
+    }
+
     long pathHash = getPathHash(value);
     if (knownPaths.contains(pathHash)) {
       log.debug("Replacing '{}' int queue", value);
@@ -76,6 +81,16 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
     }
 
     flushRepoWhenCounterExceedThreshold();
+  }
+
+  private boolean isPathValid(FileEvent value) {
+    var isPathValid = true;
+    try {
+      Path.of(value.getPath().toString());
+    } catch (Exception e) {
+      isPathValid = false;
+    }
+    return isPathValid;
   }
 
   private void replaceEvent(FileEvent value) {

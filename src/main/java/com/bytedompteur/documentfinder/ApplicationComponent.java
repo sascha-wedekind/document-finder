@@ -7,7 +7,7 @@ import com.bytedompteur.documentfinder.filewalker.dagger.FileWalkerModule;
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
 import com.bytedompteur.documentfinder.fulltextsearchengine.dagger.FulltextSearchEngineModule;
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.PersistedUniqueFileEventQueue;
-import com.bytedompteur.documentfinder.persistedqueue.core.QueueRepository;
+import com.bytedompteur.documentfinder.persistedqueue.adapter.in.QueueRepository;
 import com.bytedompteur.documentfinder.persistedqueue.dagger.PersistedQueueModule;
 import com.bytedompteur.documentfinder.settings.adapter.in.SettingsService;
 import com.bytedompteur.documentfinder.settings.dagger.SettingsModule;

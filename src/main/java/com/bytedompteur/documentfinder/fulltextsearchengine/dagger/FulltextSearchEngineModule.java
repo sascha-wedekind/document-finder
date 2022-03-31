@@ -9,7 +9,6 @@ import com.bytedompteur.documentfinder.persistedqueue.dagger.PersistedQueueModul
 import dagger.Module;
 import dagger.Provides;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 
 import javax.inject.Named;
@@ -41,18 +40,8 @@ public class FulltextSearchEngineModule {
 
   @Provides
   @Singleton
-  public IndexReader provideIndexReader(IndexManager value, IndexWriter indexWriter) {
-    try {
-      return value.buildIndexReader(indexWriter);
-    } catch (IOException e) {
-      throw new DaggerProvideException("Unable to create IndexReader", e);
-    }
-  }
-
-  @Provides
-  @Singleton
-  public IndexRepository provideIndexRepository(IndexWriter writer, IndexReader reader) {
-    return new IndexRepository(writer, new IndexSearcherFactory(reader));
+  public IndexRepository provideIndexRepository(IndexWriter writer, IndexManager indexManager) {
+    return new IndexRepository(writer, new IndexSearcherFactory(writer, indexManager));
   }
 
   @Provides

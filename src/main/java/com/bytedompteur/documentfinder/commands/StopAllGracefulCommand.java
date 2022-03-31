@@ -2,10 +2,11 @@ package com.bytedompteur.documentfinder.commands;
 
 import lombok.RequiredArgsConstructor;
 
+import javax.inject.Inject;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class StopAllGracefulCommand implements Runnable {
 
   private final ExecutorService executorService;

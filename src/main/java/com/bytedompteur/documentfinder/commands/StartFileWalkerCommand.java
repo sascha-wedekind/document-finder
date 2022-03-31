@@ -9,11 +9,12 @@ import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import lombok.RequiredArgsConstructor;
 
+import javax.inject.Inject;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class StartFileWalkerCommand implements Runnable {
 
   public static final int MAX_RETRIES = 20;

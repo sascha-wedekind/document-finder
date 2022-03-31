@@ -1,17 +1,19 @@
 package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
 
 import javax.inject.Inject;
+import java.io.IOException;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class IndexSearcherFactory {
 
-  private final IndexReader indexReader;
+  private final IndexWriter indexWriter;
+  private final IndexManager indexManager;
 
-  public IndexSearcher build() {
-    return new IndexSearcher(indexReader);
+  public IndexSearcher build() throws IOException {
+    return new IndexSearcher(indexManager.buildIndexReader(indexWriter));
   }
 }

@@ -89,6 +89,11 @@ public class DirectoryWatcherImpl implements DirectoryWatcher {
 
   private void doWatch() {
     while (!shouldStop.get()) {
+      try {
+        Thread.sleep(2000);
+      } catch (InterruptedException e) {
+        // IGNORE
+      }
       WatchKey key = watchService.poll();
       pollHandler.handlePoll(key).forEach(e -> sink.tryEmitNext(e));
 

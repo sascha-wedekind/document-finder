@@ -1,6 +1,7 @@
 package com.bytedompteur.documentfinder.persistedqueue.core;
 
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.FileEvent;
+import com.bytedompteur.documentfinder.persistedqueue.adapter.out.FilesReadWriteAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,7 +21,7 @@ import static java.util.Objects.nonNull;
 
 @RequiredArgsConstructor
 @Slf4j
-public class QueueRepository implements AutoCloseable {
+public class QueueRepositoryImpl implements AutoCloseable, com.bytedompteur.documentfinder.persistedqueue.adapter.in.QueueRepository {
 
   /*
    * JVM Object destruction - START
@@ -28,9 +29,9 @@ public class QueueRepository implements AutoCloseable {
   private static final Cleaner CLEANER = Cleaner.create();
   static class State implements Runnable {
 
-    private final QueueRepository reference;
+    private final QueueRepositoryImpl reference;
 
-    State(QueueRepository reference) {
+    State(QueueRepositoryImpl reference) {
       this.reference = reference;
     }
 

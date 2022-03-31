@@ -3,7 +3,9 @@ package com.bytedompteur.documentfinder.commands;
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.PersistedUniqueFileEventQueue;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+import javax.inject.Inject;
+
+@RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class ClearPersistedQueueCommand implements Runnable {
 
   private final PersistedUniqueFileEventQueue queue;
