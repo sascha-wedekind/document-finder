@@ -1,5 +1,6 @@
 package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 
+import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.SearchResult;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
@@ -107,8 +108,8 @@ class IndexRepositoryTest {
 
     // Assert
     result
-      .expectNext(Path.of("a/b/c"))
-      .expectNext(Path.of("d/e/f"))
+      .expectNext(SearchResult.builder().path(Path.of("a/b/c")).build())
+      .expectNext(SearchResult.builder().path(Path.of("d/e/f")).build())
       .verifyComplete();
   }
 
@@ -174,7 +175,7 @@ class IndexRepositoryTest {
     var document2 = new Document();
     document2.add(new StringField("path", "d/e/f", Field.Store.NO));
 
-    var scoreDocs = new ScoreDoc[] {
+    var scoreDocs = new ScoreDoc[]{
       new ScoreDoc(1, 1.0F),
       new ScoreDoc(2, 1.0F)
     };
@@ -197,8 +198,8 @@ class IndexRepositoryTest {
 
     // Assert
     result
-      .expectNext(Path.of("a/b/c"))
-      .expectNext(Path.of("d/e/f"))
+      .expectNext(SearchResult.builder().path(Path.of("a/b/c")).build())
+      .expectNext(SearchResult.builder().path(Path.of("d/e/f")).build())
       .verifyComplete();
   }
 }

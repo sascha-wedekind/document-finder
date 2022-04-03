@@ -1,6 +1,7 @@
 package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
+import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.SearchResult;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 
@@ -50,7 +51,7 @@ public class FulltextSearchServiceImpl implements FulltextSearchService {
   }
 
   @Override
-  public Flux<Path> findFilesWithNamesOrContentMatching(CharSequence charSequence) {
+  public Flux<SearchResult> findFilesWithNamesOrContentMatching(CharSequence charSequence) {
     return indexRepository.findByFileNameOrContent(charSequence);
   }
 

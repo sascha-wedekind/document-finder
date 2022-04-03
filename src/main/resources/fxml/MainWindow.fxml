@@ -9,7 +9,7 @@
    <top>
       <HBox prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
-            <TextField fx:id="searchTextField" onInputMethodTextChanged="#searchForText" promptText="text to search" HBox.hgrow="ALWAYS">
+            <TextField fx:id="searchTextField" onAction="#handleSearchTextFieldAction" onKeyTyped="#searchForText" promptText="text to search" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets />
                </HBox.margin>

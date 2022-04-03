@@ -1,5 +1,6 @@
 package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 
+import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.SearchResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -20,6 +21,7 @@ import reactor.core.publisher.Mono;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -78,8 +80,8 @@ public class IndexRepository {
     log.debug("Entry for '{}' added", pathString);
   }
 
-  public Flux<Path> findByFileNameOrContent(CharSequence searchText) {
-    Flux<Path> result = Flux.empty();
+  public Flux<SearchResult> findByFileNameOrContent(CharSequence searchText) {
+    Flux<SearchResult> result = Flux.empty();
     if (isNotBlank(searchText)) {
       try {
         Query query;
@@ -92,11 +94,22 @@ public class IndexRepository {
         var indexSearcher = indexSearcherFactory.build();
         var docs = indexSearcher.search(query, MAX_RESULT_LIMIT);
         result = createSearchResultFlux(indexSearcher, docs.scoreDocs);
+        result
+          .doOnComplete(() -> closeReader(indexSearcher))
+          .doOnCancel(() -> closeReader(indexSearcher));
       } catch (ParseException | IOException e) {
         log.error("Failed to search for '{}'", searchText, e);
       }
     }
     return result;
+  }
+
+  private void closeReader(IndexSearcher indexSearcher) {
+    try {
+      indexSearcher.getIndexReader().close();
+    } catch (IOException e) {
+      log.error("While closing index reader", e);
+    }
   }
 
   private Query createPathContainsOrBodyConainsPrefixedWordQuery(String searchTextString) {
@@ -128,16 +141,40 @@ public class IndexRepository {
       || searchTextString.contains(":");
   }
 
-  protected Flux<Path> createSearchResultFlux(IndexSearcher indexSearcher, ScoreDoc[] scoreDocs) {
-    //noinspection OptionalGetWithoutIsPresent
+  protected Flux<SearchResult> createSearchResultFlux(IndexSearcher indexSearcher, ScoreDoc[] scoreDocs) {
     return Mono
       .justOrEmpty(scoreDocs)
       .flatMapMany(Flux::fromArray)
       .map(it -> it.doc)
       .map(it -> loadDocumentFromIndexSearcher(indexSearcher, it))
-      .filter(Optional::isPresent)
-      .map(it -> it.get().get("path"))
-      .map(Path::of);
+      .flatMap(Mono::justOrEmpty)
+      .map(this::toSearchResult);
+  }
+
+  private SearchResult toSearchResult(Document it) {
+    var path = Optional
+      .ofNullable(it.get("path"))
+      .map(Path::of)
+      .orElse(null);
+
+    var created = Optional
+      .ofNullable(it.get("createdDisplay"))
+      .map(DATE_FORMATTER::parse)
+      .map(LocalDateTime::from)
+      .orElse(null);
+
+    var updated = Optional
+      .ofNullable(it.get("updatedDisplay"))
+      .map(DATE_FORMATTER::parse)
+      .map(LocalDateTime::from)
+      .orElse(null);
+
+    return SearchResult
+      .builder()
+      .path(path)
+      .fileCreated(created)
+      .fileLastUpdated(updated)
+      .build();
   }
 
   protected Optional<Document> loadDocumentFromIndexSearcher(IndexSearcher indexSearcher, int documentId) {

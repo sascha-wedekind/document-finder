@@ -8,11 +8,14 @@ import com.bytedompteur.documentfinder.ui.mainwindow.dagger.MainWindowScope;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
-import javafx.scene.input.InputMethodEvent;
+import javafx.scene.input.KeyEvent;
 import lombok.RequiredArgsConstructor;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
 import javax.inject.Inject;
+import java.time.Duration;
+import java.util.Optional;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 @MainWindowScope
@@ -26,9 +29,13 @@ public class MainWindowController implements FxController {
 
   @FXML
   public TextField searchTextField;
+  private Disposable disposable;
 
-  public void searchForText(InputMethodEvent inputMethodEvent) {
-    // EMPTY
+  public void searchForText(KeyEvent inputMethodEvent) {
+    Optional.ofNullable(disposable).ifPresent(Disposable::dispose);
+    disposable = Mono
+      .delay(Duration.ofMillis(300))
+      .subscribe(ignore -> handleFindButtonClick(null));
   }
 
   @SuppressWarnings("java:S1172")
@@ -38,10 +45,11 @@ public class MainWindowController implements FxController {
       .just(searchTextField.getCharacters())
       .filter(it -> !it.isEmpty())
       .flatMapMany(fulltextSearchService::findFilesWithNamesOrContentMatching)
+      .filter(it -> it.getPath().toFile().exists()) // Exclude if file does not exist
       .map(it -> SearchResult.build(
-        it,
-        fileSystemAdapter.getSystemIcon(it).orElse(null),
-        fileSystemAdapter.getLastModified(it).orElse(null)
+        it.getPath(),
+        fileSystemAdapter.getSystemIcon(it.getPath()).orElse(null),
+        fileSystemAdapter.getLastModified(it.getPath()).orElse(null)
       ))
       .subscribe(it -> searchResultTable.getSearchResults().add(it));
 
@@ -60,5 +68,9 @@ public class MainWindowController implements FxController {
   @Override
   public void beforeViewHide() {
     progressBarController.beforeViewHide();
+  }
+
+  public void handleSearchTextFieldAction(ActionEvent actionEvent) {
+    handleFindButtonClick(null);
   }
 }

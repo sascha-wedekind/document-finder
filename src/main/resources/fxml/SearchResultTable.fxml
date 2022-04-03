@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.cell.PropertyValueFactory?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<AnchorPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bytedompteur.documentfinder.ui.mainwindow.SearchResultTableController">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="601.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bytedompteur.documentfinder.ui.mainwindow.SearchResultTableController">
    <children>
       <TableView fx:id="resultTable" items="${controller.searchResults}" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
           <columns>
@@ -13,17 +12,25 @@
                       <PropertyValueFactory property="icon" />
                   </cellValueFactory>
               </TableColumn>
-              <TableColumn fx:id="pathNameColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Name">
+              <TableColumn fx:id="pathNameColumn" editable="false" minWidth="20.0" prefWidth="335.0" text="Name">
                   <cellValueFactory>
                       <PropertyValueFactory property="fileOrDirectoryName" />
                   </cellValueFactory>
               </TableColumn>
-              <TableColumn fx:id="pathParentColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Directory">
+              <TableColumn fx:id="pathParentColumn" editable="false" maxWidth="362.0" minWidth="20.0" prefWidth="110.0" text="Directory">
                   <cellValueFactory>
                       <PropertyValueFactory property="directoryName" />
                   </cellValueFactory>
               </TableColumn>
+              <TableColumn fx:id="fileModifiedColumn" editable="false" maxWidth="143.0" minWidth="0.0" prefWidth="121.0" text="Last modified">
+                  <cellValueFactory>
+                      <PropertyValueFactory property="updated" />
+                  </cellValueFactory>
+              </TableColumn>
           </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
       </TableView>
    </children>
 </AnchorPane>
