@@ -4,6 +4,7 @@ plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.10'
     id 'org.beryx.jlink' version '2.25.0'
+    id "org.javamodularity.moduleplugin" version "1.8.10"
 }
 
 ext {
@@ -96,11 +97,21 @@ dependencies {
     testImplementation "org.testfx:testfx-core:${testFxVersion}"
     testImplementation "org.testfx:testfx-junit5:${testFxVersion}"
     testImplementation "org.skyscreamer:jsonassert:${jsonAssertVersion}"
-
 }
 
 test {
     useJUnitPlatform()
+    // Disable Java modules (Jigsaw) while running tests. See gradle-modules-plugin.
+    moduleOptions {
+        runOnClasspath = true
+    }
+}
+
+compileTestJava {
+    // Disable Java modules (Jigsaw) while running tests. See gradle-modules-plugin.
+    moduleOptions {
+        compileOnClasspath = true
+    }
 }
 
 idea {
@@ -120,12 +131,7 @@ javafx {
 
 application {
     mainClass = project.hasProperty('applicationMainClassOverwrite') ? project.getProperty('applicationMainClassOverwrite') : project.defaultMainClass
-}
-
-task copyAllDependecies(type: Copy) {
-    from("$buildDir/libs")
-    from(configurations.runtimeClasspath)
-    into("$buildDir/jars")
+    mainModule = 'DocumentFinder.main'
 }
 
 jlink {

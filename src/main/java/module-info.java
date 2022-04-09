@@ -1,23 +1,23 @@
 module DocumentFinder.main {
 
-  requires transitive  reactor.core;
-  requires transitive  org.slf4j;
-  requires transitive  dagger;
-  requires transitive  dev.failsafe;
+  requires reactor.core;
+  requires org.slf4j;
+  requires dagger;
+  requires dev.failsafe;
   requires transitive  javafx.graphics;
-  requires transitive  com.google.common;
-  requires transitive  org.apache.lucene.core;
-  requires transitive  org.apache.lucene.queryparser;
-  requires transitive  org.apache.commons.lang3;
-  requires transitive  org.apache.lucene.analysis.common;
-  requires transitive  org.apache.tika.core;
-  requires transitive  org.apache.commons.logging;
+  requires com.google.common;
+  requires org.apache.lucene.core;
+  requires org.apache.lucene.queryparser;
+  requires org.apache.commons.lang3;
+  requires org.apache.lucene.analysis.common;
+  requires org.apache.tika.core;
+  requires org.apache.commons.logging;
   requires transitive  com.google.gson;
   requires transitive  javafx.fxml;
   requires transitive  javafx.controls;
   requires transitive  javafx.swing;
   requires transitive  java.compiler;
-  requires transitive  org.reactivestreams;
+  requires org.reactivestreams;
   requires transitive de.jensd.fx.glyphs.materialicons;
   requires transitive de.jensd.fx.glyphs.commons;
 
