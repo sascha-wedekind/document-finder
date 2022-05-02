@@ -2,8 +2,8 @@ package com.bytedompteur.documentfinder.ui.mainwindow;
 
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
 import com.bytedompteur.documentfinder.ui.FxController;
+import com.bytedompteur.documentfinder.ui.adapter.out.JavaFxPlatformAdapter;
 import com.bytedompteur.documentfinder.ui.mainwindow.dagger.MainWindowScope;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
@@ -24,6 +24,7 @@ public class AnalyzeFilesProgressBarController implements FxController {
 
   public static final Path RESET_PROGRESS_INDICATOR_PATH = Path.of("DEFAULT");
   private final FulltextSearchService fulltextSearchService;
+  private final JavaFxPlatformAdapter platformAdapter;
   private AtomicReference<Disposable> ref = new AtomicReference<>();
 
   @FXML
@@ -72,7 +73,7 @@ public class AnalyzeFilesProgressBarController implements FxController {
 
   public void showProgress(String value) {
     log.debug("Show progress '{}'", value);
-    Platform.runLater(() -> {
+    platformAdapter.runLater(() -> {
       progressIndicator.setVisible(true);
       progressIndicator.setManaged(true);
       currentFileProcessedLabel.setText(value);
@@ -82,7 +83,7 @@ public class AnalyzeFilesProgressBarController implements FxController {
 
   public void showNumberOfScannedFiles() {
     log.debug("Show number of scanned files");
-    Platform.runLater(() -> {
+    platformAdapter.runLater(() -> {
       progressIndicator.setVisible(false);
       progressIndicator.setManaged(false);
       var numberOfFilesInIndex = fulltextSearchService.getScannedFiles();

@@ -1,6 +1,7 @@
 package com.bytedompteur.documentfinder.commands;
 
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.QueueRepository;
+import com.bytedompteur.documentfinder.ui.WindowManager;
 import javafx.application.Platform;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,14 +18,22 @@ public class ExitApplicationCommand implements  Runnable{
   private final ExecutorService executorService;
   private final QueueRepository queueRepository;
 
+  private final WindowManager windowManager;
+
   @Override
   public void run() {
     stopAllServices();
     stopRunningThreads();
     closeQueueRepository();
+    destroyUIComponents();
 
     log.info("Terminating JavaFx");
     Platform.exit();
+  }
+
+  private void destroyUIComponents() {
+    windowManager.notifyCurrentControllerBeforeViewHide();
+    windowManager.hideSystemTrayIcon();
   }
 
   private void closeQueueRepository() {

@@ -31,4 +31,5 @@ module DocumentFinder.main {
 
   exports com.bytedompteur.documentfinder.ui.mainwindow to javafx.fxml;
   exports com.bytedompteur.documentfinder.ui.optionswindow to javafx.fxml;
+  opens com.bytedompteur.documentfinder.ui.adapter.out to javafx.graphics;
 }

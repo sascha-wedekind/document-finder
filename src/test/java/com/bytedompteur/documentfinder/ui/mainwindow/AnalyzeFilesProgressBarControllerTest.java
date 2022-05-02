@@ -2,6 +2,7 @@ package com.bytedompteur.documentfinder.ui.mainwindow;
 
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
 import com.bytedompteur.documentfinder.ui.FxmlFile;
+import com.bytedompteur.documentfinder.ui.adapter.out.JavaFxPlatformAdapter;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.stage.Stage;
@@ -47,7 +48,7 @@ class AnalyzeFilesProgressBarControllerTest {
 
     addNodeUnderTestToStage(
       FxmlFile.PROGRESS_BAR,
-      new AnalyzeFilesProgressBarController(mockedFulltextSearchService),
+      new AnalyzeFilesProgressBarController(mockedFulltextSearchService, new JavaFxPlatformAdapter()),
       stage
     );
     stage.show();

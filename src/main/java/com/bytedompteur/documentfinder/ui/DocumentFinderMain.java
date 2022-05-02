@@ -3,9 +3,12 @@ package com.bytedompteur.documentfinder.ui;
 
 import com.bytedompteur.documentfinder.ui.dagger.DaggerUIComponent;
 import javafx.application.Application;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class DocumentFinderMain extends Application {
 
@@ -40,11 +43,23 @@ public class DocumentFinderMain extends Application {
         .primaryStage(primaryStage)
         .build();
 
+      var platformAdapter = uiComponent.platformAdapter();
+      List<Image> windowIcons = platformAdapter.isMacOs() ? List.of() : List.of(
+        new Image(getClass().getResource("/images/DocumentFinderIcon_32.png").toString()),
+        new Image(getClass().getResource("/images/DocumentFinderIcon_512.png").toString())
+      );
+      primaryStage.getIcons().setAll(windowIcons);
+
+
       // execute exit application command
-      primaryStage.setOnCloseRequest(it -> uiComponent.exitApplicationCommand().run());
+      primaryStage.setOnCloseRequest(it -> {
+        uiComponent.windowManager().hideApplicationWindow();
+      });
       uiComponent.startFulltextSearchServiceCommand().run();
       uiComponent.startDirectoryWatcherCommand().run();
       uiComponent.windowManager().showMainWindow();
+      uiComponent.windowManager().showSystemTrayIcon();
+      platformAdapter.disableImplicitExit();
       if (null != log) {
         log.info("Started DocumentFinder");
       }

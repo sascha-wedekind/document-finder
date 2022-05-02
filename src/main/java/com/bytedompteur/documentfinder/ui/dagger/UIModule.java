@@ -4,8 +4,10 @@ import com.bytedompteur.documentfinder.PathUtil;
 import com.bytedompteur.documentfinder.commands.dagger.CommandsModule;
 import com.bytedompteur.documentfinder.settings.dagger.SettingsModule;
 import com.bytedompteur.documentfinder.ui.WindowManager;
+import com.bytedompteur.documentfinder.ui.adapter.out.JavaFxPlatformAdapter;
 import com.bytedompteur.documentfinder.ui.mainwindow.dagger.MainWindowComponent;
 import com.bytedompteur.documentfinder.ui.optionswindow.dagger.OptionsWindowComponent;
+import com.bytedompteur.documentfinder.ui.systemtray.dagger.SystemTrayComponent;
 import dagger.Module;
 import dagger.Provides;
 import javafx.stage.Stage;
@@ -16,7 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Module(
-  subcomponents = {MainWindowComponent.class, OptionsWindowComponent.class},
+  subcomponents = {MainWindowComponent.class, OptionsWindowComponent.class, SystemTrayComponent.class},
   includes = {SettingsModule.class, CommandsModule.class}
 )
 public abstract class UIModule {
@@ -48,8 +50,17 @@ public abstract class UIModule {
   static WindowManager provideWindowManager(
     MainWindowComponent.Builder mainWindowComponentBuilder,
     OptionsWindowComponent.Builder optionsWindowComponentBuilder,
-    @Named("primaryStage") Stage stage
+    SystemTrayComponent.Builder systemTrayComponentBuilder,
+    @Named("primaryStage") Stage stage,
+    JavaFxPlatformAdapter platformAdapter
   ) {
-    return new WindowManager(stage, mainWindowComponentBuilder, optionsWindowComponentBuilder);
+    return new WindowManager(
+      stage,
+      mainWindowComponentBuilder,
+      optionsWindowComponentBuilder,
+      systemTrayComponentBuilder,
+      platformAdapter,
+      WindowManager.DEFAULT_SCENE_FACTORY
+    );
   }
 }

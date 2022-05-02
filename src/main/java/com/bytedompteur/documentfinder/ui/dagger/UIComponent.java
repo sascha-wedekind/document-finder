@@ -4,6 +4,7 @@ import com.bytedompteur.documentfinder.commands.ExitApplicationCommand;
 import com.bytedompteur.documentfinder.commands.StartDirectoryWatcherCommand;
 import com.bytedompteur.documentfinder.commands.StartFulltextSearchServiceCommand;
 import com.bytedompteur.documentfinder.ui.WindowManager;
+import com.bytedompteur.documentfinder.ui.adapter.out.JavaFxPlatformAdapter;
 import dagger.BindsInstance;
 import dagger.Component;
 import javafx.stage.Stage;
@@ -22,6 +23,11 @@ public interface UIComponent {
   StartDirectoryWatcherCommand startDirectoryWatcherCommand();
 
   StartFulltextSearchServiceCommand startFulltextSearchServiceCommand();
+
+  JavaFxPlatformAdapter platformAdapter();
+
+  //  SystemTrayIconController controller();
+//  SystemTrayComponent.Builder comp();
 
   @Component.Builder
   interface Builder {

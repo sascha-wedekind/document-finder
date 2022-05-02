@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.Objects.nonNull;
@@ -26,15 +27,14 @@ public class DirectoryWatcherImpl implements DirectoryWatcher {
   private final AtomicBoolean started = new AtomicBoolean(false);
   private final AtomicBoolean shouldStop = new AtomicBoolean(false);
   private final WatchServicePollHandler pollHandler;
-  private final WatchService watchService;
   private final ExecutorService executorService;
+  private WatchService watchService;
   private Flux<AbsolutePathWatchEvent> eventEmitter;
   private Many<AbsolutePathWatchEvent> sink;
 
-  public DirectoryWatcherImpl(ExecutorService executorService) throws IOException {
+  public DirectoryWatcherImpl(ExecutorService executorService) {
     this.executorService = executorService;
     createSinkAndFlux();
-    watchService = FileSystems.getDefault().newWatchService();
     pollHandler = new WatchServicePollHandler(this);
   }
 
@@ -72,7 +72,7 @@ public class DirectoryWatcherImpl implements DirectoryWatcher {
     if (nonNull(value) && isAlreadyRegistered(value)) {
       Files.walkFileTree(value, new SimpleFileVisitor<>() {
         @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
           deregisterAtWatchService(dir);
           return FileVisitResult.CONTINUE;
         }
@@ -83,14 +83,26 @@ public class DirectoryWatcherImpl implements DirectoryWatcher {
   @Override
   public void startWatching() {
     if (started.compareAndSet(false, true)) {
+      createWatchServiceIfRequired();
       executorService.submit(this::doWatch);
+    }
+  }
+
+  private void createWatchServiceIfRequired() {
+    try {
+      if (watchService == null) {
+        log.debug("Creating watch service");
+        watchService = FileSystems.getDefault().newWatchService();
+      }
+    } catch (IOException e) {
+      log.error("While creating watch service", e);
     }
   }
 
   private void doWatch() {
     while (!shouldStop.get()) {
       try {
-        Thread.sleep(2000);
+        TimeUnit.SECONDS.sleep(2); // Reduce processor usage to be mor energy efficient.
       } catch (InterruptedException e) {
         // IGNORE
       }
@@ -103,6 +115,8 @@ public class DirectoryWatcherImpl implements DirectoryWatcher {
       watchService.close();
     } catch (IOException e) {
       log.error("While closing watch service", e);
+    } finally {
+      watchService = null;
     }
     shouldStop.compareAndSet(true, false);
     started.compareAndSet(true, false);

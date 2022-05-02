@@ -27,6 +27,7 @@ ext {
     gsonVersion = "2.9.0"
     jsonAssertVersion = '1.5.0'
     xercesImplVersion = '2.12.2'
+    jSystemThemeDetectorVersion = '3.8'
     failsafeVersion = '3.2.3'
     defaultMainClass = 'com.bytedompteur.documentfinder.ui.DocumentFinderMain'
 }
@@ -36,6 +37,7 @@ version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 java {
@@ -73,6 +75,7 @@ dependencies {
     implementation "com.google.dagger:dagger:${daggerVersion}"
     implementation "de.jensd:fontawesomefx-materialicons:${fontAwesomeFxVersion}"
     implementation "com.google.code.gson:gson:${gsonVersion}"
+    implementation "com.github.Dansoftowner:jSystemThemeDetector:${jSystemThemeDetectorVersion}"
 
     //  ============================================
     //  Compile only
@@ -97,6 +100,7 @@ dependencies {
     testImplementation "org.testfx:testfx-core:${testFxVersion}"
     testImplementation "org.testfx:testfx-junit5:${testFxVersion}"
     testImplementation "org.skyscreamer:jsonassert:${jsonAssertVersion}"
+
 }
 
 test {
