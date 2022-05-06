@@ -29,7 +29,7 @@ ext {
     xercesImplVersion = '2.12.2'
     jSystemThemeDetectorVersion = '3.8'
     failsafeVersion = '3.2.3'
-    defaultMainClass = 'com.bytedompteur.documentfinder.ui.DocumentFinderMain'
+    defaultMainClass = 'com.bytedompteur.documentfinder.DocumentFinderMain'
 }
 
 group 'com.bytedompteur'

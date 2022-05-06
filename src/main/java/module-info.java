@@ -28,8 +28,10 @@ module DocumentFinder.main {
   opens com.bytedompteur.documentfinder.ui.mainwindow to javafx.fxml, javafx.base;
   opens com.bytedompteur.documentfinder.ui.optionswindow to javafx.fxml, javafx.base;
   opens com.bytedompteur.documentfinder.settings.adapter.in to com.google.gson;
+  opens com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.messages to com.google.gson;
 
   exports com.bytedompteur.documentfinder.ui.mainwindow to javafx.fxml;
   exports com.bytedompteur.documentfinder.ui.optionswindow to javafx.fxml;
+  exports com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.messages to com.google.gson;
   opens com.bytedompteur.documentfinder.ui.adapter.out to javafx.graphics;
 }

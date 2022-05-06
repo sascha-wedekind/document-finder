@@ -3,6 +3,9 @@ package com.bytedompteur.documentfinder.ui.dagger;
 import com.bytedompteur.documentfinder.commands.ExitApplicationCommand;
 import com.bytedompteur.documentfinder.commands.StartDirectoryWatcherCommand;
 import com.bytedompteur.documentfinder.commands.StartFulltextSearchServiceCommand;
+import com.bytedompteur.documentfinder.commands.StopAllGracefulCommand;
+import com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.IPCService;
+import com.bytedompteur.documentfinder.interprocesscommunication.dagger.IPCModule;
 import com.bytedompteur.documentfinder.ui.WindowManager;
 import com.bytedompteur.documentfinder.ui.adapter.out.JavaFxPlatformAdapter;
 import dagger.BindsInstance;
@@ -12,7 +15,7 @@ import javafx.stage.Stage;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-@Component(modules = UIModule.class)
+@Component(modules = {UIModule.class, IPCModule.class})
 @Singleton
 public interface UIComponent {
 
@@ -24,10 +27,11 @@ public interface UIComponent {
 
   StartFulltextSearchServiceCommand startFulltextSearchServiceCommand();
 
+  StopAllGracefulCommand stopAllGracefulCommand();
+
   JavaFxPlatformAdapter platformAdapter();
 
-  //  SystemTrayIconController controller();
-//  SystemTrayComponent.Builder comp();
+  IPCService ipcService();
 
   @Component.Builder
   interface Builder {

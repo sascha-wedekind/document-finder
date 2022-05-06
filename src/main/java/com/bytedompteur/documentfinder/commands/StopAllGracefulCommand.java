@@ -15,14 +15,15 @@ public class StopAllGracefulCommand implements Runnable {
   private final StopFulltextSearchServiceCommand stopFulltextSearchServiceCommand;
   private final WaitUntilPersistedQueueIsEmptyCommand waitUntilPersistedQueueIsEmptyCommand;
   private final WaitUntilFulltextSearchServiceProcessedAllEventsCommand waitUntilFulltextSearchServiceProcessedAllEventsCommand;
-
+  private final StopIPCServerCommand stopIPCServerCommand;
 
   @Override
   public void run() {
     CompletableFuture
       .allOf(
         CompletableFuture.runAsync(stopDirectoryWatcherCommand, executorService),
-        CompletableFuture.runAsync(stopFileWalkerCommand, executorService)
+        CompletableFuture.runAsync(stopFileWalkerCommand, executorService),
+        CompletableFuture.runAsync(stopIPCServerCommand, executorService)
       )
       .thenRunAsync(waitUntilPersistedQueueIsEmptyCommand, executorService)
       .thenRunAsync(waitUntilFulltextSearchServiceProcessedAllEventsCommand, executorService)

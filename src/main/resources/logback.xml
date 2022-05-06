@@ -7,7 +7,7 @@
   </appender>
 
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-    <file>${APPLICATION_HOME_DIRECTORY}/document-finder.log</file>
+    <file>${APPLICATION_HOME_DIRECTORY_FOR_LOGGING}/document-finder.log</file>
 
     <encoder>
       <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
@@ -16,6 +16,7 @@
 
   <logger name="org.apache.pdfbox.pdmodel.font" level="ERROR" />
   <logger name="org.apache.fontbox.ttf.CmapSubtable" level="ERROR" />
+  <logger name="com.bytedompteur.documentfinder" level="INFO" />
 
 <!--  sascha: Make appenders conditional: https://logback.qos.ch/manual/configuration.html#conditional-->
   <root level="info">
