@@ -32,6 +32,7 @@ public class DocumentFinderMain {
     }
   }
 
+  @SuppressWarnings("java:S3252")
   private static void launchUI(String[] args, Logger log) {
     try {
       DocumentFinderUIMain.launch(DocumentFinderUIMain.class, args);
@@ -47,6 +48,7 @@ public class DocumentFinderMain {
     System.exit(0);
   }
 
+  @SuppressWarnings("java:S106")
   private static String determineApplicationHomeDirectoryExitOnError() {
     String applicationHomeDirectory = null;
     try {

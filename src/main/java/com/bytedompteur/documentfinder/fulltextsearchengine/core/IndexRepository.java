@@ -35,6 +35,8 @@ public class IndexRepository {
 
   public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
   public static final int MAX_RESULT_LIMIT = 100;
+  public static final String PAYLOAD_FIELD_NAME = "payload";
+  public static final String PATH_FIELD_NAME = "path";
 
   private final IndexWriter indexWriter;
   private final IndexSearcherFactory indexSearcherFactory;
@@ -42,8 +44,8 @@ public class IndexRepository {
   public void save(FileRecord value) throws IOException {
     var pathString = value.path().toString();
     var idField = new StringField("id", pathString, Store.NO);
-    var pathField = new TextField("path", pathString, Store.YES);
-    var payloadField = new TextField("payload", value.payloadReader());
+    var pathField = new TextField(PATH_FIELD_NAME, pathString, Store.YES);
+    var payloadField = new TextField(PAYLOAD_FIELD_NAME, value.payloadReader());
     var createdField = new LongPoint(
       "created",
       value.created().toEpochMilli()
@@ -114,8 +116,8 @@ public class IndexRepository {
 
   private Query createPathContainsOrBodyConainsPrefixedWordQuery(String searchTextString) {
     Query query;
-    var prefixQuery = new PrefixQuery(new Term("payload", searchTextString));
-    var regexpQuery = new RegexpQuery(new Term("path", String.format(".*%s.*", searchTextString)));
+    var prefixQuery = new PrefixQuery(new Term(PAYLOAD_FIELD_NAME, searchTextString));
+    var regexpQuery = new RegexpQuery(new Term(PATH_FIELD_NAME, String.format(".*%s.*", searchTextString)));
     query = new BooleanQuery.Builder()
       .add(regexpQuery, BooleanClause.Occur.SHOULD)
       .add(prefixQuery, BooleanClause.Occur.SHOULD)
@@ -125,7 +127,7 @@ public class IndexRepository {
 
   private Query createQueryFromParseSearchText(String searchText) throws ParseException {
     Query query;
-    var parser = new MultiFieldQueryParser(new String[]{"path", "payload"}, new StandardAnalyzer());
+    var parser = new MultiFieldQueryParser(new String[]{PATH_FIELD_NAME, PAYLOAD_FIELD_NAME}, new StandardAnalyzer());
     parser.setDefaultOperator(QueryParser.Operator.OR);
     query = parser.parse(searchText);
     return query;
@@ -153,7 +155,7 @@ public class IndexRepository {
 
   private SearchResult toSearchResult(Document it) {
     var path = Optional
-      .ofNullable(it.get("path"))
+      .ofNullable(it.get(PATH_FIELD_NAME))
       .map(Path::of)
       .orElse(null);
 
@@ -180,7 +182,7 @@ public class IndexRepository {
   protected Optional<Document> loadDocumentFromIndexSearcher(IndexSearcher indexSearcher, int documentId) {
     Optional<Document> document = Optional.empty();
     try {
-      document = Optional.ofNullable(indexSearcher.doc(documentId, Set.of("path")));
+      document = Optional.ofNullable(indexSearcher.doc(documentId, Set.of(PATH_FIELD_NAME)));
     } catch (IOException e) {
       log.error("Could not load document with id {} from index searcher", documentId, e);
     }

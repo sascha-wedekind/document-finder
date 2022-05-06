@@ -5,7 +5,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="446.0" prefWidth="576.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bytedompteur.documentfinder.ui.optionswindow.OptionsWindowController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="446.0" prefWidth="576.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bytedompteur.documentfinder.ui.optionswindow.OptionsWindowController">
    <left>
       <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" style="-fx-background-color: lightgrey;" BorderPane.alignment="CENTER">
          <children>
@@ -20,14 +20,6 @@
             <Hyperlink graphicTextGap="8.0" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" minWidth="-Infinity" onAction="#handleFolderOptionsSectionClick" style="-fx-text-fill: black;" text="Folders">
                <graphic>
                   <MaterialIconView glyphName="FOLDER" />
-               </graphic>
-               <font>
-                  <Font size="13.0" />
-               </font>
-            </Hyperlink>
-            <Hyperlink graphicTextGap="8.0" layoutX="10.0" layoutY="35.0" maxWidth="1.7976931348623157E308" minWidth="-Infinity" onAction="#handleCommonOptionsSectionClick" style="-fx-text-fill: black;" text="Common">
-               <graphic>
-                  <MaterialIconView glyphName="SETTINGS" />
                </graphic>
                <font>
                   <Font size="13.0" />

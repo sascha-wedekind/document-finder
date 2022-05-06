@@ -18,6 +18,7 @@ import javax.inject.Inject;
 
 @Slf4j
 @OptionsWindowScope
+@SuppressWarnings("java:S1172")
 public class FileTypeOptionsController extends BaseOptionsController {
 
   private final ObservableList<String> fileTypesList = FXCollections.observableArrayList();

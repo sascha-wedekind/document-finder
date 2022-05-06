@@ -12,7 +12,6 @@ import dagger.Lazy;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,6 +24,7 @@ import static java.util.Objects.nonNull;
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 @OptionsWindowScope
 @Slf4j
+@SuppressWarnings("java:S1172")
 public class OptionsWindowController implements FxController {
   private final SettingsService settingsService;
   private final Lazy<Map<OptionsViewHelper.Name, OptionsViewHelper>> lazyOptionViewsByNameMap;
@@ -57,12 +57,6 @@ public class OptionsWindowController implements FxController {
 
   public void handleFolderOptionsSectionClick(ActionEvent ignore) {
     showView(OptionsViewHelper.Name.FOLDER_VIEW);
-  }
-
-  public void handleCommonOptionsSectionClick(ActionEvent ignore) {
-    var pane = new Pane();
-    pane.setStyle("-fx-background-color: green;");
-    optionsContentPane.setCenter(pane);
   }
 
   protected void showView(OptionsViewHelper.Name viewName) {

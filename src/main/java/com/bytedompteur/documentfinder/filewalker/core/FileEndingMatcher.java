@@ -35,10 +35,8 @@ public class FileEndingMatcher implements FileMatcher {
   }
 
   private Pattern buildPattern(Set<String> fileEndings) {
-    final Pattern pattern;
     String fileEndingsStr = String.join("|", fileEndings);
     String expression = String.format("^.*(%s)$", fileEndingsStr);
-    pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-    return pattern;
+    return Pattern.compile(expression, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
   }
 }

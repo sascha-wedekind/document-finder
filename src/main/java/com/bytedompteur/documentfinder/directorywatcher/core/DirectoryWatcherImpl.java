@@ -99,6 +99,7 @@ public class DirectoryWatcherImpl implements DirectoryWatcher {
     }
   }
 
+  @SuppressWarnings("java:S2142")
   private void doWatch() {
     while (!shouldStop.get()) {
       try {

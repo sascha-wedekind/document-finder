@@ -67,8 +67,7 @@ public class FileEventHandler {
     try {
       var parserTask = FileParserTask.create(path);
       executorService.submit(parserTask);// Producer
-      var adapter = new FileParserRepositoryAdapter(indexRepository, parserTask, path, filesToProcess);
-      executorService.submit(adapter); // Consumer
+      executorService.submit(new FileParserRepositoryAdapter(indexRepository, parserTask, path, filesToProcess)); // Consumer
     } catch (IOException e) {
       log.error("Error while processing file create or update of '{}'. File ignored", path, e);
     }

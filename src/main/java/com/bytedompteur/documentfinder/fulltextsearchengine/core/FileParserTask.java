@@ -32,6 +32,7 @@ public class FileParserTask implements Runnable {
     this.pipedReader = pipedReader;
   }
 
+  @SuppressWarnings("java:S2095")
   public static FileParserTask create(Path path) throws IOException {
     var pipedReader = new PipedReader(250 * 1024);
     var pipedWriter = new PipedWriter(pipedReader);

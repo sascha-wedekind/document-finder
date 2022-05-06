@@ -22,6 +22,7 @@ import java.util.List;
 
 @Slf4j
 @OptionsWindowScope
+@SuppressWarnings("java:S1172")
 public class FolderOptionsController extends BaseOptionsController {
 
   private final ObservableList<String> pathsList = FXCollections.observableArrayList();
@@ -143,7 +144,6 @@ public class FolderOptionsController extends BaseOptionsController {
       .filter(this::isValidDirectoryToBeAddedToPathList)
       .filter(it -> pathIsNotChildOfAnyPathInList(it, pathsList))
       .doOnEach(ignore -> pathToAddTextField.clear())
-      .map(String::toLowerCase)
       .filter(it -> !pathsList.contains(it))
       .subscribe(pathsList::add);
   }
@@ -179,5 +179,4 @@ public class FolderOptionsController extends BaseOptionsController {
   public void handleCancelButtonClick(ActionEvent ignore) {
     emitCancelButtonClicked();
   }
-
 }

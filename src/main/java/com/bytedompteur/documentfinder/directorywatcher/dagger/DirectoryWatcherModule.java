@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 
 @Slf4j
 @Module
-public class DirectoryWatcherModule {
+public abstract class DirectoryWatcherModule {
 
   @Provides
   @Singleton

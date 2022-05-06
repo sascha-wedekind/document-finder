@@ -53,6 +53,7 @@ public class ExitApplicationCommand implements  Runnable{
       var ignore = executorService.awaitTermination(30, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       log.error("Failed to stop running threads", e);
+      Thread.currentThread().interrupt();
     }
   }
 

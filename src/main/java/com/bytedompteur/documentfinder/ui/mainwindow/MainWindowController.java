@@ -19,6 +19,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 @MainWindowScope
+@SuppressWarnings("java:S1172")
 public class MainWindowController implements FxController {
 
   private final SearchResultTableController searchResultTable;
