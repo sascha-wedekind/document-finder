@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.SystemUtils;
 
 import javax.inject.Inject;
+import java.awt.*;
 
 @NoArgsConstructor(onConstructor = @__(@Inject))
 public class JavaFxPlatformAdapter {
@@ -23,5 +24,9 @@ public class JavaFxPlatformAdapter {
 
   public boolean isWindowsOs() {
     return SystemUtils.IS_OS_WINDOWS;
+  }
+
+  public boolean isSystemTraySupported() {
+    return SystemTray.isSupported();
   }
 }

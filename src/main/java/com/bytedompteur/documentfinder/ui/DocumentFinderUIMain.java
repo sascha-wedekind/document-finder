@@ -24,7 +24,7 @@ public class DocumentFinderUIMain
     try {
       UIComponent uiComponent = createUIComponent(primaryStage);
       stopAllGracefulCommand = Optional.of(uiComponent.stopAllGracefulCommand());
-      configureStage(primaryStage, uiComponent);
+      configureStage(primaryStage, uiComponent, stopAllGracefulCommand.get());
 
       uiComponent.ipcService().startIPCServer();
       uiComponent.startFulltextSearchServiceCommand().run();
@@ -47,7 +47,7 @@ public class DocumentFinderUIMain
       .build();
   }
 
-  private void configureStage(Stage primaryStage, UIComponent uiComponent) {
+  private void configureStage(Stage primaryStage, UIComponent uiComponent, StopAllGracefulCommand stopAllGracefulCommand) {
     var platformAdapter = uiComponent.platformAdapter();
     platformAdapter.disableImplicitExit();
     List<Image> windowIcons = platformAdapter.isMacOs() ? List.of() : List.of(
@@ -55,6 +55,15 @@ public class DocumentFinderUIMain
       new Image(getClass().getResource("/images/DocumentFinderIcon_512.png").toString())
     );
     primaryStage.getIcons().setAll(windowIcons);
-    primaryStage.setOnCloseRequest(it -> uiComponent.windowManager().hideApplicationWindow());
+    primaryStage.setOnCloseRequest(it -> handleStageCloseEvent(uiComponent, stopAllGracefulCommand));
+  }
+
+  private void handleStageCloseEvent(UIComponent uiComponent, StopAllGracefulCommand stopAllGracefulCommand) {
+    var windowManager = uiComponent.windowManager();
+    if (windowManager.isSystemTraySupported()) {
+      windowManager.hideApplicationWindow();
+    } else {
+      stopAllGracefulCommand.run();
+    }
   }
 }

@@ -78,6 +78,10 @@ public class WindowManager {
     platformAdapter.runLater(stage::close);
   }
 
+  public boolean isSystemTraySupported() {
+    return platformAdapter.isSystemTraySupported();
+  }
+
   protected void show(Parent value) {
     Scene scene = sceneFactory.apply(value);
     platformAdapter.runLater(() -> {
