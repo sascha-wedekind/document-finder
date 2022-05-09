@@ -40,7 +40,7 @@ jobs:
 
       - name: Upload test result
         uses: actions/upload-artifact@v3
-        if: always
+        if: always()
         with:
           name: test-reports
           path: /home/runner/work/document-finder/document-finder/build/reports/tests/test/
