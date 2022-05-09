@@ -1,9 +1,7 @@
 package com.bytedompteur.documentfinder.interprocesscommunication.core;
 
 import com.google.common.base.Verify;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -23,10 +21,20 @@ class IPCServerTest {
 
   private IPCServerImpl sut;
 
-  ThreadPoolExecutor executorService = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+  private static ThreadPoolExecutor EXECUTOR_SERVICE;
 
   TestRequestListener requestListener;
   private SocketAddressService socketAddressFactory;
+
+  @BeforeAll
+  static void beforeAll() {
+    EXECUTOR_SERVICE = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+  }
+
+  @AfterAll
+  static void afterAll() {
+    EXECUTOR_SERVICE.shutdown();
+  }
 
   @BeforeEach
   void setUp() throws IOException {
@@ -35,7 +43,7 @@ class IPCServerTest {
     requestListener = new TestRequestListener();
     sut = new IPCServerImpl(
       socketAddressFactory,
-      executorService,
+      EXECUTOR_SERVICE,
       requestListener
     );
   }
@@ -44,7 +52,6 @@ class IPCServerTest {
   void tearDown() throws IOException {
     sut.closeSocketChannelAndResetFlags();
     Files.deleteIfExists(socketAddressFactory.getSocketAddressFile().getParent());
-    executorService.shutdown();
   }
 
   @Test
@@ -59,7 +66,7 @@ class IPCServerTest {
     var socketFile = socketAddressFactory.getSocketAddressFile();
     assertThat(socketFile).existsNoFollowLinks();
     assertThat(sut.isRunning()).isTrue();
-    assertThat(executorService.getActiveCount()).isEqualTo(1);
+    assertThat(EXECUTOR_SERVICE.getActiveCount()).isEqualTo(1);
   }
 
   @Test
@@ -78,7 +85,7 @@ class IPCServerTest {
     var socketFile = socketAddressFactory.getSocketAddressFile();
     assertThat(socketFile).doesNotExist();
     assertThat(sut.isRunning()).isFalse();
-    assertThat(executorService.getActiveCount()).isEqualTo(0);
+    assertThat(EXECUTOR_SERVICE.getActiveCount()).isZero();
   }
 
   /*
@@ -126,8 +133,8 @@ class IPCServerTest {
     @Override
     public void process(CharSequence requestPayload) {
       Verify.verifyNotNull(countDownLatch, "Count down latch not set! But it is required for the test.");
-      countDownLatch.countDown();
       messagesReceived.add(requestPayload.toString());
+      countDownLatch.countDown();
     }
 
     public void setCountDownLatch(CountDownLatch countDownLatch) {
