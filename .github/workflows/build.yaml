@@ -37,3 +37,10 @@ jobs:
           vncserver :90 -localhost -nolisten tcp
           ./gradlew build test
           vncserver -kill :90
+
+      - name: Upload test result
+          uses: actions/upload-artifact@v3
+          with:
+            name: test-reports
+            path: /home/runner/work/document-finder/document-finder/build/reports/tests/test/
+            retention-days: 20
