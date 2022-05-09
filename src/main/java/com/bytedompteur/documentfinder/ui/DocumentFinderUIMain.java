@@ -44,6 +44,7 @@ public class DocumentFinderUIMain
       .numberOfThreads(4)
       .applicationHomeDirectory(DocumentFinderMain.determineApplicationHomeDirectory())
       .primaryStage(primaryStage)
+      .hostServices(getHostServices())
       .build();
   }
 

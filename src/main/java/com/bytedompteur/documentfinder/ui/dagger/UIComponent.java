@@ -10,6 +10,7 @@ import com.bytedompteur.documentfinder.ui.WindowManager;
 import com.bytedompteur.documentfinder.ui.adapter.out.JavaFxPlatformAdapter;
 import dagger.BindsInstance;
 import dagger.Component;
+import javafx.application.HostServices;
 import javafx.stage.Stage;
 
 import javax.inject.Named;
@@ -43,6 +44,9 @@ public interface UIComponent {
 
     @BindsInstance
     UIComponent.Builder primaryStage(@Named("primaryStage") Stage value);
+
+    @BindsInstance
+    UIComponent.Builder hostServices(HostServices hostServices);
 
     UIComponent build();
   }

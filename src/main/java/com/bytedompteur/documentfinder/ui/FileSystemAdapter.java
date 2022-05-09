@@ -1,15 +1,15 @@
 package com.bytedompteur.documentfinder.ui;
 
+import javafx.application.HostServices;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,11 +19,13 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
-@NoArgsConstructor(onConstructor = @__(@Inject))
+@RequiredArgsConstructor(onConstructor = @__(@Inject))
 @Slf4j
 public class FileSystemAdapter {
 
     private static final FileSystemView FSV = FileSystemView.getFileSystemView();
+
+    private final HostServices hostServices;
 
     public Optional<ImageView> getSystemIcon(Path path) {
         var result = Optional.<ImageView>empty();
@@ -52,11 +54,7 @@ public class FileSystemAdapter {
     }
 
     public void openInOperatingSystem(Path path) {
-        try {
-            Desktop.getDesktop().open(path.toFile());
-        } catch (IOException e) {
-            log.error("While OS should open '{}'", path, e);
-        }
+        hostServices.showDocument(path.toUri().toString());
     }
 
     private static WritableImage toWritableImage(Icon swingIcon) {
