@@ -87,11 +87,11 @@ public class IndexRepository {
     if (isNotBlank(searchText)) {
       try {
         Query query;
-        var searchTextString = searchText.toString().toLowerCase();
+        var searchTextString = searchText.toString();
         if (isQuerySearchTextSupposedForParser(searchTextString)) {
           query = createQueryFromParseSearchText(searchTextString);
         } else {
-          query = createPathContainsOrBodyConainsPrefixedWordQuery(searchTextString);
+          query = createPathContainsOrBodyConainsPrefixedWordQuery(searchTextString.toLowerCase());
         }
         var indexSearcher = indexSearcherFactory.build();
         var docs = indexSearcher.search(query, MAX_RESULT_LIMIT);

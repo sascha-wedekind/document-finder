@@ -3,9 +3,11 @@ package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.lucene.analysis.classic.ClassicAnalyzer;
+import org.apache.lucene.analysis.classic.ClassicTokenizerFactory;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
-import org.apache.lucene.analysis.core.WhitespaceTokenizerFactory;
 import org.apache.lucene.analysis.custom.CustomAnalyzer;
+import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterGraphFilterFactory;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import static java.nio.file.Files.notExists;
 
@@ -80,18 +83,37 @@ public class IndexManager {
   protected void createIndexWriterConfig() throws IOException {
     try {
       log.info("Creating writer analyzer and configuration");
-      var analyzer = CustomAnalyzer
-        .builder()
-        .withTokenizer(WhitespaceTokenizerFactory.NAME)
-        .addTokenFilter(LowerCaseFilterFactory.NAME)
-        .addTokenFilter(WordDelimiterGraphFilterFactory.NAME, "catenateWords", "1")
-        .build();
-      writerConfig = new IndexWriterConfig(analyzer);
+      PerFieldAnalyzerWrapper perFieldAnalyzer = createPerFieldAnalyzer();
+      writerConfig = new IndexWriterConfig(perFieldAnalyzer);
       log.info("Writer analyzer and configuration created");
     } catch (IOException e) {
       log.error("Could not create writer analyzer and configuration", e);
       throw e;
     }
+  }
+
+  protected static PerFieldAnalyzerWrapper createPerFieldAnalyzer() throws IOException {
+    return new PerFieldAnalyzerWrapper(new ClassicAnalyzer(), Map.of(
+      IndexRepository.PATH_FIELD_NAME, createPathAnalyzer(),
+      IndexRepository.PAYLOAD_FIELD_NAME, createPayloadAnalyzer()
+    ));
+  }
+
+  protected static CustomAnalyzer createPathAnalyzer() throws IOException {
+    return CustomAnalyzer
+      .builder()
+      .withTokenizer(ClassicTokenizerFactory.NAME)
+      .addTokenFilter(WordDelimiterGraphFilterFactory.NAME, "catenateWords", "0", "splitOnNumerics", "0", "splitOnCaseChange", "0")
+      .addTokenFilter(LowerCaseFilterFactory.NAME)
+      .build();
+  }
+
+  protected static CustomAnalyzer createPayloadAnalyzer() throws IOException {
+    return CustomAnalyzer
+      .builder()
+      .withTokenizer(ClassicTokenizerFactory.NAME)
+      .addTokenFilter(LowerCaseFilterFactory.NAME)
+      .build();
   }
 
 }

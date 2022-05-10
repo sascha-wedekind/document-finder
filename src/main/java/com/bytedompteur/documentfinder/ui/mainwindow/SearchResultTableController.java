@@ -1,15 +1,19 @@
 package com.bytedompteur.documentfinder.ui.mainwindow;
 
+import com.bytedompteur.documentfinder.ui.FileSystemAdapter;
 import com.bytedompteur.documentfinder.ui.FxController;
 import com.bytedompteur.documentfinder.ui.mainwindow.dagger.MainWindowScope;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +31,8 @@ public class SearchResultTableController implements FxController {
   private final SearchResultTableContextMenu contextMenu;
 
   private final ObservableList<SearchResult> searchResults = FXCollections.observableArrayList();
+
+  private final FileSystemAdapter fileUtil;
 
   @FXML
   public TableView<SearchResult> resultTable;
@@ -63,16 +69,29 @@ public class SearchResultTableController implements FxController {
         contextMenu.setSelectedSearchResult(it);
         contextMenu.show(event.getPickResult().getIntersectedNode(), event.getScreenX(), event.getScreenY());
       }));
+    resultTable.setRowFactory(param -> { // Row factory to register double click listener
+      var result = new TableRow<SearchResult>();
+      result.setOnMouseClicked(handleTableRowLeftClick(result));
+      return result;
+    });
+  }
+
+  protected EventHandler<MouseEvent> handleTableRowLeftClick(TableRow<SearchResult> result) {
+    return e -> {
+      if (e.getClickCount() == 2) {
+        fileUtil.openInOperatingSystem(result.getItem().getPath());
+      }
+    };
   }
 
   public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
   private void applyCellFactory(TableColumn<SearchResult, Instant> column) {
 
-    column.setCellFactory(new Callback<TableColumn<SearchResult, Instant>, TableCell<SearchResult, Instant>>() {
+    column.setCellFactory(new Callback<>() {
       @Override
       public TableCell<SearchResult, Instant> call(TableColumn<SearchResult, Instant> param) {
-        return new TableCell<>(){
+        return new TableCell<>() {
           @Override
           protected void updateItem(Instant item, boolean empty) {
             if (Objects.equals(item, getItem())) {

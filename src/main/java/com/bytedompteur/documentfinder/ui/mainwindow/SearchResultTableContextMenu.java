@@ -18,7 +18,7 @@ import static java.util.Objects.nonNull;
 
 @Slf4j
 @MainWindowScope
-public class SearchResultTableContextMenu extends ContextMenu{
+public class SearchResultTableContextMenu extends ContextMenu {
 
   public static final String OPEN_WITH_DEFAULT_MENU_ITEM_TEXT = "Open";
   public static final String OPEN_DIRECTORY_MENU_ITEM_TEXT = "Open directory";
