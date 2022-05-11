@@ -7,10 +7,13 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -22,8 +25,10 @@ public class SearchResultTableContextMenu extends ContextMenu {
 
   public static final String OPEN_WITH_DEFAULT_MENU_ITEM_TEXT = "Open";
   public static final String OPEN_DIRECTORY_MENU_ITEM_TEXT = "Open directory";
+  public static final String COPY_FILE_MENU_ITEM_TEXT = "Copy";
   private final MenuItem openWithDefaultApplicationMenuItem;
   private final MenuItem openDirectoryContainingFileMenuItem;
+  private final MenuItem copyFileToClipbordMenuItem;
   private final ObjectProperty<SearchResult> selectedSearchResult = new SimpleObjectProperty<>();
   private final Map<MenuItem, Consumer<SearchResult>> menuItemClickHandlerByMenuItem;
   private final FileSystemAdapter fileUtil;
@@ -33,10 +38,12 @@ public class SearchResultTableContextMenu extends ContextMenu {
     this.fileUtil = fileUtil;
     openWithDefaultApplicationMenuItem = new MenuItem(OPEN_WITH_DEFAULT_MENU_ITEM_TEXT);
     openDirectoryContainingFileMenuItem = new MenuItem(OPEN_DIRECTORY_MENU_ITEM_TEXT);
+    copyFileToClipbordMenuItem = new MenuItem(COPY_FILE_MENU_ITEM_TEXT);
 
     menuItemClickHandlerByMenuItem = Map.of(
       openWithDefaultApplicationMenuItem, result -> openInOperatingSystem(result.getPath()),
-      openDirectoryContainingFileMenuItem, result -> openInOperatingSystem(result.getPath().getParent())
+      openDirectoryContainingFileMenuItem, result -> openInOperatingSystem(result.getPath().getParent()),
+      copyFileToClipbordMenuItem, result -> copyFileToClipboard(result.getPath())
     );
 
     setOnAction(this::handleContextMenuItemClick);
@@ -59,8 +66,10 @@ public class SearchResultTableContextMenu extends ContextMenu {
     if (nonNull(newValue)) {
       if (newValue.isDirectory()) {
         getItems().add(openWithDefaultApplicationMenuItem);
+        getItems().add(copyFileToClipbordMenuItem);
       } else {
         getItems().add(openWithDefaultApplicationMenuItem);
+        getItems().add(copyFileToClipbordMenuItem);
         getItems().add(openDirectoryContainingFileMenuItem);
       }
     } else {
@@ -75,6 +84,13 @@ public class SearchResultTableContextMenu extends ContextMenu {
   protected void openInOperatingSystem(Path path) {
     fileUtil.openInOperatingSystem(path);
   }
+
+  protected void copyFileToClipboard(Path path) {
+    var clipboardContent = new ClipboardContent();
+    clipboardContent.putFiles(List.of(path.toFile()));
+    Clipboard.getSystemClipboard().setContent(clipboardContent);
+  }
+
 
   @SuppressWarnings("unused")
   public SearchResult getSelectedSearchResult() {

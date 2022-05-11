@@ -9,10 +9,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +57,15 @@ public class SearchResultTableController implements FxController {
       .filter(it -> it.getId().equals("fileModifiedColumn"))
       .findFirst()
       .map(it -> (TableColumn<SearchResult, Instant>) it)
-      .ifPresent(this::applyCellFactory);
+      .ifPresent(this::applyFileModifiedColumnCellFactory);
+
+    //noinspection unchecked
+    resultTable.getColumns()
+      .stream()
+      .filter(it -> it.getId().equals("pathParentColumn"))
+      .findFirst()
+      .map(it -> (TableColumn<SearchResult, String>) it)
+      .ifPresent(this::applyPathParentColumnCellFactory);
 
     resultTable.setContextMenu(contextMenu);
     resultTable.setOnContextMenuRequested(event -> Optional
@@ -86,8 +91,7 @@ public class SearchResultTableController implements FxController {
 
   public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
-  private void applyCellFactory(TableColumn<SearchResult, Instant> column) {
-
+  private void applyFileModifiedColumnCellFactory(TableColumn<SearchResult, Instant> column) {
     column.setCellFactory(new Callback<>() {
       @Override
       public TableCell<SearchResult, Instant> call(TableColumn<SearchResult, Instant> param) {
@@ -108,6 +112,27 @@ public class SearchResultTableController implements FxController {
           }
         };
       }
+    });
+  }
+
+  private void applyPathParentColumnCellFactory(TableColumn<SearchResult, String> column) {
+    column.setCellFactory(param -> {
+      return new TableCell<>() {
+        @Override
+        protected void updateItem(String item, boolean empty) {
+          super.updateItem(item, empty);
+          if (empty) {
+            super.setText(null);
+            super.setGraphic(null);
+          } else {
+            var label = new Label();
+            label.setTextOverrun(OverrunStyle.CENTER_ELLIPSIS);
+            label.setText(item);
+            label.setTooltip(new Tooltip(item));
+            super.setGraphic(label);
+          }
+        }
+      };
     });
   }
 
