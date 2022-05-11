@@ -5,8 +5,10 @@ import com.bytedompteur.documentfinder.ui.FileSystemAdapter;
 import com.bytedompteur.documentfinder.ui.FxController;
 import com.bytedompteur.documentfinder.ui.WindowManager;
 import com.bytedompteur.documentfinder.ui.mainwindow.dagger.MainWindowScope;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import java.util.Optional;
 @SuppressWarnings("java:S1172")
 public class MainWindowController implements FxController {
 
+  public static final String SEARCH_RESULTS_TEXT = "search results";
   private final SearchResultTableController searchResultTable;
   private final AnalyzeFilesProgressBarController progressBarController;
   private final FulltextSearchService fulltextSearchService;
@@ -30,20 +33,49 @@ public class MainWindowController implements FxController {
 
   @FXML
   public TextField searchTextField;
+
+  @FXML
+  public Label numberOfSearchResultsLabel;
+
   private Disposable disposable;
 
-  public void searchForText(KeyEvent inputMethodEvent) {
+  public void searchAsYouType(KeyEvent ignore) {
     Optional.ofNullable(disposable).ifPresent(Disposable::dispose);
     disposable = Mono
       .delay(Duration.ofMillis(300))
-      .subscribe(ignore -> handleFindButtonClick(null));
+      .subscribe(it -> {
+        if (searchTextField.getCharacters().isEmpty()) {
+          clearSearchResults();
+        } else {
+          searchForFilesMatchingSearchText();
+        }
+      });
   }
 
   @SuppressWarnings("java:S1172")
-  public void handleFindButtonClick(ActionEvent ignore) {
-    searchResultTable.getSearchResults().clear();
+  public void handleClearSearchTextButtonClick(ActionEvent ignore) {
+    searchTextField.clear();
+    clearSearchResults();
+  }
+
+  public void addToSearchResults(SearchResult it) {
+    Platform.runLater(() -> {
+      searchResultTable.getSearchResults().add(it);
+      numberOfSearchResultsLabel.setText(searchResultTable.getSearchResults().size() + " " + SEARCH_RESULTS_TEXT);
+    });
+  }
+
+  public void clearSearchResults() {
+    Platform.runLater(() -> {
+      searchResultTable.getSearchResults().clear();
+      numberOfSearchResultsLabel.setText("0 " + SEARCH_RESULTS_TEXT);
+    });
+  }
+
+  public void searchForFilesMatchingSearchText() {
     Mono
       .just(searchTextField.getCharacters())
+      .doOnEach(it -> clearSearchResults())
       .filter(it -> !it.isEmpty())
       .flatMapMany(fulltextSearchService::findFilesWithNamesOrContentMatching)
       .filter(it -> it.getPath().toFile().exists()) // Exclude if file does not exist
@@ -52,8 +84,7 @@ public class MainWindowController implements FxController {
         fileSystemAdapter.getSystemIcon(it.getPath()).orElse(null),
         fileSystemAdapter.getLastModified(it.getPath()).orElse(null)
       ))
-      .subscribe(it -> searchResultTable.getSearchResults().add(it));
-
+      .subscribe(this::addToSearchResults);
   }
 
   @SuppressWarnings("java:S1172")
@@ -63,7 +94,7 @@ public class MainWindowController implements FxController {
 
   @FXML
   public void initialize() {
-    // EMPTY
+    clearSearchResults();
   }
 
   @Override
@@ -71,7 +102,7 @@ public class MainWindowController implements FxController {
     progressBarController.beforeViewHide();
   }
 
-  public void handleSearchTextFieldAction(ActionEvent actionEvent) {
-    handleFindButtonClick(null);
+  public void handleSearchTextFieldAction(ActionEvent ignore) {
+    searchForFilesMatchingSearchText();
   }
 }

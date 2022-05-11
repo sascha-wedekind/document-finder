@@ -26,6 +26,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -37,6 +38,7 @@ public class IndexRepository {
   public static final int MAX_RESULT_LIMIT = 100;
   public static final String PAYLOAD_FIELD_NAME = "payload";
   public static final String PATH_FIELD_NAME = "path";
+  public static final Pattern ALPHANUMERIC = Pattern.compile("^[a-zA-Z0-9]*$");
 
   private final IndexWriter indexWriter;
   private final IndexSearcherFactory indexSearcherFactory;
@@ -134,13 +136,7 @@ public class IndexRepository {
   }
 
   private boolean isQuerySearchTextSupposedForParser(String searchTextString) {
-    return searchTextString.contains("AND")
-      || searchTextString.contains("OR")
-      || searchTextString.contains("(")
-      || searchTextString.contains(")")
-      || searchTextString.contains("[")
-      || searchTextString.contains("]")
-      || searchTextString.contains(":");
+    return !ALPHANUMERIC.matcher(searchTextString).matches();
   }
 
   protected Flux<SearchResult> createSearchResultFlux(IndexSearcher indexSearcher, ScoreDoc[] scoreDocs) {
