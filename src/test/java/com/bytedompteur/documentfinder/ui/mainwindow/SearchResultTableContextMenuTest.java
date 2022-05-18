@@ -43,6 +43,7 @@ class SearchResultTableContextMenuTest {
       .extracting(MenuItem::getText)
       .containsExactlyInAnyOrder(
         SearchResultTableContextMenu.OPEN_DIRECTORY_MENU_ITEM_TEXT,
+        SearchResultTableContextMenu.COPY_FILE_MENU_ITEM_TEXT,
         SearchResultTableContextMenu.OPEN_WITH_DEFAULT_MENU_ITEM_TEXT
       );
   }
@@ -66,7 +67,8 @@ class SearchResultTableContextMenuTest {
     assertThat(sut.getItems())
       .extracting(MenuItem::getText)
       .containsExactlyInAnyOrder(
-        SearchResultTableContextMenu.OPEN_WITH_DEFAULT_MENU_ITEM_TEXT
+        SearchResultTableContextMenu.OPEN_WITH_DEFAULT_MENU_ITEM_TEXT,
+        SearchResultTableContextMenu.COPY_FILE_MENU_ITEM_TEXT
       );
   }
 }
