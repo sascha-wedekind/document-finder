@@ -15,7 +15,7 @@ ext {
     janinoVersion = "3.1.6"
     luceneVersion = '9.0.0'
     junitVersion = '5.8.2'
-    mockitoVersion = '4.3.1'
+    mockitoVersion = '4.6.0'
     assertjVersion = '3.22.0'
     reactorVersion = '3.4.14'
     guavaVersion = '31.0.1-jre'
