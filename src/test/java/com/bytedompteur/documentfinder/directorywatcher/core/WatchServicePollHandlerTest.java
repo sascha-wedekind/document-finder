@@ -1,5 +1,6 @@
 package com.bytedompteur.documentfinder.directorywatcher.core;
 
+import com.bytedompteur.documentfinder.directorywatcher.adapter.in.DirectoryWatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,12 +30,11 @@ class WatchServicePollHandlerTest {
 
   @SuppressWarnings("unused")
   @Mock
-  DirectoryWatcherImpl mockedDirectoryWatcher;
+  DirectoryWatcher mockedDirectoryWatcher;
 
   @BeforeEach
   void setUp() {
     pathByWatchKey = new HashMap<>();
-    when(mockedDirectoryWatcher.getPathByWatchKey()).thenReturn(pathByWatchKey);
     sut = new WatchServicePollHandler(mockedDirectoryWatcher);
   }
 
@@ -153,7 +153,7 @@ class WatchServicePollHandlerTest {
   }
 
   @Test
-  void mapToAbsolutePathEvents() {
+  void mapToAbsolutePathEvents_joinsFilePathWithBasePath() {
     // Arrange
     WatchKeyForTests watchKeyBasePath = WatchKeyForTests
       .builder()
@@ -178,11 +178,18 @@ class WatchServicePollHandlerTest {
     pathByWatchKey.put(watchKeyBasePath, basePath);
     pathByWatchKey.put(watchKeyAnotherBasePath, anotherBasePath);
 
+    when(mockedDirectoryWatcher.getPathByWatchKey()).thenReturn(pathByWatchKey);
+
     // Act
     List<AbsolutePathWatchEvent> events1 = sut.mapToAbsolutePathEvents(watchKeyBasePath);
     List<AbsolutePathWatchEvent> events2 = sut.mapToAbsolutePathEvents(watchKeyAnotherBasePath);
 
-    // sascha: Implementieren!!!
-    System.out.println();
+    // Assert
+    assertThat(events1)
+      .map(AbsolutePathWatchEvent::context)
+      .containsExactly(Path.of("\\a\\base\\path\\fileA.txt"));
+    assertThat(events2)
+      .map(AbsolutePathWatchEvent::context)
+      .containsExactly(Path.of("\\another\\base\\path\\fileB.txt"));
   }
 }

@@ -1,7 +1,10 @@
 package com.bytedompteur.documentfinder.directorywatcher.dagger;
 
 import com.bytedompteur.documentfinder.directorywatcher.adapter.in.DirectoryWatcher;
+import com.bytedompteur.documentfinder.directorywatcher.adapter.out.FilesAdapter;
 import com.bytedompteur.documentfinder.directorywatcher.core.DirectoryWatcherImpl;
+import com.bytedompteur.documentfinder.directorywatcher.core.LazyDirectoryWatcherDelegate;
+import com.bytedompteur.documentfinder.directorywatcher.core.WatchServicePollHandler;
 import dagger.Module;
 import dagger.Provides;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +19,10 @@ public abstract class DirectoryWatcherModule {
   @Provides
   @Singleton
   static DirectoryWatcher provideDirectoryWatcher(ExecutorService executorService) {
-    return new DirectoryWatcherImpl(executorService);
+    LazyDirectoryWatcherDelegate lazyDelegate = new LazyDirectoryWatcherDelegate();
+    DirectoryWatcherImpl result = new DirectoryWatcherImpl(executorService, new WatchServicePollHandler(lazyDelegate), new FilesAdapter());
+    lazyDelegate.setDelegate(result);
+    return result;
   }
 
 }

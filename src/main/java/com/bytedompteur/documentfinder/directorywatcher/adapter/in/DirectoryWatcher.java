@@ -5,8 +5,12 @@ import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.WatchKey;
+import java.util.Map;
 
 public interface DirectoryWatcher {
+
+  Map<WatchKey, Path> getPathByWatchKey();
 
   Flux<FileWatchEvent> fileEvents();
 

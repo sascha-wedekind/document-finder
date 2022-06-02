@@ -1,5 +1,6 @@
 package com.bytedompteur.documentfinder.directorywatcher.core;
 
+import com.bytedompteur.documentfinder.directorywatcher.adapter.in.DirectoryWatcher;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -15,15 +16,14 @@ import java.util.stream.Collectors;
 import static java.util.Objects.nonNull;
 
 @Slf4j
+public
 class WatchServicePollHandler {
 
-  private final Map<WatchKey, Path> pathByWatchKey;
-  private final DirectoryWatcherImpl directoryWatcher;
+  private final DirectoryWatcher directoryWatcher;
   private final AbsolutePathWatchEventByKindComparator comparator = new AbsolutePathWatchEventByKindComparator();
 
-  WatchServicePollHandler(DirectoryWatcherImpl directoryWatcher) {
+  public WatchServicePollHandler(DirectoryWatcher directoryWatcher) {
     this.directoryWatcher = directoryWatcher;
-    this.pathByWatchKey = directoryWatcher.getPathByWatchKey();
   }
 
   List<AbsolutePathWatchEvent> handlePoll(WatchKey key) {
@@ -56,7 +56,7 @@ class WatchServicePollHandler {
       .values()
       .stream()
       .sorted(comparator)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   /**
@@ -67,7 +67,7 @@ class WatchServicePollHandler {
     List<AbsolutePathWatchEvent> directoryEvents = absolutePathEvents
       .stream()
       .filter(AbsolutePathWatchEvent::isDirectoryEvent)
-      .collect(Collectors.toList());
+      .toList();
 
     directoryEvents.forEach(it -> {
       if (StandardWatchEventKinds.ENTRY_CREATE.equals(it.kind())) {
@@ -92,13 +92,14 @@ class WatchServicePollHandler {
     if (log.isDebugEnabled()) {
       events.forEach(e -> log.debug("Processing raw watch event {} - {}", e.kind(), e.context()));
     }
+    Map<WatchKey, Path> pathByWatchKey = directoryWatcher.getPathByWatchKey();
     return events
       .stream()
       .filter(it -> it.kind().type().isAssignableFrom(Path.class))
       .map(it -> (WatchEvent<Path>) it)
       .filter(it -> pathByWatchKey.containsKey(key))
       .map(it -> new AbsolutePathWatchEvent(pathByWatchKey.get(key).resolve(it.context()), it))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private List<AbsolutePathWatchEvent> processWatchKey(WatchKey key) {

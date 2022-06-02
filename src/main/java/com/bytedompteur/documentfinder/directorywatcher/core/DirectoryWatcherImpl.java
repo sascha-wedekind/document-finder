@@ -3,6 +3,7 @@ package com.bytedompteur.documentfinder.directorywatcher.core;
 import com.bytedompteur.documentfinder.directorywatcher.adapter.in.DirectoryWatcher;
 import com.bytedompteur.documentfinder.directorywatcher.adapter.in.FileWatchEvent;
 import com.bytedompteur.documentfinder.directorywatcher.adapter.in.FileWatchEvent.Type;
+import com.bytedompteur.documentfinder.directorywatcher.adapter.out.FilesAdapter;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
@@ -28,36 +29,32 @@ public class DirectoryWatcherImpl implements DirectoryWatcher {
   private final AtomicBoolean shouldStop = new AtomicBoolean(false);
   private final WatchServicePollHandler pollHandler;
   private final ExecutorService executorService;
+  private final FilesAdapter filesAdapter;
   private WatchService watchService;
   private Flux<AbsolutePathWatchEvent> eventEmitter;
   private Many<AbsolutePathWatchEvent> sink;
 
-  public DirectoryWatcherImpl(ExecutorService executorService) {
+  public DirectoryWatcherImpl(ExecutorService executorService, WatchServicePollHandler pollHandler, FilesAdapter adapter) {
     this.executorService = executorService;
-    createSinkAndFlux();
-    pollHandler = new WatchServicePollHandler(this);
-  }
-
-  protected DirectoryWatcherImpl(WatchServicePollHandler pollHandler, WatchService watchService, ExecutorService executorService) {
-    this.executorService = executorService;
-    createSinkAndFlux();
     this.pollHandler = pollHandler;
-    this.watchService = watchService;
+    this.filesAdapter = adapter;
+    createSinkAndFlux();
   }
 
-  Map<WatchKey, Path> getPathByWatchKey() {
+  @Override
+  public Map<WatchKey, Path> getPathByWatchKey() {
     return Collections.unmodifiableMap(pathByWatchKey);
   }
 
   @Override
   public Flux<FileWatchEvent> fileEvents() {
-    return eventEmitter.map(this::mapToFileWatchEvent);
+    return eventEmitter.map(DirectoryWatcherImpl::mapToFileWatchEvent);
   }
 
   @Override
   public void watchIncludingSubdirectories(Path value) throws IOException {
     if (nonNull(value) && !isAlreadyRegistered(value)) {
-      Files.walkFileTree(value, new SimpleFileVisitor<>() {
+      filesAdapter.walkFileTree(value, new SimpleFileVisitor<>() {
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
           registerAtWatchService(dir);
@@ -70,7 +67,7 @@ public class DirectoryWatcherImpl implements DirectoryWatcher {
   @Override
   public void unwatchIncludingSubdirectories(Path value) throws IOException {
     if (nonNull(value) && isAlreadyRegistered(value)) {
-      Files.walkFileTree(value, new SimpleFileVisitor<>() {
+      filesAdapter.walkFileTree(value, new SimpleFileVisitor<>() {
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
           deregisterAtWatchService(dir);
@@ -92,7 +89,7 @@ public class DirectoryWatcherImpl implements DirectoryWatcher {
     try {
       if (watchService == null) {
         log.debug("Creating watch service");
-        watchService = FileSystems.getDefault().newWatchService();
+        watchService = filesAdapter.createWatchService();
       }
     } catch (IOException e) {
       log.error("While creating watch service", e);
@@ -107,20 +104,12 @@ public class DirectoryWatcherImpl implements DirectoryWatcher {
       } catch (InterruptedException e) {
         // IGNORE
       }
-      WatchKey key = watchService.poll();
-      pollHandler.handlePoll(key).forEach(e -> sink.tryEmitNext(e));
-
+      pollHandler
+        .handlePoll(watchService.poll())
+        .forEach(e -> sink.tryEmitNext(e));
     }
 
-    try {
-      watchService.close();
-    } catch (IOException e) {
-      log.error("While closing watch service", e);
-    } finally {
-      watchService = null;
-    }
-    shouldStop.compareAndSet(true, false);
-    started.compareAndSet(true, false);
+    resetWatcher();
   }
 
   @Override
@@ -145,7 +134,7 @@ public class DirectoryWatcherImpl implements DirectoryWatcher {
     }
   }
 
-  private void registerAtWatchService(Path path) throws IOException {
+  protected void registerAtWatchService(Path path) throws IOException {
     if (!isAlreadyRegistered(path)) {
       WatchKey watchKey = path.register(
         watchService,
@@ -172,7 +161,21 @@ public class DirectoryWatcherImpl implements DirectoryWatcher {
     eventEmitter = sink.asFlux();
   }
 
-  private FileWatchEvent mapToFileWatchEvent(AbsolutePathWatchEvent e) {
+  protected void resetWatcher() {
+    try {
+      pathByWatchKey.clear();
+      watchKeyByPath.clear();
+      watchService.close();
+    } catch (IOException e) {
+      log.error("While closing watch service", e);
+    } finally {
+      watchService = null;
+    }
+    shouldStop.compareAndSet(true, false);
+    started.compareAndSet(true, false);
+  }
+
+  protected static FileWatchEvent mapToFileWatchEvent(AbsolutePathWatchEvent e) {
     Type type;
     if (StandardWatchEventKinds.ENTRY_CREATE.equals(e.kind())) {
       type = Type.CREATE;
