@@ -1,3 +1,6 @@
+import java.nio.file.Paths
+import java.util.regex.Pattern
+
 //https://github.com/qoomon/gradle-git-versioning-plugin
 
 plugins {
@@ -39,6 +42,7 @@ group 'com.bytedompteur'
 version '1.0-SNAPSHOT'
 gitVersioning.apply {
     refs {
+        considerTagsOnBranches = true
         tag('v(?<version>.*)') {
             version = '${ref.version}'
         }
@@ -137,6 +141,12 @@ compileTestJava {
     }
 }
 
+compileJava {
+    moduleOptions {
+        version = project.property("git.commit.timestamp")
+    }
+}
+
 idea {
     module {
         downloadJavadoc = true
@@ -163,8 +173,20 @@ jlink {
         name = 'DocumentFinder'
     }
     jpackage {
-        appVersion = '1.0.0'
-        installerOptions = ['--win-per-user-install', '--win-dir-chooser', '--win-menu', '--win-shortcut']
+        def semverPattern = Pattern.compile("v\\d.*\\.\\d.*\\.\\d.*")
+        if (semverPattern.matcher("${version}").matches())
+            appVersion = "${version}".replaceAll('v', '')
+        else
+            appVersion = '0.0.0'
+
+        OperatingSystem os = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem;
+        if (os.isWindows()) {
+            installerOptions = ['--win-per-user-install', '--win-dir-chooser', '--win-menu', '--win-shortcut']
+        } else if (os.isMacOsX()) {
+            installerOptions = []
+        } else {
+            installerOptions = []
+        }
     }
     /*
      * All setting are found out in trial and error process. See also 'create-image-with-jlink.md' in the documentation
@@ -185,3 +207,12 @@ jlink {
     }
     addExtraDependencies('javafx')
 }
+
+
+tasks.register('createVersionInfoPropertiesFile', WriteProperties) {
+    outputFile Paths.get(sourceSets.main.output.resourcesDir.getPath(), 'version-info.properties').toFile()
+    property 'version', version
+    property 'commit', project.property("git.commit")
+    property 'commit-date', project.property("git.commit.timestamp.datetime")
+}
+processResources.configure {finalizedBy('createVersionInfoPropertiesFile')} // enforce property file creation after processing resources

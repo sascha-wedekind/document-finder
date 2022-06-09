@@ -7,7 +7,8 @@ public enum FxmlFile {
   PROGRESS_BAR("/fxml/ProgressBar.fxml"),
   OPTIONS_VIEW("/fxml/OptionsWindow.fxml"),
   FILE_TYPE_OPTIONS("/fxml/FileTypeOptionsView.fxml"),
-  FOLDER_OPTIONS("/fxml/FolderOptionsView.fxml");
+  FOLDER_OPTIONS("/fxml/FolderOptionsView.fxml"),
+  ABOUT("/fxml/AboutOptionsView.fxml");
 
   private final String resourcePathString;
 

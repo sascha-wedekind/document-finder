@@ -59,6 +59,10 @@ public class OptionsWindowController implements FxController {
     showView(OptionsViewHelper.Name.FOLDER_VIEW);
   }
 
+  public void handleAboutSectionClick(ActionEvent ignore) {
+    showView(OptionsViewHelper.Name.ABOUT_VIEW);
+  }
+
   protected void showView(OptionsViewHelper.Name viewName) {
     if (nonNull(currentView)) {
       if (viewName == currentView.getName()) return;
