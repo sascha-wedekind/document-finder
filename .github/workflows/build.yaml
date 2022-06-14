@@ -30,14 +30,8 @@ jobs:
       - name: Run Tests (Linux)
         if: runner.os == 'Linux'
         run: |
-          export DISPLAY=:90
-          mkdir /home/runner/.vnc
-          echo 123456 | vncpasswd -f > /home/runner/.vnc/passwd
-          chmod -v 600 /home/runner/.vnc/passwd
-          vncserver :90 -localhost -nolisten tcp
+          xvfb-run
           ./gradlew build test
-          vncserver -kill :90
-
       - name: Upload test result
         uses: actions/upload-artifact@v3
         if: always()
