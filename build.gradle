@@ -192,11 +192,6 @@ jlink {
      * directory.
      */
     mergedModule {
-        uses "org.apache.lucene.analysis.TokenizerFactory"
-        uses "org.apache.lucene.analysis.TokenFilterFactory"
-        uses "org.apache.lucene.codecs.Codec"
-        uses "org.apache.lucene.codecs.PostingsFormat"
-
         excludeProvides servicePattern: 'org.w3c.dom.DOMImplementationSourceList'
         excludeProvides servicePattern: 'org.xml.sax.driver'
         excludeProvides servicePattern: 'org.apache.xmlbeans.impl.store.PathDelegate.SelectPathInterface'
@@ -210,6 +205,7 @@ jlink {
 
 tasks.register('createVersionInfoPropertiesFile', WriteProperties) {
     description "Creates a version properties file in the build resources directory"
+    dependsOn 'processResources'
     outputFile Paths.get(sourceSets.main.output.resourcesDir.getPath(), 'version-info.properties').toFile()
     property 'version', version
     property 'commit', project.property("git.commit")
