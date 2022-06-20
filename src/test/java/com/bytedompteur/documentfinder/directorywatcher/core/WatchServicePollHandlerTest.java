@@ -187,9 +187,9 @@ class WatchServicePollHandlerTest {
     // Assert
     assertThat(events1)
       .map(AbsolutePathWatchEvent::context)
-      .containsExactly(Path.of("\\a\\base\\path\\fileA.txt"));
+      .containsExactly(Path.of("/a/base/path/fileA.txt"));
     assertThat(events2)
       .map(AbsolutePathWatchEvent::context)
-      .containsExactly(Path.of("\\another\\base\\path\\fileB.txt"));
+      .containsExactly(Path.of("/another/base/path/fileB.txt"));
   }
 }
