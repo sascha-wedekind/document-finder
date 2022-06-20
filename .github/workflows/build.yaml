@@ -30,7 +30,7 @@ jobs:
       - name: Run Tests (Linux)
         if: runner.os == 'Linux'
         run: |
-          xvfb-run ./gradlew -Djdk.gtk.version=2 build test
+          xvfb-run ./gradlew build test -Djdk.gtk.version=2
       - name: Upload test result
         uses: actions/upload-artifact@v3
         if: always()
