@@ -3,7 +3,6 @@ package com.bytedompteur.documentfinder.ui;
 
 import com.bytedompteur.documentfinder.DocumentFinderMain;
 import com.bytedompteur.documentfinder.commands.ExitApplicationCommand;
-import com.bytedompteur.documentfinder.commands.StopAllGracefulCommand;
 import com.bytedompteur.documentfinder.ui.dagger.DaggerUIComponent;
 import com.bytedompteur.documentfinder.ui.dagger.UIComponent;
 import javafx.application.Application;
@@ -32,11 +31,21 @@ public class DocumentFinderUIMain
       uiComponent.startDirectoryWatcherCommand().run();
       uiComponent.windowManager().showMainWindow();
       uiComponent.windowManager().showSystemTrayIcon();
+      registerJVMShutdownHook(uiComponent);
       log.info("Started DocumentFinder");
     } catch (Exception e) {
       log.error("Could not start DocumentFinder, shutting down", e);
       exitApplicationCommand.ifPresentOrElse(ExitApplicationCommand::run, Platform::exit);
     }
+  }
+
+  private void registerJVMShutdownHook(UIComponent uiComponent) {
+    log.info("Registering JVM shutdown hook");
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      log.info("Shutdown hook called");
+      uiComponent.exitApplicationCommand().run();
+    }));
+    log.info("Registered JVM shutdown hook");
   }
 
   private UIComponent createUIComponent(Stage primaryStage) {

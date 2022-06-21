@@ -7,11 +7,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 @Slf4j
+@Singleton // see alreadyExecuted property
 public class ExitApplicationCommand implements  Runnable{
 
   private final StopAllGracefulCommand stopAllGracefulCommand;
@@ -20,15 +22,20 @@ public class ExitApplicationCommand implements  Runnable{
 
   private final WindowManager windowManager;
 
+  private boolean alreadyExecuted = false;
+
   @Override
   public void run() {
-    stopAllServices();
-    stopRunningThreads();
-    closeQueueRepository();
-    destroyUIComponents();
+    if (!alreadyExecuted) {
+      stopAllServices();
+      stopRunningThreads();
+      closeQueueRepository();
+      destroyUIComponents();
 
-    log.info("Terminating JavaFx");
-    Platform.exit();
+      log.info("Terminating JavaFx");
+      alreadyExecuted = true;
+      Platform.exit();
+    }
   }
 
   private void destroyUIComponents() {
