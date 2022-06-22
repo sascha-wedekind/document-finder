@@ -1,10 +1,12 @@
 package com.bytedompteur.documentfinder.interprocesscommunication.core;
 
 import com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.IPCClient;
+import com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.IPCServerNotRunningException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
+import java.net.ConnectException;
 import java.net.StandardProtocolFamily;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -29,6 +31,10 @@ public class IPCClientImpl implements IPCClient {
           clientChannel.write(buffer);
         }
       }
+    } catch (ConnectException e) {
+      log.warn("Could not connect to IPC server, assuming server is not running. Suggesting caller to create a new Document Finder instance", e);
+      throw new IPCServerNotRunningException();
+
     } catch (Exception e) {
       log.error("Could not send IPC message", e);
     }

@@ -1,5 +1,6 @@
 package com.bytedompteur.documentfinder;
 
+import com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.IPCServerNotRunningException;
 import com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.messages.ShowMainWindowMessage;
 import com.bytedompteur.documentfinder.interprocesscommunication.dagger.DaggerIPCClientComponent;
 import com.bytedompteur.documentfinder.interprocesscommunication.dagger.IPCClientComponent;
@@ -25,10 +26,15 @@ public class DocumentFinderMain {
       .applicationHomeDirectory(applicationHomeDirectory)
       .build();
 
+    SendMessageResult sendMessageResult = SendMessageResult.SERVER_NOT_RUNNING;
     if (ipcClientComponent.ipcService().isIPCServerAlreadyRunningInDifferentProcess()) {
-      sendOpenMainWindowMessageToRunningProcess(log, ipcClientComponent);
-    } else {
-      launchUI(args, log);
+      sendMessageResult = sendOpenMainWindowMessageToRunningProcess(log, ipcClientComponent);
+    }
+
+    switch (sendMessageResult) {
+      case FAILED -> System.exit(1);
+      case SUCCESS -> System.exit(0);
+      default -> launchUI(args, log);
     }
   }
 
@@ -42,10 +48,19 @@ public class DocumentFinderMain {
     }
   }
 
-  private static void sendOpenMainWindowMessageToRunningProcess(Logger log, IPCClientComponent ipcClientComponent) {
+
+  private static SendMessageResult sendOpenMainWindowMessageToRunningProcess(Logger log, IPCClientComponent ipcClientComponent) {
     log.debug("A different instance is already running. Sending ShowMainWindowCommand and stopping this instance");
-    ipcClientComponent.ipcService().sendMessageToServer(new ShowMainWindowMessage());
-    System.exit(0);
+
+    SendMessageResult result = SendMessageResult.SUCCESS;
+    try {
+      ipcClientComponent.ipcService().sendMessageToServer(new ShowMainWindowMessage());
+    } catch (IPCServerNotRunningException ignore) {
+      result = SendMessageResult.SERVER_NOT_RUNNING;
+    } catch (Exception e) {
+      result = SendMessageResult.FAILED;
+    }
+    return result;
   }
 
   @SuppressWarnings("java:S106")

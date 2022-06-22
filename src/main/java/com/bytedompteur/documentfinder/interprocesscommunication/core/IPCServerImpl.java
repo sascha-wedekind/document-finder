@@ -95,8 +95,10 @@ public class IPCServerImpl implements IPCServer {
     return result;
   }
 
+  @SuppressWarnings("java:S2095")
   protected void createServerSocketChannel() {
     try {
+      addressService.deleteSocketAddressFileIfExists(); // Maybe the file was not delete because, the application was stopped with SIGKILL
       log.info("Spawning IPC server listening on socket {}", addressService.getSocketAddressFile());
       serverSocketChannel = ServerSocketChannel
         .open(StandardProtocolFamily.UNIX)

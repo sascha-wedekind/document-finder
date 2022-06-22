@@ -2,10 +2,10 @@ package com.bytedompteur.documentfinder.interprocesscommunication.core;
 
 import com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.IPCClient;
 import com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.IPCServer;
+import com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.IPCServerNotRunningException;
 import com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.IPCService;
 import com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.messages.IPCMessage;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
@@ -21,7 +21,7 @@ public class IPCServiceImpl implements IPCService {
 
   @Override
   public void startIPCServer() {
-    if (!isIPCServerAlreadyRunningInDifferentProcess() && !server.isRunning()) {
+    if (!server.isRunning()) {
       server.start();
     }
   }
@@ -31,9 +31,8 @@ public class IPCServiceImpl implements IPCService {
     return socketAddressService.socketAddressFileExists();
   }
 
-  @SneakyThrows
   @Override
-  public void sendMessageToServer(IPCMessage message) {
+  public void sendMessageToServer(IPCMessage message) throws IPCServerNotRunningException {
     client.senMessage(mapper.map(message));
   }
 }
