@@ -18,7 +18,7 @@ import java.util.function.Function;
 @Slf4j
 public class WindowManager {
 
-  public static final Function<Parent, Scene> DEFAULT_SCENE_FACTORY = p ->  new Scene(p, 640, 480);
+  public static final Function<Parent, Scene> DEFAULT_SCENE_FACTORY = p -> new Scene(p, 640, 480);
 
   private final Stage stage;
   private final MainWindowComponent.Builder mainWindowComponentBuilder;
@@ -75,6 +75,7 @@ public class WindowManager {
   }
 
   public void hideApplicationWindow() {
+    platformAdapter.runLater(() -> stage.setScene(null));
     platformAdapter.runLater(stage::close);
   }
 
@@ -83,6 +84,8 @@ public class WindowManager {
   }
 
   protected void show(Parent value) {
+    platformAdapter.runLater(() -> stage.setScene(null));
+
     Scene scene = sceneFactory.apply(value);
     platformAdapter.runLater(() -> {
       stage.setScene(scene);

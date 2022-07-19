@@ -7,7 +7,9 @@ import com.bytedompteur.documentfinder.ui.dagger.DaggerUIComponent;
 import com.bytedompteur.documentfinder.ui.dagger.UIComponent;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.scene.image.Image;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,6 +34,13 @@ public class DocumentFinderUIMain
       uiComponent.windowManager().showMainWindow();
       uiComponent.windowManager().showSystemTrayIcon();
       registerJVMShutdownHook(uiComponent);
+
+      Screen.getScreens().addListener((ListChangeListener<Screen>) c -> {
+        Platform.runLater(() -> uiComponent.windowManager().hideSystemTrayIcon());
+        Platform.runLater(() -> uiComponent.windowManager().showSystemTrayIcon());
+      });
+
+
       log.info("Started DocumentFinder");
     } catch (Exception e) {
       log.error("Could not start DocumentFinder, shutting down", e);
