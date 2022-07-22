@@ -8,7 +8,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
@@ -16,7 +19,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,7 +62,7 @@ class WindowManagerTest {
     // Assert
     var mainWindowController = mockedMainWindowComponentBuilder.build().mainWindowController();
     var runnableArgumentCaptor = ArgumentCaptor.forClass(Runnable.class);
-    verify(mockedPlatformAdapter, times(2)).runLater(runnableArgumentCaptor.capture());
+    verify(mockedPlatformAdapter, atLeastOnce()).runLater(runnableArgumentCaptor.capture());
     executeLastRunnableInList(runnableArgumentCaptor.getAllValues());
     verify(mainWindowController).afterViewShown();
   }
@@ -93,7 +96,7 @@ class WindowManagerTest {
     // Assert
     var optionsWindowController = mockedOptionsWindowComponentBuilder.build().optionsWindowController();
     var runnableArgumentCaptor = ArgumentCaptor.forClass(Runnable.class);
-    verify(mockedPlatformAdapter, times(2)).runLater(runnableArgumentCaptor.capture());
+    verify(mockedPlatformAdapter, atLeastOnce()).runLater(runnableArgumentCaptor.capture());
     executeLastRunnableInList(runnableArgumentCaptor.getAllValues());
     verify(optionsWindowController).afterViewShown();
   }
@@ -106,46 +109,6 @@ class WindowManagerTest {
     // Assert
     var parent = mockedOptionsWindowComponentBuilder.build().optionsViewNode().get();
     verify(mockedSceneFactory).apply(parent);
-  }
-
-  @Test
-  void showSystemTrayIcon_showsTrayIfItsNotAlreadyDisplayed() {
-    // Arrange
-    var mockedSystemTrayIconController = mockedSystemTrayComponentBuilder
-      .build()
-      .systemTrayIconController()
-      .get();
-
-    Mockito
-      .when(mockedSystemTrayIconController.isRegistered())
-      .thenReturn(false);
-
-    // Act
-    sut.showSystemTrayIcon();
-
-    // Assert
-    verify(mockedSystemTrayIconController).isRegistered();
-    verify(mockedSystemTrayIconController).registerTrayIcon();
-  }
-
-  @Test
-  void hidesSystemTrayIcon_hidesTrayIfItsDisplayed() {
-    // Arrange
-    var mockedSystemTrayIconController = mockedSystemTrayComponentBuilder
-      .build()
-      .systemTrayIconController()
-      .get();
-
-    Mockito
-      .when(mockedSystemTrayIconController.isRegistered())
-      .thenReturn(true);
-
-    // Act
-    sut.hideSystemTrayIcon();
-
-    // Assert
-    verify(mockedSystemTrayIconController).isRegistered();
-    verify(mockedSystemTrayIconController).unregisterTrayIcon();
   }
 
 

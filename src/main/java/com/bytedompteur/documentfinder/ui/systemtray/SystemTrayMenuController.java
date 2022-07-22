@@ -18,8 +18,6 @@ public class SystemTrayMenuController {
   private final Lazy<WindowManager> windowManager;
   private final ExitApplicationCommand exitApplicationCommand;
   private final JavaFxPlatformAdapter platformAdapter;
-  private PopupMenu menu;
-
 
   @Inject
   public SystemTrayMenuController(
@@ -30,23 +28,26 @@ public class SystemTrayMenuController {
     this.windowManager = windowManager;
     this.exitApplicationCommand = exitApplicationCommand;
     this.platformAdapter = platformAdapter;
-    createMenu();
   }
 
   public PopupMenu getMenu() {
-    return menu;
+    return createMenu();
   }
 
-  protected void createMenu() {
-    menu = new PopupMenu();
+  protected PopupMenu createMenu() {
+    PopupMenu menu = new PopupMenu("Document Finder");
 
     MenuItem showMainWindowItem = new MenuItem("Show");
     showMainWindowItem.addActionListener(this::showMainWindowHandler);
+    showMainWindowItem.setFont(Font.decode(null).deriveFont(Font.BOLD));
     menu.add(showMainWindowItem);
 
     MenuItem exitApplicationItem = new MenuItem("Exit");
     exitApplicationItem.addActionListener(this::exitApplicationHandler);
+    exitApplicationItem.setFont(Font.decode(null).deriveFont(Font.BOLD).deriveFont(Font.PLAIN));
     menu.add(exitApplicationItem);
+
+    return menu;
   }
 
   private void exitApplicationHandler(ActionEvent actionEvent) {

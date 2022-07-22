@@ -62,16 +62,12 @@ public class WindowManager {
 
   public void hideSystemTrayIcon() {
     obtainSystemTrayIconController();
-    if (systemTrayIconController.isRegistered()) {
-      systemTrayIconController.unregisterTrayIcon();
-    }
+    systemTrayIconController.unregisterTrayIcon();
   }
 
   public void showSystemTrayIcon() {
     obtainSystemTrayIconController();
-    if (!systemTrayIconController.isRegistered()) {
-      systemTrayIconController.registerTrayIcon();
-    }
+    systemTrayIconController.registerTrayIcon();
   }
 
   public void hideApplicationWindow() {

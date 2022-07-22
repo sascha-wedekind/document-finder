@@ -7,14 +7,16 @@ import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.Validate;
 
 import javax.inject.Inject;
+import javax.swing.*;
 import java.awt.*;
 
 @Slf4j
 @SystemTrayScope
 public class SystemTrayIconController {
 
-  private final TrayIcon trayIcon;
+  private TrayIcon trayIcon;
   private volatile boolean registered;
+  private final SystemTrayImageFactory imageFactory;
   private final SystemTrayMenuController trayMenuController;
   private final JavaFxPlatformAdapter platformAdapter;
 
@@ -24,31 +26,31 @@ public class SystemTrayIconController {
     SystemTrayMenuController trayMenuController,
     JavaFxPlatformAdapter platformAdapter
   ) {
+    this.imageFactory = imageFactory;
     this.trayMenuController = trayMenuController;
     this.platformAdapter = platformAdapter;
-    if (platformAdapter.isSystemTraySupported()) {
-      this.trayIcon = new TrayIcon(imageFactory.loadImage(), "Document Finder", trayMenuController.getMenu());
-    } else {
-      this.trayIcon = null;
-    }
   }
 
   public synchronized void registerTrayIcon() throws IllegalStateException {
     if (platformAdapter.isSystemTraySupported()) {
-      Validate.isTrue(!isRegistered(), "System tray icon already initialized");
-      trayIcon.setImageAutoSize(true);
-      if (platformAdapter.isWindowsOs()) {
-        trayIcon.addActionListener(trayMenuController::showMainWindowHandler);
-      }
+        SwingUtilities.invokeLater(() -> {
+          Validate.isTrue(!isRegistered(), "System tray icon already initialized");
+          log.info("Showing tray icon");
+          this.trayIcon = new TrayIcon(imageFactory.loadImage(), "Document Finder", trayMenuController.getMenu());
+          trayIcon.setImageAutoSize(true);
+          if (platformAdapter.isWindowsOs()) {
+            trayIcon.addActionListener(trayMenuController::showMainWindowHandler);
+          }
 
-      try {
-        SystemTray.getSystemTray().add(trayIcon);
-        log.debug("initialized system ray icon");
-      } catch (AWTException e) {
-        log.error("Error showing system tray icon", e);
-      }
+          try {
+            SystemTray.getSystemTray().add(trayIcon);
+            log.debug("initialized system ray icon");
+          } catch (AWTException e) {
+            log.error("Error showing system tray icon", e);
+          }
 
-      this.registered = true;
+          this.registered = true;
+        });
     } else {
       log.warn("System tray not supported on operating system '{} version {} ({})', won't register", SystemUtils.OS_NAME, SystemUtils.OS_VERSION, SystemUtils.OS_ARCH);
     }
@@ -56,8 +58,12 @@ public class SystemTrayIconController {
 
   public synchronized void unregisterTrayIcon() {
     if (isRegistered() && platformAdapter.isSystemTraySupported()) {
-      SystemTray.getSystemTray().remove(trayIcon);
-      registered = false;
+      SwingUtilities.invokeLater(() -> {
+        log.info("Removeing tray icon");
+        SystemTray.getSystemTray().remove(trayIcon);
+        registered = false;
+        this.trayIcon = null;
+      });
     }
   }
 
