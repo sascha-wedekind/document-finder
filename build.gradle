@@ -30,7 +30,7 @@ ext {
     javaFxVersion = '17.0.1'
     fontAwesomeFxVersion = '2.2.0-9.1.2'
     testFxVersion = '4.0.16-alpha'
-    gsonVersion = "2.9.0"
+    gsonVersion = "2.9.1"
     jsonAssertVersion = '1.5.1'
     xercesImplVersion = '2.12.2'
     jSystemThemeDetectorVersion = '3.8'
