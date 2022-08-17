@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 
 import javax.inject.Inject;
 import java.time.Duration;
+import java.util.Comparator;
 import java.util.Optional;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
@@ -84,6 +85,7 @@ public class MainWindowController implements FxController {
         fileSystemAdapter.getSystemIcon(it.getPath()).orElse(null),
         fileSystemAdapter.getLastModified(it.getPath()).orElse(null)
       ))
+      .sort(Comparator.comparing(SearchResult::getUpdated).reversed())
       .subscribe(this::addToSearchResults);
   }
 

@@ -33,6 +33,7 @@ public interface SettingsService {
         "wpd"
       ))
       .folders(List.of(userHomeDir))
+      .debugLoggingEnabled(false)
       .build();
   }
 }

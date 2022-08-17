@@ -35,7 +35,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class IndexRepository {
 
   public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-  public static final int MAX_RESULT_LIMIT = 100;
+  public static final int MAX_RESULT_LIMIT = 150;
   public static final String PAYLOAD_FIELD_NAME = "payload";
   public static final String PATH_FIELD_NAME = "path";
   public static final Pattern ALPHANUMERIC = Pattern.compile("^[a-zA-Z0-9]*$");

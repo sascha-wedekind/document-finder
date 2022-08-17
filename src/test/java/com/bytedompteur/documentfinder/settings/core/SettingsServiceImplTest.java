@@ -69,6 +69,7 @@ class SettingsServiceImplTest {
       .builder()
       .fileTypes(List.of("pdf", "txt"))
       .folders(List.of("folder_1", "folder_2"))
+      .debugLoggingEnabled(true)
       .build();
 
     // Act
@@ -91,6 +92,7 @@ class SettingsServiceImplTest {
         .put("pdf")
         .put("txt")
       )
+      .put("debugLoggingEnabled", true)
       .toString();
     JSONAssert.assertEquals(charSequenceArgumentCaptor.getValue().toString(), expectedJson, false);
   }
@@ -149,6 +151,7 @@ class SettingsServiceImplTest {
       .builder()
       .folders(List.of("folder_1", "folder_2"))
       .fileTypes(List.of("pdf", "txt"))
+      .debugLoggingEnabled(true)
       .build();
 
     // Act
@@ -164,6 +167,7 @@ class SettingsServiceImplTest {
         .put("pdf")
         .put("txt")
       )
+      .put("debugLoggingEnabled", true)
       .toString();
 
     JSONAssert.assertEquals(result, expectedJson, false);
