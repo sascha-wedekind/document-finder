@@ -8,7 +8,8 @@ public enum FxmlFile {
   OPTIONS_VIEW("/fxml/OptionsWindow.fxml"),
   FILE_TYPE_OPTIONS("/fxml/FileTypeOptionsView.fxml"),
   FOLDER_OPTIONS("/fxml/FolderOptionsView.fxml"),
-  ABOUT("/fxml/AboutOptionsView.fxml");
+  ABOUT("/fxml/AboutOptionsView.fxml"),
+  GENERAL_OPTIONS("/fxml/GeneralOptionsView.fxml");
 
   private final String resourcePathString;
 

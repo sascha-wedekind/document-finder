@@ -39,6 +39,11 @@ public abstract class OptionsWindowModule {
   @FxControllerMapKey(AboutController.class)
   abstract FxController bindAboutController(AboutController value);
 
+  @Binds
+  @IntoMap
+  @FxControllerMapKey(GeneralOptionsController.class)
+  abstract FxController bindGeneralOptionsController(GeneralOptionsController value);
+
   @Provides
   static FxmlLoaderFactory provideFxmlLoaderFactory(Map<Class<? extends FxController>, Provider<FxController>> controllerFactoriesByClassMap) {
     return new FxmlLoaderFactory(controllerFactoriesByClassMap);
@@ -69,10 +74,17 @@ public abstract class OptionsWindowModule {
   }
 
   @Provides
+  @FxmlParent(FxmlFile.GENERAL_OPTIONS)
+  static Parent provideGeneralOptions(FxmlLoaderFactory factory) {
+    return factory.createParentNode(FxmlFile.GENERAL_OPTIONS);
+  }
+
+  @Provides
   static Map<OptionsViewHelper.Name, OptionsViewHelper> provideOptionViewsByNameMap(
     @FxmlParent(FxmlFile.FILE_TYPE_OPTIONS) Lazy<Parent> fileTypeOptionsView,
     @FxmlParent(FxmlFile.FOLDER_OPTIONS) Lazy<Parent> folderOptionsView,
     @FxmlParent(FxmlFile.ABOUT) Lazy<Parent> aboutView,
+    @FxmlParent(FxmlFile.GENERAL_OPTIONS) Lazy<Parent> generalOptionsView,
     Map<Class<? extends FxController>, Provider<FxController>> controllerFactoriesByClassMap
   ) {
     return Map.of(
@@ -87,6 +99,10 @@ public abstract class OptionsWindowModule {
       OptionsViewHelper.Name.ABOUT_VIEW, new AboutViewHelper(
         aboutView.get(),
         (AboutController) controllerFactoriesByClassMap.get(AboutController.class).get()
+      ),
+      OptionsViewHelper.Name.GENERAL_OPTIONS_VIEW, new GeneralOptionsViewHelper(
+        generalOptionsView.get(),
+        (GeneralOptionsController) controllerFactoriesByClassMap.get(GeneralOptionsController.class).get()
       )
     );
   }

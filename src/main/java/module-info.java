@@ -20,6 +20,7 @@ module DocumentFinder.main {
   requires org.reactivestreams;
   requires transitive de.jensd.fx.glyphs.materialicons;
   requires transitive de.jensd.fx.glyphs.commons;
+  requires logback.classic;
 
   requires static javax.inject;
   requires static lombok;

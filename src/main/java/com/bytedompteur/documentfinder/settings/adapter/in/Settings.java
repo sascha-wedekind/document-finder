@@ -15,6 +15,8 @@ public class Settings {
   List<String> folders;
   List<String> fileTypes;
 
+  boolean debugLoggingEnabled;
+
   @SuppressWarnings("unused")
   public List<String> getFolders() {
     return isNull(folders) ? List.of() : unmodifiableList(folders);

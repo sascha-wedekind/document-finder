@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 @ToString
 public abstract class OptionsViewHelper {
 
-  public enum Name {FILE_TYPES_VIEW, FOLDER_VIEW, ABOUT_VIEW}
+  public enum Name {FILE_TYPES_VIEW, FOLDER_VIEW, ABOUT_VIEW,GENERAL_OPTIONS_VIEW}
 
   @Getter
   private final Parent viewInstance;

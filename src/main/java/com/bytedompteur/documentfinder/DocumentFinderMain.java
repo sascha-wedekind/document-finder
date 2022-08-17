@@ -85,5 +85,4 @@ public class DocumentFinderMain {
         return Path.of(System.getProperty("user.home"), indexDirName).toString();
       });
   }
-
 }

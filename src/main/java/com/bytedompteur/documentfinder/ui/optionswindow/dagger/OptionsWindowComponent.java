@@ -20,6 +20,9 @@ public interface OptionsWindowComponent {
   @FxmlParent(FxmlFile.FOLDER_OPTIONS)
   Lazy<Parent> folderOptionsView();
 
+  @FxmlParent(FxmlFile.GENERAL_OPTIONS)
+  Lazy<Parent> generalOptionsView();
+
   OptionsWindowController optionsWindowController();
 
   @Subcomponent.Builder
