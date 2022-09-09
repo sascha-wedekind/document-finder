@@ -56,6 +56,11 @@ public class FulltextSearchServiceImpl implements FulltextSearchService {
   }
 
   @Override
+  public Flux<SearchResult> findLastUpdated() {
+    return indexRepository.findLastUpdated();
+  }
+
+  @Override
   public void clearIndex() {
     indexRepository.clear();
   }

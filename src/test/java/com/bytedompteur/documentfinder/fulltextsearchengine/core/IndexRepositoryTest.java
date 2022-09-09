@@ -5,10 +5,8 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.TotalHits;
+import org.apache.lucene.index.MultiReader;
+import org.apache.lucene.search.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,11 +18,9 @@ import reactor.test.StepVerifier;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class IndexRepositoryTest {
@@ -45,7 +41,7 @@ class IndexRepositoryTest {
   void loadDocumentFromIndexSearcher_returnsEmptyOptional_whenDocumentCouldNotBeFound() throws IOException {
     // Arrange
     Mockito
-      .when(mockedIndexSearcher.doc(123, Set.of("path")))
+      .when(mockedIndexSearcher.doc(eq(123), anySet()))
       .thenReturn(null);
 
     // Act
@@ -59,7 +55,7 @@ class IndexRepositoryTest {
   void loadDocumentFromIndexSearcher_returnsEmptyOptional_whenIndexSearcherThrows() throws IOException {
     // Arrange
     Mockito
-      .when(mockedIndexSearcher.doc(123, Set.of("path")))
+      .when(mockedIndexSearcher.doc(eq(123), anySet()))
       .thenThrow(new IOException("Expected exception from unit test"));
 
     // Act
@@ -73,7 +69,7 @@ class IndexRepositoryTest {
   void loadDocumentFromIndexSearcher_returnsOptionalContainingDocument_whenDocumentCouldBeFound() throws IOException {
     // Arrange
     Mockito
-      .when(mockedIndexSearcher.doc(123, Set.of("path")))
+      .when(mockedIndexSearcher.doc(eq(123), anySet()))
       .thenReturn(new Document());
 
     // Act
@@ -157,7 +153,7 @@ class IndexRepositoryTest {
       .thenReturn(mockedIndexSearcher);
 
     Mockito
-      .when(mockedIndexSearcher.search(any(), anyInt()))
+      .when(mockedIndexSearcher.search(any(), anyInt(), any(Sort.class)))
       .thenThrow(new IOException("Expected exception from unit test"));
 
     // Act
@@ -190,8 +186,12 @@ class IndexRepositoryTest {
       .thenReturn(mockedIndexSearcher);
 
     Mockito
-      .when(mockedIndexSearcher.search(any(), anyInt()))
-      .thenReturn(new TopDocs(new TotalHits(2L, TotalHits.Relation.EQUAL_TO), scoreDocs));
+      .when(mockedIndexSearcher.search(any(), anyInt(), any(Sort.class)))
+      .thenReturn(new TopFieldDocs(new TotalHits(2L, TotalHits.Relation.EQUAL_TO), scoreDocs, new SortField[0]));
+
+    Mockito
+      .when(mockedIndexSearcher.getIndexReader())
+      .thenReturn(new MultiReader());
 
     // Act
     var result = StepVerifier.create(sut.findByFileNameOrContent("a search text"));

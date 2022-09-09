@@ -4,11 +4,8 @@ import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.SearchRes
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
+import org.apache.lucene.document.*;
 import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.LongPoint;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
@@ -21,9 +18,11 @@ import reactor.core.publisher.Mono;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -36,8 +35,18 @@ public class IndexRepository {
 
   public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
   public static final int MAX_RESULT_LIMIT = 150;
+  public static final int MAX_RESULT_LIMIT_LAST_UPDATED = 20;
   public static final String PAYLOAD_FIELD_NAME = "payload";
   public static final String PATH_FIELD_NAME = "path";
+  public static final String UPDATED_FIELD_NAME = "updated";
+  public static final String CREATED_FIELD_NAME = "created";
+  public static final String CREATED_DISPLAY_FIELD_NAME = "createdDisplay";
+  public static final String UPDATED_DISPLAY_FIELD_NAME = "updatedDisplay";
+  public static final Set<String> FIELDS_TO_LOAD_FROM_INDEX = Set.of(
+    PATH_FIELD_NAME,
+    CREATED_DISPLAY_FIELD_NAME,
+    UPDATED_DISPLAY_FIELD_NAME
+  );
   public static final Pattern ALPHANUMERIC = Pattern.compile("^[a-zA-Z0-9]*$");
 
   private final IndexWriter indexWriter;
@@ -48,21 +57,21 @@ public class IndexRepository {
     var idField = new StringField("id", pathString, Store.NO);
     var pathField = new TextField(PATH_FIELD_NAME, pathString, Store.YES);
     var payloadField = new TextField(PAYLOAD_FIELD_NAME, value.payloadReader());
-    var createdField = new LongPoint(
-      "created",
-      value.created().toEpochMilli()
+    var createdField = new NumericDocValuesField(
+      CREATED_FIELD_NAME,
+      toLuceneDate(value.created())
     );
     var createdDisplayField = new StringField(
-      "createdDisplay",
+      CREATED_DISPLAY_FIELD_NAME,
       DATE_FORMATTER.format(value.created().atZone(ZoneId.systemDefault())),
       Store.YES
     );
-    var updatedField = new LongPoint(
-      "updated",
-      value.updated().toEpochMilli()
+    var updatedField = new NumericDocValuesField(
+      UPDATED_FIELD_NAME,
+      toLuceneDate(value.updated())
     );
     var updatedDisplayField = new StringField(
-      "updatedDisplay",
+      UPDATED_DISPLAY_FIELD_NAME,
       DATE_FORMATTER.format(value.updated().atZone(ZoneId.systemDefault())),
       Store.YES
     );
@@ -84,6 +93,11 @@ public class IndexRepository {
     log.debug("Entry for '{}' added", pathString);
   }
 
+  private static Long toLuceneDate(Instant instant) {
+    return Long.parseLong(DateTools.dateToString(Date.from(instant), DateTools.Resolution.SECOND));
+  }
+
+
   public Flux<SearchResult> findByFileNameOrContent(CharSequence searchText) {
     Flux<SearchResult> result = Flux.empty();
     if (isNotBlank(searchText)) {
@@ -93,14 +107,9 @@ public class IndexRepository {
         if (isQuerySearchTextSupposedForParser(searchTextString)) {
           query = createQueryFromParseSearchText(searchTextString);
         } else {
-          query = createPathContainsOrBodyConainsPrefixedWordQuery(searchTextString.toLowerCase());
+          query = createPathContainsOrBodyContainsPrefixedWordQuery(searchTextString.toLowerCase());
         }
-        var indexSearcher = indexSearcherFactory.build();
-        var docs = indexSearcher.search(query, MAX_RESULT_LIMIT);
-        result = createSearchResultFlux(indexSearcher, docs.scoreDocs);
-        result
-          .doOnComplete(() -> closeReader(indexSearcher))
-          .doOnCancel(() -> closeReader(indexSearcher));
+        result = executeSearch(query, MAX_RESULT_LIMIT);
       } catch (ParseException | IOException e) {
         log.error("Failed to search for '{}'", searchText, e);
       }
@@ -116,7 +125,7 @@ public class IndexRepository {
     }
   }
 
-  private Query createPathContainsOrBodyConainsPrefixedWordQuery(String searchTextString) {
+  private Query createPathContainsOrBodyContainsPrefixedWordQuery(String searchTextString) {
     Query query;
     var prefixQuery = new PrefixQuery(new Term(PAYLOAD_FIELD_NAME, searchTextString));
     var regexpQuery = new RegexpQuery(new Term(PATH_FIELD_NAME, String.format(".*%s.*", searchTextString)));
@@ -125,6 +134,29 @@ public class IndexRepository {
       .add(prefixQuery, BooleanClause.Occur.SHOULD)
       .build();
     return query;
+  }
+
+  public Flux<SearchResult> findLastUpdated() {
+    Flux<SearchResult> result = Flux.empty();
+    try {
+      result = executeSearch(new MatchAllDocsQuery(), MAX_RESULT_LIMIT_LAST_UPDATED);
+    } catch (IOException e) {
+      log.error("Failed to search for last updated files", e);
+    }
+    return result;
+  }
+
+  private Flux<SearchResult> executeSearch(
+    Query query,
+    int maxResultLimit
+  ) throws IOException {
+    var sortFieldUpdated = new SortField(UPDATED_FIELD_NAME, SortField.Type.LONG, true);
+    var sortFieldCreate = new SortField(CREATED_FIELD_NAME, SortField.Type.LONG, true);
+    var indexSearcher = indexSearcherFactory.build();
+    var docs = indexSearcher.search(query, maxResultLimit, new Sort(sortFieldUpdated, sortFieldCreate));
+    return createSearchResultFlux(indexSearcher, docs.scoreDocs)
+      .doOnComplete(() -> closeReader(indexSearcher))
+      .doOnCancel(() -> closeReader(indexSearcher));
   }
 
   private Query createQueryFromParseSearchText(String searchText) throws ParseException {
@@ -156,13 +188,13 @@ public class IndexRepository {
       .orElse(null);
 
     var created = Optional
-      .ofNullable(it.get("createdDisplay"))
+      .ofNullable(it.get(CREATED_DISPLAY_FIELD_NAME))
       .map(DATE_FORMATTER::parse)
       .map(LocalDateTime::from)
       .orElse(null);
 
     var updated = Optional
-      .ofNullable(it.get("updatedDisplay"))
+      .ofNullable(it.get(UPDATED_DISPLAY_FIELD_NAME))
       .map(DATE_FORMATTER::parse)
       .map(LocalDateTime::from)
       .orElse(null);
@@ -178,7 +210,7 @@ public class IndexRepository {
   protected Optional<Document> loadDocumentFromIndexSearcher(IndexSearcher indexSearcher, int documentId) {
     Optional<Document> document = Optional.empty();
     try {
-      document = Optional.ofNullable(indexSearcher.doc(documentId, Set.of(PATH_FIELD_NAME)));
+      document = Optional.ofNullable(indexSearcher.doc(documentId, FIELDS_TO_LOAD_FROM_INDEX));
     } catch (IOException e) {
       log.error("Could not load document with id {} from index searcher", documentId, e);
     }

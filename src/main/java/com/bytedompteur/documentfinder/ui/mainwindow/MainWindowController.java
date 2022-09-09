@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 
 import javax.inject.Inject;
 import java.time.Duration;
-import java.util.Comparator;
+import java.time.ZoneId;
 import java.util.Optional;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
@@ -83,9 +83,20 @@ public class MainWindowController implements FxController {
       .map(it -> SearchResult.build(
         it.getPath(),
         fileSystemAdapter.getSystemIcon(it.getPath()).orElse(null),
-        fileSystemAdapter.getLastModified(it.getPath()).orElse(null)
+        it.getFileLastUpdated().atZone(ZoneId.systemDefault()).toInstant()
       ))
-      .sort(Comparator.comparing(SearchResult::getUpdated).reversed())
+      .subscribe(this::addToSearchResults);
+  }
+
+  public void handleFindLastUpdatedButtonClick(ActionEvent ignore) {
+    clearSearchResults();
+    fulltextSearchService
+      .findLastUpdated()
+      .map(it -> SearchResult.build(
+        it.getPath(),
+        fileSystemAdapter.getSystemIcon(it.getPath()).orElse(null),
+        it.getFileLastUpdated().atZone(ZoneId.systemDefault()).toInstant()
+      ))
       .subscribe(this::addToSearchResults);
   }
 
