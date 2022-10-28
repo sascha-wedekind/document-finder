@@ -9,7 +9,6 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -68,16 +67,18 @@ public class FileEventHandler {
       var parserTask = FileParserTask.create(path);
       executorService.submit(parserTask);// Producer
       executorService.submit(new FileParserRepositoryAdapter(indexRepository, parserTask, path, filesToProcess)); // Consumer
-    } catch (IOException e) {
+      log.debug("Created producer / consumer parser tasks for {}", path);
+    } catch (Throwable e) {
       log.error("Error while processing file create or update of '{}'. File ignored", path, e);
     }
   }
 
   protected void handleFileDelete(Path path) {
     try {
+      log.debug("Remove '{}' from index", path);
       indexRepository.delete(path);
       filesToProcess.decrementAndGet();
-    } catch (IOException e) {
+    } catch (Throwable e) {
       log.error("Error while deleting '{}' from index", path, e);
     }
   }

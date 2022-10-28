@@ -21,6 +21,7 @@ module DocumentFinder.main {
   requires transitive de.jensd.fx.glyphs.materialicons;
   requires transitive de.jensd.fx.glyphs.commons;
   requires ch.qos.logback.classic;
+  requires jdk.management;
 
   requires static javax.inject;
   requires static lombok;

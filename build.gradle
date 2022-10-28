@@ -1,3 +1,5 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 import java.nio.file.Paths
 import java.util.regex.Pattern
 
@@ -123,7 +125,6 @@ dependencies {
     testImplementation "org.testfx:testfx-core:${testFxVersion}"
     testImplementation "org.testfx:testfx-junit5:${testFxVersion}"
     testImplementation "org.skyscreamer:jsonassert:${jsonAssertVersion}"
-
 }
 
 test {
@@ -179,12 +180,15 @@ jlink {
         else
             appVersion = '0.0.0'
 
-        OperatingSystem os = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem;
+        vendor = 'DocumentFinder'
+
+        OperatingSystem os = DefaultNativePlatform.currentOperatingSystem
         if (os.isWindows()) {
-            installerOptions = ['--win-per-user-install', '--win-dir-chooser', '--win-menu', '--win-shortcut']
+            installerOptions = ['--win-per-user-install', '--win-dir-chooser', '--win-menu', '--win-menu-group', 'DocumentFinder', '--win-upgrade-uuid', '420e9eb8-5b23-4589-88bb-94c1b0b70b8b','--win-shortcut', '--about-url', 'https://github.com/sascha-wedekind/document-finder']
             icon = 'src/main/resources/images/DocumentFinderIcon.ico'
+            installerType = 'msi'
         } else {
-            installerOptions = []
+            installerOptions = ['--about-url', 'https://github.com/sascha-wedekind/document-finder']
         }
     }
     /*
@@ -194,10 +198,8 @@ jlink {
     mergedModule {
         excludeProvides servicePattern: 'org.w3c.dom.DOMImplementationSourceList'
         excludeProvides servicePattern: 'org.xml.sax.driver'
-        excludeProvides servicePattern: 'org.apache.xmlbeans.impl.store.PathDelegate.SelectPathInterface'
-        excludeProvides servicePattern: 'javax.servlet.ServletContainerInitializer'
-        excludeProvides servicePattern: 'org.apache.xmlbeans.impl.store.QueryDelegate.QueryInterface'
         excludeProvides servicePattern: 'reactor.blockhound.integration.BlockHoundIntegration'
+        requires 'org.slf4j' // apache.tika.core requires org.slf4j
     }
     addExtraDependencies('javafx')
 }
