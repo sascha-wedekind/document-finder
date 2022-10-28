@@ -14,23 +14,23 @@ plugins {
 }
 
 ext {
-    lombokVersion = '1.18.22'
+    lombokVersion = '1.18.24'
     slf4jVersion = '2.0.3'
-    jclOverSlf4jVersion = '1.7.36'
-    logbackVersion = '1.2.11'
+    jclOverSlf4jVersion = '2.0.3'
+    logbackVersion = '1.4.4'
     janinoVersion = "3.1.8"
-    luceneVersion = '9.3.0'
+    luceneVersion = '9.4.1'
     junitVersion = '5.9.0'
     mockitoVersion = '4.8.1'
     assertjVersion = '3.23.1'
-    reactorVersion = '3.4.22'
+    reactorVersion = '3.4.24'
     guavaVersion = '31.1-jre'
-    tikaVersion = '2.4.1'
-    daggerVersion = '2.43.2'
+    tikaVersion = '2.5.0'
+    daggerVersion = '2.44'
     javaFxVersion = '18.0.2'
     fontAwesomeFxVersion = '2.2.0-9.1.2'
     testFxVersion = '4.0.16-alpha'
-    gsonVersion = "2.9.1"
+    gsonVersion = '2.10'
     jsonAssertVersion = '1.5.1'
     xercesImplVersion = '2.12.2'
     jSystemThemeDetectorVersion = '3.8'
