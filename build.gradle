@@ -25,7 +25,7 @@ ext {
     junitVersion = '5.9.0'
     mockitoVersion = '4.8.1'
     assertjVersion = '3.23.1'
-    reactorVersion = '3.4.24'
+    reactorVersion = '3.5.0'
     guavaVersion = '31.1-jre'
     tikaVersion = '2.5.0'
     daggerVersion = '2.44'
