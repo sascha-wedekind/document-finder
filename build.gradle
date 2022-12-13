@@ -22,7 +22,7 @@ ext {
     logbackVersion = '1.4.4'
     janinoVersion = "3.1.8"
     luceneVersion = '9.4.1'
-    junitVersion = '5.9.0'
+    junitVersion = '5.9.1'
     mockitoVersion = '4.8.1'
     assertjVersion = '3.23.1'
     reactorVersion = '3.4.24'
