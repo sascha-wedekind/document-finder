@@ -90,6 +90,7 @@ public class IndexRepository {
     indexWriter.deleteDocuments(idTerm);
     indexWriter.addDocument(document);
     indexWriter.commit();
+    indexWriter.flush();
     log.debug("Entry for '{}' added", pathString);
   }
 

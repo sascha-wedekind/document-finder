@@ -16,20 +16,28 @@ public class FileParserRepositoryAdapter implements Runnable {
   private final IndexRepository repository;
   private final FileParserTask parserTask;
   private final Path path;
-  private final AtomicLong decrementWhenFinished;
+  private final AtomicLong filesToProcessCountDownReference;
 
   @Override
   public void run() {
     try {
+      parserTask.run();
       var basicFileAttributes = Files.readAttributes(path, BasicFileAttributes.class);
       var timeCreated = basicFileAttributes.creationTime();
       var timeUpdated = basicFileAttributes.lastModifiedTime();
       var reader = parserTask.getReader();
+      log.info("Start indexing '{}'", path);
       repository.save(new FileRecord(path, reader, timeCreated.toInstant(), timeUpdated.toInstant()));
-    } catch (IOException e) {
-      log.error("Could not save '{}' to repository", path, e);
+    } catch (Exception e) {
+      log.error("Could not index '{}' to repository", path, e);
     } finally {
-      decrementWhenFinished.decrementAndGet();
+      log.info("End indexing '{}'", path);
+      try {
+        parserTask.getReader().close();
+      } catch (IOException e) {
+        log.error("While closing reader for '{}'", path, e);
+      }
+      filesToProcessCountDownReference.decrementAndGet();
     }
   }
 }

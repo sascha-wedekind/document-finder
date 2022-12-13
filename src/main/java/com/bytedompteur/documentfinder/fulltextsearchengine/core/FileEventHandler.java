@@ -2,6 +2,7 @@ package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.out.FileEvent;
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.out.FileEvent.Type;
+import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.out.FilesAdapter;
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.out.PersistedUniqueFileEventQueueAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ public class FileEventHandler {
   private final ExecutorService executorService;
   private final IndexRepository indexRepository;
   private final PersistedUniqueFileEventQueueAdapter adapter;
+  private final FilesAdapter filesAdapter;
   private final AtomicLong filesToProcess = new AtomicLong(0);
   private final Sinks.Many<Path> currentPathProcessedSink = Sinks.many().multicast().directBestEffort();
   private Disposable subscription;
@@ -63,10 +65,17 @@ public class FileEventHandler {
   }
 
   protected void handleFileCreateOrUpdate(Path path) {
+    if (isPathInvalid(path)) {
+      return;
+    }
+
     try {
-      var parserTask = FileParserTask.create(path);
-      executorService.submit(parserTask);// Producer
-      executorService.submit(new FileParserRepositoryAdapter(indexRepository, parserTask, path, filesToProcess)); // Consumer
+      executorService.submit(new FileParserRepositoryAdapter(
+        indexRepository,
+        FileParserTask.create(path),
+        path,
+        filesToProcess
+      ));
       log.debug("Created producer / consumer parser tasks for {}", path);
     } catch (Throwable e) {
       log.error("Error while processing file create or update of '{}'. File ignored", path, e);
@@ -83,4 +92,22 @@ public class FileEventHandler {
     }
   }
 
+  boolean isPathInvalid(Path path) {
+    var pathInvalid = false;
+    if (filesAdapter.notExists(path)) {
+      log.warn("Path '{}' does not exist", path);
+      pathInvalid = true;
+    }
+
+    if (filesAdapter.isNotReadable(path)) {
+      log.warn("Path '{}' is not readable", path);
+      pathInvalid = true;
+    }
+
+    if (filesAdapter.isEmpty(path)) {
+      log.warn("Path {} is empty, ignoring", path);
+      pathInvalid = true;
+    }
+    return pathInvalid;
+  }
 }

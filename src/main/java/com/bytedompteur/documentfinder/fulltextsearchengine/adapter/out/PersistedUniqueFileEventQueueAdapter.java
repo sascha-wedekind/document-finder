@@ -4,9 +4,11 @@ import com.bytedompteur.documentfinder.persistedqueue.adapter.in.FileEvent.Type;
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.PersistedUniqueFileEventQueue;
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.ReactiveAdapter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 
 @RequiredArgsConstructor
+@Slf4j
 public class PersistedUniqueFileEventQueueAdapter {
 
   private final PersistedUniqueFileEventQueue queue;
@@ -19,6 +21,7 @@ public class PersistedUniqueFileEventQueueAdapter {
   }
 
   protected FileEvent map(com.bytedompteur.documentfinder.persistedqueue.adapter.in.FileEvent value) {
+    log.debug("Mapping {}", value);
     if (value.getType() == Type.DELETE) {
       return new FileEvent(FileEvent.Type.DELETE, value.getPath());
     } else {

@@ -2,13 +2,14 @@ package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.sax.BodyContentHandler;
-import org.xml.sax.SAXException;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -16,31 +17,27 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 public class FileParserTask implements Runnable {
 
+  private BodyContentHandler bodyContentHandler;
+
   public enum State{UNUSED,RUNNING, FINISHED}
 
   private final Path path;
-  private final PipedWriter pipedWriter;
-  private final PipedReader pipedReader;
   private final AutoDetectParser autoDetectParser = new AutoDetectParser();
   private final Metadata metadata = new Metadata();
   private final AtomicReference<Exception> exceptionWhileParsing = new AtomicReference<>(null);
   private final AtomicReference<State> state = new AtomicReference<>(State.UNUSED);
 
-  private FileParserTask(Path path, PipedWriter pipedWriter, PipedReader pipedReader) {
+  private FileParserTask(Path path) {
     this.path = path;
-    this.pipedWriter = pipedWriter;
-    this.pipedReader = pipedReader;
   }
 
   @SuppressWarnings("java:S2095")
-  public static FileParserTask create(Path path) throws IOException {
-    var pipedReader = new PipedReader(250 * 1024);
-    var pipedWriter = new PipedWriter(pipedReader);
-    return new FileParserTask(path, pipedWriter, pipedReader);
+  public static FileParserTask create(Path path) {
+    return new FileParserTask(path);
   }
 
   public Reader getReader() {
-    return pipedReader;
+    return new StringReader(bodyContentHandler.toString());
   }
 
   public State getState() {
@@ -54,21 +51,16 @@ public class FileParserTask implements Runnable {
   @Override
   public void run() {
     state.set(State.RUNNING);
-    try (var fis = new FileInputStream(path.toFile())) {
-      log.debug("Start parsing '{}'", path);
-      var bodyContentHandler = new BodyContentHandler(pipedWriter);
+    try (var fis = new BufferedInputStream(new FileInputStream(path.toFile()))) {
+      log.info("Start parsing '{}'", path);
+      bodyContentHandler = new BodyContentHandler(-1);
       autoDetectParser.parse(fis, bodyContentHandler, metadata);
-    } catch (TikaException | IOException | SAXException e) {
+    } catch (Exception e) {
       log.error("Error while parsing '{}'", path, e);
       exceptionWhileParsing.set(e);
     } finally {
-      log.debug("End parsing '{}'", path);
+      log.info("End parsing '{}'", path);
       state.set(State.FINISHED);
-      try {
-        pipedWriter.close();
-      } catch (IOException e) {
-        log.error("While closing writer", e);
-      }
     }
   }
 }

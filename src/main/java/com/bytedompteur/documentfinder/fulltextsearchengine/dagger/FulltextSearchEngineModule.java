@@ -2,6 +2,7 @@ package com.bytedompteur.documentfinder.fulltextsearchengine.dagger;
 
 import com.bytedompteur.documentfinder.DaggerProvideException;
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
+import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.out.FilesAdapter;
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.out.PersistedUniqueFileEventQueueAdapter;
 import com.bytedompteur.documentfinder.fulltextsearchengine.core.*;
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.PersistedUniqueFileEventQueue;
@@ -59,7 +60,7 @@ public class FulltextSearchEngineModule {
     PersistedUniqueFileEventQueueAdapter adapter,
     ExecutorService executorService
   ) {
-    return new FileEventHandler(executorService, repository, adapter);
+    return new FileEventHandler(executorService, repository, adapter, new FilesAdapter());
   }
 
   @Provides
