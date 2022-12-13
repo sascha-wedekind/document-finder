@@ -36,7 +36,7 @@ ext {
     jsonAssertVersion = '1.5.1'
     xercesImplVersion = '2.12.2'
     jSystemThemeDetectorVersion = '3.8'
-    failsafeVersion = '3.2.4'
+    failsafeVersion = '3.3.0'
     defaultMainClass = 'com.bytedompteur.documentfinder.DocumentFinderMain'
 }
 
