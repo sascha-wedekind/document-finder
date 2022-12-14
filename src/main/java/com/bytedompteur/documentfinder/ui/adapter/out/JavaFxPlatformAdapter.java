@@ -14,6 +14,10 @@ public class JavaFxPlatformAdapter {
     Platform.runLater(runnable);
   }
 
+  public boolean isFxApplicationThread() {
+    return Platform.isFxApplicationThread();
+  }
+
   public void disableImplicitExit() {
     Platform.setImplicitExit(false);
   }
@@ -26,7 +30,11 @@ public class JavaFxPlatformAdapter {
     return SystemUtils.IS_OS_WINDOWS;
   }
 
+  public boolean isLinuxOs() {
+    return SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_UNIX;
+  }
+
   public boolean isSystemTraySupported() {
-    return SystemTray.isSupported();
+    return !isLinuxOs() && SystemTray.isSupported();
   }
 }

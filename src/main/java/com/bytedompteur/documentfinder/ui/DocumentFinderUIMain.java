@@ -40,7 +40,6 @@ public class DocumentFinderUIMain
         Platform.runLater(() -> uiComponent.windowManager().showSystemTrayIcon());
       });
 
-
       log.info("Started DocumentFinder");
     } catch (Exception e) {
       log.error("Could not start DocumentFinder, shutting down", e);
@@ -69,21 +68,25 @@ public class DocumentFinderUIMain
 
   private void configureStage(Stage primaryStage, UIComponent uiComponent, ExitApplicationCommand exitApplicationCommand) {
     var platformAdapter = uiComponent.platformAdapter();
-
     platformAdapter.disableImplicitExit();
+
     List<Image> windowIcons = platformAdapter.isMacOs() ? List.of() : List.of(
       new Image(getClass().getResource("/images/DocumentFinderIcon_32.png").toString()),
       new Image(getClass().getResource("/images/DocumentFinderIcon_512.png").toString())
     );
+
     primaryStage.getIcons().setAll(windowIcons);
+    primaryStage.setTitle("Document Finder");
     primaryStage.setOnCloseRequest(it -> handleStageCloseEvent(uiComponent, exitApplicationCommand));
   }
 
   private void handleStageCloseEvent(UIComponent uiComponent, ExitApplicationCommand exitApplicationCommand) {
     var windowManager = uiComponent.windowManager();
     if (windowManager.isSystemTraySupported()) {
+      log.debug("Close event. Hiding window because system tray is supported");
       windowManager.hideApplicationWindow();
     } else {
+      log.debug("Close event. Exiting application because system tray is not supported");
       exitApplicationCommand.run();
     }
   }

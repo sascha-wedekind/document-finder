@@ -33,7 +33,6 @@ public class WindowManager {
   private SystemTrayIconController systemTrayIconController;
   private FxController currentController;
 
-
   public void showMainWindow() {
     if (mainWindowComponent == null) {
       mainWindowComponent = mainWindowComponentBuilder.build();
@@ -86,6 +85,7 @@ public class WindowManager {
     platformAdapter.runLater(() -> {
       stage.setScene(scene);
       stage.show();
+      stage.toFront();
     });
   }
 

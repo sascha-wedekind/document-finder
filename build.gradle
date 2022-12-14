@@ -25,11 +25,11 @@ ext {
     junitVersion = '5.9.1'
     mockitoVersion = '4.8.1'
     assertjVersion = '3.23.1'
-    reactorVersion = '3.5.0'
+    reactorVersion = '3.4.24'
     guavaVersion = '31.1-jre'
     tikaVersion = '2.6.0'
     daggerVersion = '2.44'
-    javaFxVersion = '18.0.2'
+    javaFxVersion = '19'
     fontAwesomeFxVersion = '2.2.0-9.1.2'
     testFxVersion = '4.0.16-alpha'
     gsonVersion = '2.10'
@@ -187,6 +187,9 @@ jlink {
             installerOptions = ['--win-per-user-install', '--win-dir-chooser', '--win-menu', '--win-menu-group', 'DocumentFinder', '--win-upgrade-uuid', '420e9eb8-5b23-4589-88bb-94c1b0b70b8b','--win-shortcut', '--about-url', 'https://github.com/sascha-wedekind/document-finder']
             icon = 'src/main/resources/images/DocumentFinderIcon.ico'
             installerType = 'msi'
+        } else if (os.isLinux()) {
+            icon = 'src/main/resources/images/DocumentFinderIcon_512.png'
+            installerType = 'deb'
         } else {
             installerOptions = ['--about-url', 'https://github.com/sascha-wedekind/document-finder']
         }
