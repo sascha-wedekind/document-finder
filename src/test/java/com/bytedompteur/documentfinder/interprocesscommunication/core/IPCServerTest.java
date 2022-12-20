@@ -1,6 +1,7 @@
 package com.bytedompteur.documentfinder.interprocesscommunication.core;
 
 import com.google.common.base.Verify;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -11,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -38,7 +40,14 @@ class IPCServerTest {
 
   @BeforeEach
   void setUp() throws IOException {
-    var applicationHomeDirectory = Files.createTempDirectory("document-finder-test");
+    Path applicationHomeDirectory;
+    if (SystemUtils.IS_OS_MAC) {
+      // Special case for MacOs, because otherwise a socket path to large exception will be thrown. Becaus default tmp folder path on MacOs is ver large.
+      applicationHomeDirectory = Files.createTempDirectory(Path.of("/private/tmp/"), "document-finder-test");
+    } else {
+      applicationHomeDirectory = Files.createTempDirectory("document-finder-test");
+    }
+
     socketAddressFactory = new SocketAddressService(applicationHomeDirectory.toString());
     requestListener = new TestRequestListener();
     sut = new IPCServerImpl(
