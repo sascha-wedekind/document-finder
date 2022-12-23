@@ -48,7 +48,6 @@ public class DocumentFinderMain {
     }
   }
 
-
   private static SendMessageResult sendOpenMainWindowMessageToRunningProcess(Logger log, IPCClientComponent ipcClientComponent) {
     log.debug("A different instance is already running. Sending ShowMainWindowCommand and stopping this instance");
 

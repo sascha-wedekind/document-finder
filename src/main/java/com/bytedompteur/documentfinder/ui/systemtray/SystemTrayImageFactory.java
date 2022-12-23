@@ -2,20 +2,19 @@ package com.bytedompteur.documentfinder.ui.systemtray;
 
 import com.bytedompteur.documentfinder.ui.adapter.out.JavaFxPlatformAdapter;
 import com.bytedompteur.documentfinder.ui.systemtray.dagger.SystemTrayScope;
+import com.jthemedetecor.OsThemeDetector;
 import lombok.RequiredArgsConstructor;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 @SystemTrayScope
 public class SystemTrayImageFactory {
 
 	private final JavaFxPlatformAdapter platformAdapter;
+	private final OsThemeDetector detector;
 
 	public Image loadImage() {
 		try {
@@ -28,7 +27,7 @@ public class SystemTrayImageFactory {
 	}
 
 	private String getMacResourceName() {
-		return "/images/TrayIconMac.png";
+		return detector.isDark() ? "/images/TrayIconMacLight.png" : "/images/TrayIconMacDark.png";
 	}
 
 	private String getWinOrLinuxResourceName() {

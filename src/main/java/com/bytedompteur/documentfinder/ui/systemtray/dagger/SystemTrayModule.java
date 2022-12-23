@@ -6,6 +6,7 @@ import com.bytedompteur.documentfinder.ui.adapter.out.JavaFxPlatformAdapter;
 import com.bytedompteur.documentfinder.ui.systemtray.SystemTrayIconController;
 import com.bytedompteur.documentfinder.ui.systemtray.SystemTrayImageFactory;
 import com.bytedompteur.documentfinder.ui.systemtray.SystemTrayMenuController;
+import com.jthemedetecor.OsThemeDetector;
 import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
@@ -15,7 +16,7 @@ public abstract class SystemTrayModule {
 
   @Provides
   static SystemTrayImageFactory provideSystemTrayImageFactory(JavaFxPlatformAdapter platformAdapter) {
-    return new SystemTrayImageFactory(platformAdapter);
+    return new SystemTrayImageFactory(platformAdapter, OsThemeDetector.getDetector());
   }
 
   @Provides

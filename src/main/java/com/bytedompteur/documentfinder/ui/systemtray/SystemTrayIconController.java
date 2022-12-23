@@ -44,7 +44,6 @@ public class SystemTrayIconController {
 
           try {
             SystemTray.getSystemTray().add(trayIcon);
-            SystemTray.getSystemTray();
             log.debug("initialized system ray icon");
           } catch (Exception e) {
             log.error("Error showing system tray icon", e);

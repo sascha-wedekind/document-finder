@@ -22,16 +22,13 @@ import java.util.Optional;
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 @Slf4j
 public class FileSystemAdapter {
-
-    private static final FileSystemView FSV = FileSystemView.getFileSystemView();
-
     private final HostServices hostServices;
+    private final SystemFileIconProvider systemFileIconProvider;
 
     public Optional<ImageView> getSystemIcon(Path path) {
         var result = Optional.<ImageView>empty();
         try {
-//            var icon = FSV.getSystemIcon(path.toFile(), 265, 265);
-            var icon = FSV.getSystemIcon(path.toFile());
+            var icon = systemFileIconProvider.getSystemFileIcon(path.toFile());
             if (Objects.nonNull(icon)) {
                 var fxImage = toWritableImage(icon);
                 result = Optional.of(new ImageView(fxImage));

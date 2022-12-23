@@ -31,7 +31,7 @@ public class JavaFxPlatformAdapter {
   }
 
   public boolean isLinuxOs() {
-    return SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_UNIX;
+    return SystemUtils.IS_OS_LINUX;
   }
 
   public boolean isSystemTraySupported() {

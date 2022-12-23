@@ -41,13 +41,10 @@ public class SearchResultTableController implements FxController {
   @FXML
   public void initialize() {
     // Autolayout columns on table resize. 40%, 20%, 20%
-    resultTable.widthProperty().addListener(new ChangeListener<Number>() {
-      @Override
-      public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-        resultTable.getColumns().get(1).setMaxWidth(1f * Integer.MAX_VALUE * 40); // Filename
-        resultTable.getColumns().get(2).setMaxWidth(1f * Integer.MAX_VALUE * 20); // File path
-        resultTable.getColumns().get(3).setMaxWidth(1f * Integer.MAX_VALUE * 20); // File modification date
-      }
+    resultTable.widthProperty().addListener((observable, oldValue, newValue) -> {
+      resultTable.getColumns().get(1).setMaxWidth(1f * Integer.MAX_VALUE * 40); // Filename
+      resultTable.getColumns().get(2).setMaxWidth(1f * Integer.MAX_VALUE * 20); // File path
+      resultTable.getColumns().get(3).setMaxWidth(1f * Integer.MAX_VALUE * 20); // File modification date
     });
 
 

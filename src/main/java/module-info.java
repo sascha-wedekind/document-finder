@@ -22,11 +22,11 @@ module DocumentFinder.main {
   requires transitive de.jensd.fx.glyphs.commons;
   requires ch.qos.logback.classic;
   requires jdk.management;
+  requires com.jthemedetector;
 
   requires static javax.inject;
   requires static lombok;
 
-  opens com.bytedompteur.documentfinder.ui to javafx.graphics;
   opens com.bytedompteur.documentfinder.ui.mainwindow to javafx.fxml, javafx.base;
   opens com.bytedompteur.documentfinder.ui.optionswindow to javafx.fxml, javafx.base;
   opens com.bytedompteur.documentfinder.settings.adapter.in to com.google.gson;
@@ -36,4 +36,6 @@ module DocumentFinder.main {
   exports com.bytedompteur.documentfinder.ui.optionswindow to javafx.fxml;
   exports com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.messages to com.google.gson;
   opens com.bytedompteur.documentfinder.ui.adapter.out to javafx.graphics;
+  exports com.bytedompteur.documentfinder.ui to javafx.fxml;
+  opens com.bytedompteur.documentfinder.ui to javafx.base, javafx.fxml, javafx.graphics;
 }
