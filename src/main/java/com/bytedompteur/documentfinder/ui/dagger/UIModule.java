@@ -11,9 +11,11 @@ import com.bytedompteur.documentfinder.ui.systemtray.dagger.SystemTrayComponent;
 import dagger.Module;
 import dagger.Provides;
 import javafx.stage.Stage;
+import org.cryptomator.integrations.tray.TrayIntegrationProvider;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -47,12 +49,19 @@ public abstract class UIModule {
 
   @Provides
   @Singleton
+  static Optional<TrayIntegrationProvider> provideTrayIntegrationProvider() {
+    return TrayIntegrationProvider.get();
+  }
+
+  @Provides
+  @Singleton
   static WindowManager provideWindowManager(
     MainWindowComponent.Builder mainWindowComponentBuilder,
     OptionsWindowComponent.Builder optionsWindowComponentBuilder,
     SystemTrayComponent.Builder systemTrayComponentBuilder,
     @Named("primaryStage") Stage stage,
-    JavaFxPlatformAdapter platformAdapter
+    JavaFxPlatformAdapter platformAdapter,
+    Optional<TrayIntegrationProvider> trayIntegrationProvider
   ) {
     return new WindowManager(
       stage,
@@ -60,7 +69,8 @@ public abstract class UIModule {
       optionsWindowComponentBuilder,
       systemTrayComponentBuilder,
       platformAdapter,
-      WindowManager.DEFAULT_SCENE_FACTORY
+      WindowManager.DEFAULT_SCENE_FACTORY,
+      trayIntegrationProvider
     );
   }
 }

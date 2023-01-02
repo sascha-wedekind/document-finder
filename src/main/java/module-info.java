@@ -23,6 +23,7 @@ module DocumentFinder.main {
   requires ch.qos.logback.classic;
   requires jdk.management;
   requires com.jthemedetector;
+  requires org.cryptomator.integrations.api;
 
   requires static javax.inject;
   requires static lombok;

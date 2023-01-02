@@ -10,7 +10,7 @@ plugins {
     id 'idea'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.13'
-    id 'org.beryx.jlink' version '2.25.0'
+    id 'org.beryx.jlink' version '2.26.0'
     id "org.javamodularity.moduleplugin" version "1.8.12"
     id 'me.qoomon.git-versioning' version '6.3.7'
 }
@@ -42,6 +42,7 @@ ext {
 
 group 'com.bytedompteur'
 version '1.0-SNAPSHOT'
+OperatingSystem operatingSystem = DefaultNativePlatform.currentOperatingSystem
 gitVersioning.apply {
     refs {
         considerTagsOnBranches = true
@@ -101,6 +102,18 @@ dependencies {
     implementation "de.jensd:fontawesomefx-materialicons:${fontAwesomeFxVersion}"
     implementation "com.google.code.gson:gson:${gsonVersion}"
     implementation "com.github.Dansoftowner:jSystemThemeDetector:${jSystemThemeDetectorVersion}"
+
+    //  ===================================================================================
+    //  Operating system dependent runtime
+    //  Because the application release build must be done on the same OS as the target OS
+    //  ===================================================================================
+    if (operatingSystem.isMacOsX()) {
+        implementation "org.cryptomator:integrations-mac:1.1.2"
+    } else if (operatingSystem.isWindows()) {
+        implementation "org.cryptomator:integrations-win:1.1.2"
+    } else if (operatingSystem.isLinux()) {
+        implementation "org.cryptomator:integrations-linux:1.1.0"
+    }
 
     //  ============================================
     //  Compile only
@@ -169,9 +182,10 @@ application {
 }
 
 jlink {
+    def osSpecificCryptomatorIntegrationsPackageRequired = 'org.cryptomator.integrations.mac'
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages', '--verbose']
     launcher {
-        name = "DocumentFinder-${version}"
+        name = "DocumentFinder"
     }
     jpackage {
         def semverPattern = Pattern.compile("v\\d.*\\.\\d.*\\.\\d.*")
@@ -182,16 +196,22 @@ jlink {
 
         vendor = 'DocumentFinder'
 
-        OperatingSystem os = DefaultNativePlatform.currentOperatingSystem
-        if (os.isWindows()) {
+        if (operatingSystem.isWindows()) {
             installerOptions = ['--win-per-user-install', '--win-dir-chooser', '--win-menu', '--win-menu-group', 'DocumentFinder', '--win-upgrade-uuid', '420e9eb8-5b23-4589-88bb-94c1b0b70b8b','--win-shortcut', '--about-url', 'https://github.com/sascha-wedekind/document-finder']
             icon = 'src/main/resources/images/DocumentFinderIcon.ico'
             installerType = 'msi'
-        } else if (os.isLinux()) {
+            osSpecificCryptomatorIntegrationsPackageRequired = 'org.cryptomator.integrations.win'
+        } else if (operatingSystem.isLinux()) {
             icon = 'src/main/resources/images/DocumentFinderIcon_512.png'
             installerType = 'deb'
-        } else {
             installerOptions = ['--about-url', 'https://github.com/sascha-wedekind/document-finder']
+            osSpecificCryptomatorIntegrationsPackageRequired = 'org.cryptomator.integrations.linux'
+        } else if (operatingSystem.isMacOsX()) {
+            icon = 'src/main/resources/images/DocumentFinderIcon_512.icns'
+            installerType = 'dmg'
+            jvmArgs = ['-Dapple.awt.enableTemplateImages=true', '-Dapple.awt.UIElement=true', '-Dapple.laf.useScreenMenuBar=true', '-Dsun.java2d.metal=true']
+            installerOptions = ['--about-url', 'https://github.com/sascha-wedekind/document-finder', '--mac-package-name', 'DocumentFinder', '--mac-package-identifier', 'com.bytedompteur.documentfinder.DocumentFinderMain', '--mac-app-category', 'public.app-category.productivity']
+            osSpecificCryptomatorIntegrationsPackageRequired = 'org.cryptomator.integrations.mac'
         }
     }
     /*
@@ -203,8 +223,10 @@ jlink {
         excludeProvides servicePattern: 'org.xml.sax.driver'
         excludeProvides servicePattern: 'reactor.blockhound.integration.BlockHoundIntegration'
         requires 'org.slf4j' // apache.tika.core requires org.slf4j
+        requires osSpecificCryptomatorIntegrationsPackageRequired // OS specific tray and dock integration
     }
     addExtraDependencies('javafx')
+    addExtraDependencies('integrations')
 }
 
 

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.Properties;
 
 public class DocumentFinderMain {
 
@@ -19,6 +20,8 @@ public class DocumentFinderMain {
     var log = LoggerFactory.getLogger(DocumentFinderMain.class);
     log.info("Starting Document Finder");
     log.info("Determined application home directory '{}'", applicationHomeDirectory);
+    // iterate over properties and print them
+    System.getProperties().forEach((key, value) -> log.info("System property: {} = {}", key, value));
 
     log.debug("Creating IPCClient component");
     var ipcClientComponent = DaggerIPCClientComponent

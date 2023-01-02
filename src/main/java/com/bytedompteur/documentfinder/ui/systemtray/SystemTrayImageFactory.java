@@ -27,7 +27,9 @@ public class SystemTrayImageFactory {
 	}
 
 	private String getMacResourceName() {
-		return detector.isDark() ? "/images/TrayIconMacLight.png" : "/images/TrayIconMacDark.png";
+		// When no MacOs template images supported.
+//		return detector.isDark() ? "/images/TrayIconMacDark.png" : "/images/TrayIconMacLight.png";
+		return "/images/TrayIconMacDark.png"; // Newer MacOs uses template images
 	}
 
 	private String getWinOrLinuxResourceName() {

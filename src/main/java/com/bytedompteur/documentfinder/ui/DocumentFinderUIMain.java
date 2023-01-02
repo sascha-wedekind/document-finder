@@ -1,6 +1,5 @@
 package com.bytedompteur.documentfinder.ui;
 
-
 import com.bytedompteur.documentfinder.DocumentFinderMain;
 import com.bytedompteur.documentfinder.commands.ExitApplicationCommand;
 import com.bytedompteur.documentfinder.ui.dagger.DaggerUIComponent;
@@ -70,11 +69,11 @@ public class DocumentFinderUIMain
     var platformAdapter = uiComponent.platformAdapter();
     platformAdapter.disableImplicitExit();
 
+    //noinspection DataFlowIssue
     List<Image> windowIcons = platformAdapter.isMacOs() ? List.of() : List.of(
       new Image(getClass().getResource("/images/DocumentFinderIcon_32.png").toString()),
       new Image(getClass().getResource("/images/DocumentFinderIcon_512.png").toString())
     );
-
     primaryStage.getIcons().setAll(windowIcons);
     primaryStage.setTitle("Document Finder");
     primaryStage.setOnCloseRequest(it -> handleStageCloseEvent(uiComponent, exitApplicationCommand));

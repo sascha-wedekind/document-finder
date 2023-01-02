@@ -10,7 +10,10 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.cryptomator.integrations.tray.TrayIntegrationProvider;
 
+import java.awt.*;
+import java.util.Optional;
 import java.util.function.Function;
 
 
@@ -27,6 +30,8 @@ public class WindowManager {
   private final JavaFxPlatformAdapter platformAdapter;
 
   private final Function<Parent, Scene> sceneFactory;
+
+  private final Optional<TrayIntegrationProvider> trayIntegrationProvider;
 
   private MainWindowComponent mainWindowComponent;
   private OptionsWindowComponent optionsWindowComponent;
@@ -70,8 +75,8 @@ public class WindowManager {
   }
 
   public void hideApplicationWindow() {
-    platformAdapter.runLater(() -> stage.setScene(null));
     platformAdapter.runLater(stage::close);
+    platformAdapter.runLater(() -> trayIntegrationProvider.ifPresent(TrayIntegrationProvider::minimizedToTray));
   }
 
   public boolean isSystemTraySupported() {
@@ -79,14 +84,25 @@ public class WindowManager {
   }
 
   protected void show(Parent value) {
-    platformAdapter.runLater(() -> stage.setScene(null));
-
     Scene scene = sceneFactory.apply(value);
     platformAdapter.runLater(() -> {
+      trayIntegrationProvider.ifPresent(TrayIntegrationProvider::restoredFromTray);
+      setDockOrTaskbarIcon();
       stage.setScene(scene);
       stage.show();
       stage.toFront();
     });
+  }
+
+  protected void setDockOrTaskbarIcon() {
+    if (Taskbar.isTaskbarSupported()) {
+      Taskbar taskbar = Taskbar.getTaskbar();
+      if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
+        var defaultToolkit = Toolkit.getDefaultToolkit();
+        var image = defaultToolkit.getImage(getClass().getResource("/images/DocumentFinderIcon_512.png"));
+        taskbar.setIconImage(image);
+      }
+    }
   }
 
   protected FxController getCurrentController() {
