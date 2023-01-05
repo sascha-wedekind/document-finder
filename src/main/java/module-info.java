@@ -11,7 +11,6 @@ module DocumentFinder.main {
   requires org.apache.commons.lang3;
   requires org.apache.lucene.analysis.common;
   requires org.apache.tika.core;
-  requires org.apache.commons.logging;
   requires transitive  com.google.gson;
   requires transitive  javafx.fxml;
   requires transitive  javafx.controls;

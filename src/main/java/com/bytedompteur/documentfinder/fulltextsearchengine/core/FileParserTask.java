@@ -59,7 +59,7 @@ public class FileParserTask implements Runnable {
       log.error("Error while parsing '{}'", path, e);
       exceptionWhileParsing.set(e);
     } finally {
-      log.info("End parsing '{}'", path);
+      log.info("End parsing '{}'. File identified as '{}'", path, metadata.get(Metadata.CONTENT_TYPE));
       state.set(State.FINISHED);
     }
   }

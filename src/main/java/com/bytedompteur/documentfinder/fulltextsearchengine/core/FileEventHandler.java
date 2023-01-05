@@ -49,26 +49,26 @@ public class FileEventHandler {
 
   public long getNumberOfEventsNotYetProcessed() {
     var result = filesToProcess.get();
-    log.debug("Number of events to process is {}", result);
+    log.info("Number of events to process is {}", result);
     return result;
   }
 
   protected void handleFileEvent(FileEvent event) {
-    log.debug("Emitting {}", event.getPath());
-    currentPathProcessedSink.tryEmitNext(event.getPath());
+    var path = event.getPath();
+    if (isPathInvalid(path)) {
+      return;
+    }
+    log.debug("Emitting {}", path);
+    currentPathProcessedSink.tryEmitNext(path);
     filesToProcess.incrementAndGet();
     if (event.getType() == Type.DELETE) {
-      handleFileDelete(event.getPath());
+      handleFileDelete(path);
     } else {
-      handleFileCreateOrUpdate(event.getPath());
+      handleFileCreateOrUpdate(path);
     }
   }
 
   protected void handleFileCreateOrUpdate(Path path) {
-    if (isPathInvalid(path)) {
-      return;
-    }
-
     try {
       executorService.submit(new FileParserRepositoryAdapter(
         indexRepository,
@@ -78,6 +78,7 @@ public class FileEventHandler {
       ));
       log.debug("Created producer / consumer parser tasks for {}", path);
     } catch (Throwable e) {
+      filesToProcess.decrementAndGet();
       log.error("Error while processing file create or update of '{}'. File ignored", path, e);
     }
   }
@@ -86,9 +87,10 @@ public class FileEventHandler {
     try {
       log.debug("Remove '{}' from index", path);
       indexRepository.delete(path);
-      filesToProcess.decrementAndGet();
     } catch (Throwable e) {
       log.error("Error while deleting '{}' from index", path, e);
+    } finally {
+      filesToProcess.decrementAndGet();
     }
   }
 

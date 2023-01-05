@@ -4,10 +4,12 @@ import com.bytedompteur.documentfinder.persistedqueue.adapter.in.PersistedUnique
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import java.time.Duration;
 
+@Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class WaitUntilPersistedQueueIsEmptyCommand implements Runnable {
 
@@ -16,6 +18,7 @@ public class WaitUntilPersistedQueueIsEmptyCommand implements Runnable {
 
   @Override
   public void run() {
+    log.info("Waiting until persisted queue is empty");
     var policy = RetryPolicy
       .builder()
       .handleResult(false)
@@ -25,5 +28,6 @@ public class WaitUntilPersistedQueueIsEmptyCommand implements Runnable {
     Failsafe
       .with(policy)
       .get(queue::isEmpty);
+    log.info("Persisted queue is empty");
   }
 }

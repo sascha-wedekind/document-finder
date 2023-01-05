@@ -4,10 +4,12 @@ import com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.IPCS
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import java.time.Duration;
 
+@Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class StopIPCServerCommand implements Runnable{
 
@@ -19,7 +21,9 @@ public class StopIPCServerCommand implements Runnable{
   @Override
   public void run() {
     if (server.isRunning()) {
+      log.info("Stopping IPC server");
       stopAndWait();
+      log.info("IPC server stopped");
     }
   }
 

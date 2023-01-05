@@ -74,7 +74,6 @@ java {
 
 configurations {
     all*.exclude group: 'xml-apis'
-    all*.exclude group: 'commons-logging'
 }
 
 dependencies {
@@ -223,6 +222,7 @@ jlink {
         excludeProvides servicePattern: 'org.xml.sax.driver'
         excludeProvides servicePattern: 'reactor.blockhound.integration.BlockHoundIntegration'
         requires 'org.slf4j' // apache.tika.core requires org.slf4j
+//        requires 'jdk.jdwp.agent' // Required for remote debugging
         requires osSpecificCryptomatorIntegrationsPackageRequired // OS specific tray and dock integration
     }
     addExtraDependencies('javafx')

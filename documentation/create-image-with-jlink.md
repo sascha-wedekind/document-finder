@@ -18,6 +18,23 @@ and test all features of the application. If any service could not be found duri
 Run task `createMergedModule`. This creates the file 
 `[PROJECT_DIR]/build/jlinkbase/tmpjars/com.bytedompteur.merged.module/module-info.jar`
 
-Note: The directory and the field `module-info.java` will only persist if the gradle task `createMergedModule` is executed. If `jlink` is executed, the directory above will be deleted. 
+Note: The directory and the field `module-info.java` will only persist if the gradle task `createMergedModule` is executed. If `jlink` is executed, the directory above will be deleted.
 
 
+## List modules contained in java image created by jlink
+Got to the directory `[PROJECT_DIR]/build/image/bin` and
+```shell
+./java --list-modules
+```
+
+## List module content in java image created by jlink
+Got to the directory `[PROJECT_DIR]/build/image/bin` and
+```shell
+./java --describe-module com.bytedompteur.merged.module
+```
+
+## Run jlink generated java package in debug mode
+Ensure that the java module `jdk.jdwp.agent` is contained in the image (Gradle::jlink::mergeModule) 
+```shell
+./java '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005' --module DocumentFinder.main/com.bytedompteur.documentfinder.DocumentFinderMain
+```

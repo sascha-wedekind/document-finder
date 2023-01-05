@@ -4,10 +4,12 @@ import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextS
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import java.time.Duration;
 
+@Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class StopFulltextSearchServiceCommand implements Runnable {
 
@@ -18,7 +20,9 @@ public class StopFulltextSearchServiceCommand implements Runnable {
   @Override
   public void run() {
     if (searchService.inboundFileEventProcessingRunning()) {
+      log.info("Stopping fulltext search service");
       stopAndWait();
+      log.info("Fulltext search service stopped");
     }
   }
 

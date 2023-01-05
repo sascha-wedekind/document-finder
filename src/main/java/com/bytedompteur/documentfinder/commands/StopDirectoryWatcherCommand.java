@@ -4,10 +4,12 @@ import com.bytedompteur.documentfinder.directorywatcher.adapter.in.DirectoryWatc
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import java.time.Duration;
 
+@Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class StopDirectoryWatcherCommand implements Runnable {
 
@@ -18,7 +20,9 @@ public class StopDirectoryWatcherCommand implements Runnable {
   @Override
   public void run() {
     if (directoryWatcher.isWatching()) {
+      log.info("Stopping directory watcher");
       stopAndWait();
+      log.info("Directory watcher stopped");
     }
   }
 

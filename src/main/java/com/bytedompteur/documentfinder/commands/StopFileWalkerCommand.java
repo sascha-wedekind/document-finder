@@ -4,10 +4,12 @@ import com.bytedompteur.documentfinder.filewalker.adapter.in.FileWalker;
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import java.time.Duration;
 
+@Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class StopFileWalkerCommand implements Runnable {
 
@@ -18,7 +20,9 @@ public class StopFileWalkerCommand implements Runnable {
   @Override
   public void run() {
     if (fileWalker.isRunning()) {
+      log.info("Stopping file walker");
       stopAndWait();
+      log.info("File walker stopped");
     }
   }
 
