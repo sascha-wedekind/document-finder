@@ -1,0 +1,54 @@
+name: Build macOS .dmg x64 and arm64
+
+on:
+  release:
+    types: [published]
+
+env:
+  JAVA_VERSION: 19
+  JAVA_DISTRIBUTION: 'zulu'
+
+jobs:
+
+  build:
+    name: Build Document-Finder for OS ${{ matrix.output-suffix }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-11
+            architecture: x64
+            output-suffix: x64
+            xcode-path: '/Applications/Xcode_13.2.1.app'
+          - os: [ self-hosted, macOS, ARM64 ]
+            architecture: aarch64
+            output-suffix: arm64
+            xcode-path: '/Applications/Xcode_13.2.1.app'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+          java-package: 'jdk'
+          architecture: ${{ matrix.architecture }}
+          cache: 'gradle'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build
+        run: ./gradlew jpackage
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dmg-${{ matrix.output-suffix }}
+          path: build/jpackage/DocumentFinder-*.dmg
+          if-no-files-found: error
+      - name: Publish dmg on GitHub Releases
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          fail_on_unmatched_files: true
+          files: |
+            DocumentFinder-*.dmg
