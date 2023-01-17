@@ -11,20 +11,8 @@ env:
 jobs:
 
   build:
-    name: Build Document-Finder for OS ${{ matrix.output-suffix }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: macos-11
-            architecture: x64
-            output-suffix: x64
-            xcode-path: '/Applications/Xcode_13.2.1.app'
-#          - os: [ self-hosted, macOS, ARM64 ]
-#            architecture: aarch64
-#            output-suffix: arm64
-#            xcode-path: '/Applications/Xcode_13.2.1.app'
+    name: Build Document-Finder for Windows
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
       - name: Setup Java
@@ -33,7 +21,7 @@ jobs:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
           java-package: 'jdk'
-          architecture: ${{ matrix.architecture }}
+          architecture: x64
           cache: 'gradle'
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -42,8 +30,8 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: DocumentFinder-${{ matrix.output-suffix }}.dmg
-          path: build/jpackage/DocumentFinder-*.dmg
+          name: DocumentFinder.msi
+          path: build/jpackage/DocumentFinder-*.msi
           if-no-files-found: error
       - name: Publish dmg on GitHub Releases
         if: startsWith(github.ref, 'refs/tags/')
@@ -51,4 +39,4 @@ jobs:
         with:
           fail_on_unmatched_files: true
           files: |
-            /Users/runner/work/document-finder/document-finder/build/jpackage/DocumentFinder-*.dmg
+            /Users/runner/work/document-finder/document-finder/build/jpackage/DocumentFinder-*.msi
