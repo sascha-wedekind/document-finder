@@ -1,4 +1,4 @@
-name: Build macOS .dmg x64 and arm64
+name: Build macOS .dmg x64
 
 on:
   release:

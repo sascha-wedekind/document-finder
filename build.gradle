@@ -110,8 +110,6 @@ dependencies {
         implementation "org.cryptomator:integrations-mac:1.1.2"
     } else if (operatingSystem.isWindows()) {
         implementation "org.cryptomator:integrations-win:1.1.2"
-    } else if (operatingSystem.isLinux()) {
-        implementation "org.cryptomator:integrations-linux:1.1.0"
     }
 
     //  ============================================
@@ -181,7 +179,7 @@ application {
 }
 
 jlink {
-    def osSpecificCryptomatorIntegrationsPackageRequired = 'org.cryptomator.integrations.mac'
+    def osSpecificCryptomatorIntegrationsPackageRequired = null
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages', '--verbose']
     launcher {
         name = "DocumentFinder"
@@ -204,7 +202,6 @@ jlink {
             icon = 'src/main/resources/images/DocumentFinderIcon_512.png'
             installerType = 'deb'
             installerOptions = ['--about-url', 'https://github.com/sascha-wedekind/document-finder']
-            osSpecificCryptomatorIntegrationsPackageRequired = 'org.cryptomator.integrations.linux'
         } else if (operatingSystem.isMacOsX()) {
             icon = 'src/main/resources/images/DocumentFinderIcon_512.icns'
             installerType = 'dmg'
@@ -223,7 +220,9 @@ jlink {
         excludeProvides servicePattern: 'reactor.blockhound.integration.BlockHoundIntegration'
         requires 'org.slf4j' // apache.tika.core requires org.slf4j
 //        requires 'jdk.jdwp.agent' // Required for remote debugging
-        requires osSpecificCryptomatorIntegrationsPackageRequired // OS specific tray and dock integration
+        if (!operatingSystem.isLinux()) {
+            requires osSpecificCryptomatorIntegrationsPackageRequired // OS specific tray and dock integration
+        }
     }
     addExtraDependencies('javafx')
     addExtraDependencies('integrations')

@@ -1,4 +1,4 @@
-name: Build macOS .dmg x64 and arm64
+name: Build Windows *.msi
 
 on:
   release:
@@ -39,4 +39,4 @@ jobs:
         with:
           fail_on_unmatched_files: true
           files: |
-            /Users/runner/work/document-finder/document-finder/build/jpackage/DocumentFinder-*.msi
+            build/jpackage/DocumentFinder-*.msi
