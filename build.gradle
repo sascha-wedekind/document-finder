@@ -74,6 +74,9 @@ java {
 
 configurations {
     all*.exclude group: 'xml-apis'
+    // Exclude cryptomator linux integration dependencies, which lead to duplicate module error while executing jpackage
+    all*.exclude group: 'org.purejava' // org.purejava:kdewallet
+    all*.exclude group: 'de.swiesend' // de.swiesend:secret-service
 }
 
 dependencies {
@@ -114,6 +117,9 @@ dependencies {
         implementation "org.cryptomator:integrations-linux:1.1.0"
     }
 
+
+//    org.purejava:kdewallet:1.2.6
+//    de.swiesend:secret-service:1.7.0
     //  ============================================
     //  Compile only
     //  ============================================
