@@ -11,7 +11,7 @@ env:
 jobs:
 
   build:
-    name: Build Document-Finder for OS ${{ matrix.output-suffix }}
+    name: Build Document-Finder for MacOS ${{ matrix.output-suffix }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false

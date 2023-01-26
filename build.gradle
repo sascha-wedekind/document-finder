@@ -193,7 +193,7 @@ jlink {
         name = "DocumentFinder"
     }
     jpackage {
-        def semverPattern = Pattern.compile("v\\d.*\\.\\d.*\\.\\d.*")
+        def semverPattern = Pattern.compile("\\d.*\\.\\d.*\\.\\d.*")
         if (semverPattern.matcher("${version}").matches())
             appVersion = "${version}".replaceAll('v', '')
         else

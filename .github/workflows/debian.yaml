@@ -11,7 +11,7 @@ env:
 jobs:
 
   build:
-    name: Build Document-Finder for Windows
+    name: Build Document-Finder for Debian
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
@@ -31,7 +31,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: DocumentFinder.deb
-          path: build/jpackage/DocumentFinder-*.deb
+          path: build/jpackage/*.deb
           if-no-files-found: error
       - name: Publish dmg on GitHub Releases
         if: startsWith(github.ref, 'refs/tags/')
