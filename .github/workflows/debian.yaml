@@ -39,4 +39,4 @@ jobs:
         with:
           fail_on_unmatched_files: true
           files: |
-            build/jpackage/DocumentFinder-*.deb
+            build/jpackage/*.deb
