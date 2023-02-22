@@ -20,7 +20,7 @@ ext {
     jclOverSlf4jVersion = '2.0.3'
     logbackVersion = '1.4.4'
     janinoVersion = "3.1.9"
-    luceneVersion = '9.4.1'
+    luceneVersion = '9.5.0'
     junitVersion = '5.9.1'
     mockitoVersion = '4.8.1'
     assertjVersion = '3.23.1'
