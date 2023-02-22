@@ -19,7 +19,7 @@ ext {
     slf4jVersion = '2.0.6'
     jclOverSlf4jVersion = '2.0.3'
     logbackVersion = '1.4.4'
-    janinoVersion = "3.1.8"
+    janinoVersion = "3.1.9"
     luceneVersion = '9.4.1'
     junitVersion = '5.9.1'
     mockitoVersion = '4.8.1'
