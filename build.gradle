@@ -11,7 +11,6 @@ plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.13'
     id 'org.beryx.jlink' version '2.26.0'
-    id "org.javamodularity.moduleplugin" version "1.8.12"
     id 'me.qoomon.git-versioning' version '6.3.7'
 }
 
@@ -50,7 +49,7 @@ gitVersioning.apply {
             version = '${ref.version}'
         }
         branch('.+') {
-            version = '${ref}-SNAPSHOT'
+            version = '1.0-${ref}-SNAPSHOT'
         }
 
     }
@@ -117,9 +116,6 @@ dependencies {
         implementation "org.cryptomator:integrations-linux:1.1.0"
     }
 
-
-//    org.purejava:kdewallet:1.2.6
-//    de.swiesend:secret-service:1.7.0
     //  ============================================
     //  Compile only
     //  ============================================
@@ -160,12 +156,6 @@ compileTestJava {
     }
 }
 
-compileJava {
-    moduleOptions {
-        version = project.property("git.commit.timestamp")
-    }
-}
-
 idea {
     module {
         downloadJavadoc = true
@@ -188,21 +178,23 @@ application {
 
 jlink {
     def osSpecificCryptomatorIntegrationsPackageRequired = null
+    def semverPattern = Pattern.compile("\\d.*\\.\\d.*\\.\\d.*")
+    def isSnapshotBuild = !semverPattern.matcher("${version}").matches()
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages', '--verbose']
     launcher {
-        name = "DocumentFinder"
+        name = isSnapshotBuild ? "DocumentFinder-SNAPSHOT-${project.property("git.commit")}" : "DocumentFinder"
     }
     jpackage {
-        def semverPattern = Pattern.compile("\\d.*\\.\\d.*\\.\\d.*")
-        if (semverPattern.matcher("${version}").matches())
-            appVersion = "${version}".replaceAll('v', '')
-        else
+        if (isSnapshotBuild)
             appVersion = '1.0.0'
+        else
+            appVersion = "${version}".replaceAll('v', '')
+
 
         vendor = 'DocumentFinder'
 
         if (operatingSystem.isWindows()) {
-            installerOptions = ['--win-per-user-install', '--win-dir-chooser', '--win-menu', '--win-menu-group', 'DocumentFinder', '--win-upgrade-uuid', '420e9eb8-5b23-4589-88bb-94c1b0b70b8b','--win-shortcut', '--about-url', 'https://github.com/sascha-wedekind/document-finder']
+            installerOptions = ['--win-per-user-install', '--win-dir-chooser', '--win-menu', '--win-menu-group', 'DocumentFinder', '--win-upgrade-uuid', '420e9eb8-5b23-4589-88bb-94c1b0b70b8b', '--win-shortcut', '--about-url', 'https://github.com/sascha-wedekind/document-finder']
             icon = 'src/main/resources/images/DocumentFinderIcon.ico'
             installerType = 'msi'
             osSpecificCryptomatorIntegrationsPackageRequired = 'org.cryptomator.integrations.win'
@@ -246,3 +238,15 @@ tasks.register('createVersionInfoPropertiesFile', WriteProperties) {
     property 'commit-date', project.property("git.commit.timestamp.datetime")
 }
 processResources.configure {finalizedBy('createVersionInfoPropertiesFile')} // enforce property file creation after processing resources
+
+tasks.register('printVersionSW', Task) {
+    description "Print version info to console"
+    dependsOn 'processResources'
+    // log version info to console
+    doLast {
+        println "Version: ${project.version}"
+        println "Version: ${getProject().getVersion()}"
+        println "Commit: ${project.property("git.commit")}"
+        println "Commit date: ${project.property("git.commit.timestamp.datetime")}"
+    }
+}
