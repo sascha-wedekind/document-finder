@@ -27,7 +27,7 @@ ext {
     reactorVersion = '3.4.24'
     guavaVersion = '31.1-jre'
     tikaVersion = '2.6.0'
-    daggerVersion = '2.44'
+    daggerVersion = '2.44.2'
     javaFxVersion = '19'
     fontAwesomeFxVersion = '2.2.0-9.1.2'
     testFxVersion = '4.0.16-alpha'
