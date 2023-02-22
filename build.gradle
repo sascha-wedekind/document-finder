@@ -217,6 +217,7 @@ jlink {
     mergedModule {
         excludeProvides servicePattern: 'org.w3c.dom.DOMImplementationSourceList'
         excludeProvides servicePattern: 'org.xml.sax.driver'
+        excludeProvides servicePattern: 'io.micrometer.context.ContextAccessor'
         excludeProvides servicePattern: 'reactor.blockhound.integration.BlockHoundIntegration'
         requires 'org.slf4j' // apache.tika.core requires org.slf4j
 //        requires 'jdk.jdwp.agent' // Required for remote debugging
