@@ -113,7 +113,7 @@ dependencies {
     } else if (operatingSystem.isWindows()) {
         implementation "org.cryptomator:integrations-win:1.1.2"
     } else if (operatingSystem.isLinux()) {
-        implementation "org.cryptomator:integrations-linux:1.1.0"
+        implementation "org.cryptomator:integrations-linux:1.2.1"
     }
 
     //  ============================================
