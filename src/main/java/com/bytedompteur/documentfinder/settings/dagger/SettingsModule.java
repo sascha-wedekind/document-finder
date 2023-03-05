@@ -1,7 +1,10 @@
 package com.bytedompteur.documentfinder.settings.dagger;
 
+import com.bytedompteur.documentfinder.settings.adapter.in.SettingsChangedCalculator;
 import com.bytedompteur.documentfinder.settings.adapter.in.SettingsService;
-import com.bytedompteur.documentfinder.settings.core.FilesReadWriteAdapter;
+import com.bytedompteur.documentfinder.settings.adapter.out.FilesReadWriteAdapter;
+import com.bytedompteur.documentfinder.settings.adapter.out.PlatformAdapter;
+import com.bytedompteur.documentfinder.settings.core.RunOnStartupSettingsservice;
 import com.bytedompteur.documentfinder.settings.core.SettingsServiceImpl;
 import dagger.Module;
 import dagger.Provides;
@@ -16,9 +19,18 @@ public abstract class SettingsModule {
   @Singleton
   static SettingsService provideSettingsService(
     @Named("applicationHomeDirectory") String applicationHome,
-    FilesReadWriteAdapter adapter
+    FilesReadWriteAdapter adapter,
+    SettingsChangedCalculator settingsChangedCalculator
   ) {
-    return new SettingsServiceImpl(applicationHome, adapter);
+    var platformAdapter = new PlatformAdapter();
+    var settingsService = new SettingsServiceImpl(applicationHome, adapter);
+    return new RunOnStartupSettingsservice(settingsService, settingsChangedCalculator, platformAdapter);
+  }
+
+  @Provides
+  @Singleton
+  static SettingsChangedCalculator provideSettingsChangedCalculator() {
+    return new SettingsChangedCalculator();
   }
 
   @Provides
@@ -27,4 +39,7 @@ public abstract class SettingsModule {
     return new FilesReadWriteAdapter();
   }
 
+  static PlatformAdapter providePlatformAdapter() {
+    return new PlatformAdapter();
+  }
 }

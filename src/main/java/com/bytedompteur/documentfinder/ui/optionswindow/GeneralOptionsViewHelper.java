@@ -14,12 +14,14 @@ public class GeneralOptionsViewHelper extends OptionsViewHelper {
 
   void insertSettingsInController(Settings settings) {
     controller.setIsDebugLoggingEnabled(settings.isDebugLoggingEnabled());
+    controller.setRunOnStartup(settings.isRunOnStartup());
   }
 
   Settings extractSettingsFromController(Settings settings) {
     return settings
       .toBuilder()
       .debugLoggingEnabled(controller.isDebugLoggingEnabled())
+      .runOnStartup(controller.isRunOnStartup())
       .build();
   }
 }

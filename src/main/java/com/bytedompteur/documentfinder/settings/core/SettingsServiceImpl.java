@@ -2,6 +2,7 @@ package com.bytedompteur.documentfinder.settings.core;
 
 import com.bytedompteur.documentfinder.settings.adapter.in.Settings;
 import com.bytedompteur.documentfinder.settings.adapter.in.SettingsService;
+import com.bytedompteur.documentfinder.settings.adapter.out.FilesReadWriteAdapter;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +51,7 @@ public class SettingsServiceImpl implements SettingsService {
     String settingsJson = null;
     try {
       settingsJson = filesAdapter.readString(settingsFilePath);
-      log.info("Reading settings to '{}' succeeded", settingsFilePath);
+      log.info("Reading settings from '{}' succeeded", settingsFilePath);
     } catch (IOException e) {
       log.error("Reading settings from file '{}' failed", settingsFilePath, e);
     }

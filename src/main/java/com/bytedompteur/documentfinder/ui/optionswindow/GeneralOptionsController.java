@@ -15,6 +15,8 @@ public class GeneralOptionsController extends BaseOptionsController {
 
   @FXML
   public CheckBox debugLoggingEnabledCheckbox;
+  @FXML
+  public CheckBox runOnStartupCheckbox;
 
   @Inject
   public GeneralOptionsController(OkCancelButtonHandler okCancelButtonHandler) {
@@ -35,6 +37,14 @@ public class GeneralOptionsController extends BaseOptionsController {
     return debugLoggingEnabledCheckbox.isSelected();
   }
 
+
+  public boolean isRunOnStartup() {
+    return runOnStartupCheckbox.isSelected();
+  }
+
+  public void setRunOnStartup(boolean value) {
+    runOnStartupCheckbox.setSelected(value);
+  }
 
   public void handleOkButtonClick(ActionEvent ignore) {
     emitOkButtonClicked();

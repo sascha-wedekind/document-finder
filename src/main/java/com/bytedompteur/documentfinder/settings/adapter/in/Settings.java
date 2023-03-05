@@ -17,6 +17,8 @@ public class Settings {
 
   boolean debugLoggingEnabled;
 
+  boolean runOnStartup;
+
   @SuppressWarnings("unused")
   public List<String> getFolders() {
     return isNull(folders) ? List.of() : unmodifiableList(folders);

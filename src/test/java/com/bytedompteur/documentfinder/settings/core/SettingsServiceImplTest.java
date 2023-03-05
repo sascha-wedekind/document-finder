@@ -1,6 +1,7 @@
 package com.bytedompteur.documentfinder.settings.core;
 
 import com.bytedompteur.documentfinder.settings.adapter.in.Settings;
+import com.bytedompteur.documentfinder.settings.adapter.out.FilesReadWriteAdapter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

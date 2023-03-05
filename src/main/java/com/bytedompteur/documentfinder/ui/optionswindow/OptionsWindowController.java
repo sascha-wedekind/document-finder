@@ -4,6 +4,7 @@ import com.bytedompteur.documentfinder.commands.ClearAllCommand;
 import com.bytedompteur.documentfinder.commands.StartAllCommand;
 import com.bytedompteur.documentfinder.commands.StopAllCommand;
 import com.bytedompteur.documentfinder.settings.adapter.in.Settings;
+import com.bytedompteur.documentfinder.settings.adapter.in.SettingsChangedCalculator;
 import com.bytedompteur.documentfinder.settings.adapter.in.SettingsService;
 import com.bytedompteur.documentfinder.ui.FxController;
 import com.bytedompteur.documentfinder.ui.WindowManager;
@@ -18,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 import javax.inject.Inject;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
 
 import static java.util.Objects.nonNull;
 
@@ -32,6 +35,7 @@ public class OptionsWindowController implements FxController {
   private final StartAllCommand startAllCommand;
   private final ClearAllCommand clearAllCommand;
   private final WindowManager windowManager;
+  private final SettingsChangedCalculator settingsChangedCalculator;
 
   private Settings settings;
   private Map<OptionsViewHelper.Name, OptionsViewHelper> optionViewsByNameMap;
@@ -88,16 +92,24 @@ public class OptionsWindowController implements FxController {
   }
 
   private void okButtonClicked(Object unused) {
-    settingsService.save(extractedSettingsFromCurrentView());
+    var modifiedSettings = extractedSettingsFromCurrentView();
+    var changedSettings = settingsChangedCalculator.calculateChanges(settings, modifiedSettings);
 
-    log.info("Executing stop all command");
-    stopAllCommand.run();
+    if (!changedSettings.isEmpty()) {
+      log.debug("Settings that have changed: {}", changedSettings);
+      settingsService.save(modifiedSettings);
+    }
 
-    log.info("Executing stop all command");
-    clearAllCommand.run();
+    if (settingChangedThatRequireFileIndexing(changedSettings)) {
+      log.info("Executing stop all command");
+      stopAllCommand.run();
 
-    log.info("Executing run all command");
-    startAllCommand.run();
+      log.info("Executing stop all command");
+      clearAllCommand.run();
+
+      log.info("Executing run all command");
+      startAllCommand.run();
+    }
 
     log.debug("OK button clicked in {}", currentView.getName());
     windowManager.showMainWindow();
@@ -113,5 +125,11 @@ public class OptionsWindowController implements FxController {
       .ofNullable(currentView)
       .map(it -> it.extractSettingsFromController(settings))
       .orElse(settings);
+  }
+
+  private static boolean settingChangedThatRequireFileIndexing(Set<SettingsChangedCalculator.ChangeType> changedSettings) {
+    return changedSettings.contains(SettingsChangedCalculator.ChangeType.FILE_TYPES)
+      || changedSettings.contains(SettingsChangedCalculator.ChangeType.FOLDERS)
+      || changedSettings.contains(SettingsChangedCalculator.ChangeType.DEBUG_LOGGING_ENABLED);
   }
 }

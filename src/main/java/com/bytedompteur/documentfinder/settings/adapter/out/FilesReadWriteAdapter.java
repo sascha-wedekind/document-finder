@@ -1,4 +1,4 @@
-package com.bytedompteur.documentfinder.settings.core;
+package com.bytedompteur.documentfinder.settings.adapter.out;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
