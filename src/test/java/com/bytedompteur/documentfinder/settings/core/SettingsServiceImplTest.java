@@ -95,7 +95,7 @@ class SettingsServiceImplTest {
       )
       .put("debugLoggingEnabled", true)
       .toString();
-    JSONAssert.assertEquals(charSequenceArgumentCaptor.getValue().toString(), expectedJson, false);
+    JSONAssert.assertEquals(expectedJson, charSequenceArgumentCaptor.getValue().toString(), false);
   }
 
   @Test
@@ -171,7 +171,7 @@ class SettingsServiceImplTest {
       .put("debugLoggingEnabled", true)
       .toString();
 
-    JSONAssert.assertEquals(result, expectedJson, false);
+    JSONAssert.assertEquals(expectedJson, result, false);
   }
 
   @Test

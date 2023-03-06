@@ -17,7 +17,7 @@ public class Settings {
 
   boolean debugLoggingEnabled;
 
-  boolean runOnStartup;
+  transient boolean runOnStartup;
 
   @SuppressWarnings("unused")
   public List<String> getFolders() {
