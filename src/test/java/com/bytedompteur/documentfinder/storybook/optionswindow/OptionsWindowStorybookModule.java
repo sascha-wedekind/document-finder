@@ -4,8 +4,9 @@ import com.bytedompteur.documentfinder.PathUtil;
 import com.bytedompteur.documentfinder.commands.ClearAllCommand;
 import com.bytedompteur.documentfinder.commands.StartAllCommand;
 import com.bytedompteur.documentfinder.commands.StopAllCommand;
+import com.bytedompteur.documentfinder.settings.adapter.in.SettingsChangedCalculator;
 import com.bytedompteur.documentfinder.settings.adapter.in.SettingsService;
-import com.bytedompteur.documentfinder.settings.core.FilesReadWriteAdapter;
+import com.bytedompteur.documentfinder.settings.adapter.out.FilesReadWriteAdapter;
 import com.bytedompteur.documentfinder.settings.core.SettingsServiceImpl;
 import com.bytedompteur.documentfinder.ui.WindowManager;
 import com.bytedompteur.documentfinder.ui.optionswindow.dagger.OptionsWindowModule;
@@ -64,5 +65,11 @@ public abstract class OptionsWindowStorybookModule {
   @Singleton
   static WindowManager provideWindowManager() {
     return Mockito.mock(WindowManager.class);
+  }
+
+  @Provides
+  @Singleton
+  static SettingsChangedCalculator provideSettingsChangedCalculator() {
+    return Mockito.mock(SettingsChangedCalculator.class);
   }
 }

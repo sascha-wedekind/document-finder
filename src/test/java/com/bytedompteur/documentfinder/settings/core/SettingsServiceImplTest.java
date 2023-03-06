@@ -1,6 +1,7 @@
 package com.bytedompteur.documentfinder.settings.core;
 
 import com.bytedompteur.documentfinder.settings.adapter.in.Settings;
+import com.bytedompteur.documentfinder.settings.adapter.out.FilesReadWriteAdapter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -94,7 +95,7 @@ class SettingsServiceImplTest {
       )
       .put("debugLoggingEnabled", true)
       .toString();
-    JSONAssert.assertEquals(charSequenceArgumentCaptor.getValue().toString(), expectedJson, false);
+    JSONAssert.assertEquals(expectedJson, charSequenceArgumentCaptor.getValue().toString(), false);
   }
 
   @Test
@@ -170,7 +171,7 @@ class SettingsServiceImplTest {
       .put("debugLoggingEnabled", true)
       .toString();
 
-    JSONAssert.assertEquals(result, expectedJson, false);
+    JSONAssert.assertEquals(expectedJson, result, false);
   }
 
   @Test
