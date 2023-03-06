@@ -23,7 +23,7 @@ ext {
     luceneVersion = '9.5.0'
     junitVersion = '5.9.2'
     mockitoVersion = '4.8.1'
-    assertjVersion = '3.23.1'
+    assertjVersion = '3.24.2'
     reactorVersion = '3.5.1'
     guavaVersion = '31.1-jre'
     tikaVersion = '2.7.0'
