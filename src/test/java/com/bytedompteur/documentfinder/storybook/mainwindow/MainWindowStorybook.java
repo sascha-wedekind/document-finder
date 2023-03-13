@@ -21,6 +21,7 @@ public class MainWindowStorybook {
     FxToolkit.setupApplication(MainWindowPlaybookApplication::new);
     FxToolkit.showStage();
     countDownLatch.await();
+    System.exit(0);
   }
 
   public static class MainWindowPlaybookApplication extends Application {
@@ -37,6 +38,7 @@ public class MainWindowStorybook {
         .build();
       var lazyNode = playbookComponent.mainViewNode();
       var node = lazyNode.get();
+      node.getStylesheets().add(getClass().getResource("/css/default.css").toExternalForm());
 
       var button = new Button("Close Storybook Window");
       button.setStyle("-fx-background-color: #ff9100; ");

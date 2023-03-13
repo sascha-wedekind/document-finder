@@ -10,6 +10,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import lombok.RequiredArgsConstructor;
 import reactor.core.Disposable;
@@ -19,6 +21,7 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Optional;
+import java.util.function.Function;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 @MainWindowScope
@@ -82,7 +85,7 @@ public class MainWindowController implements FxController {
       .filter(it -> it.getPath().toFile().exists()) // Exclude if file does not exist
       .map(it -> SearchResult.build(
         it.getPath(),
-        fileSystemAdapter.getSystemIcon(it.getPath()).orElse(null),
+        fileSystemAdapter.getSystemIcon(it.getPath()).map(toImageView()).orElse(null),
         it.getFileLastUpdated().atZone(ZoneId.systemDefault()).toInstant()
       ))
       .subscribe(this::addToSearchResults);
@@ -94,7 +97,7 @@ public class MainWindowController implements FxController {
       .findLastUpdated()
       .map(it -> SearchResult.build(
         it.getPath(),
-        fileSystemAdapter.getSystemIcon(it.getPath()).orElse(null),
+        fileSystemAdapter.getSystemIcon(it.getPath()).map(toImageView()).orElse(null),
         it.getFileLastUpdated().atZone(ZoneId.systemDefault()).toInstant()
       ))
       .subscribe(this::addToSearchResults);
@@ -117,5 +120,15 @@ public class MainWindowController implements FxController {
 
   public void handleSearchTextFieldAction(ActionEvent ignore) {
     searchForFilesMatchingSearchText();
+  }
+
+  private static Function<WritableImage, ImageView> toImageView() {
+    return i -> {
+      var result = new ImageView(i);
+      result.setSmooth(true);
+      result.setFitHeight(28);
+      result.setFitWidth(28);
+      return result;
+    };
   }
 }

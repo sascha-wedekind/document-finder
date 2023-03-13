@@ -2,22 +2,21 @@ package com.bytedompteur.documentfinder.ui;
 
 import javafx.application.HostServices;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import javax.swing.*;
-import javax.swing.filechooser.FileSystemView;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
-import java.util.Objects;
 import java.util.Optional;
+
+import static java.util.Objects.nonNull;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 @Slf4j
@@ -25,13 +24,12 @@ public class FileSystemAdapter {
     private final HostServices hostServices;
     private final SystemFileIconProvider systemFileIconProvider;
 
-    public Optional<ImageView> getSystemIcon(Path path) {
-        var result = Optional.<ImageView>empty();
+    public Optional<WritableImage> getSystemIcon(Path path) {
+        var result = Optional.<WritableImage>empty();
         try {
             var icon = systemFileIconProvider.getSystemFileIcon(path.toFile());
-            if (Objects.nonNull(icon)) {
-                var fxImage = toWritableImage(icon);
-                result = Optional.of(new ImageView(fxImage));
+            if (nonNull(icon)) {
+                result = Optional.of(toWritableImage(icon));
             }
         } catch (Exception e) {
             log.error("Can't get system icon for '{}'", path, e);

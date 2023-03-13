@@ -21,7 +21,11 @@ import java.util.function.Function;
 @Slf4j
 public class WindowManager {
 
-  public static final Function<Parent, Scene> DEFAULT_SCENE_FACTORY = p -> new Scene(p, 640, 480);
+  public static final Function<Parent, Scene> DEFAULT_SCENE_FACTORY = p -> {
+    var result = new Scene(p, 640, 480);
+    result.getStylesheets().add(WindowManager.class.getResource("/css/default.css").toExternalForm());
+    return result;
+  };
 
   private final Stage stage;
   private final MainWindowComponent.Builder mainWindowComponentBuilder;

@@ -1,6 +1,7 @@
 package com.bytedompteur.documentfinder.storybook.mainwindow;
 
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
+import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.SearchResult;
 import com.bytedompteur.documentfinder.ui.FileSystemAdapter;
 import com.bytedompteur.documentfinder.ui.WindowManager;
 import com.bytedompteur.documentfinder.ui.mainwindow.dagger.BaseMainWindowModule;
@@ -11,6 +12,8 @@ import reactor.core.publisher.Flux;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,6 +30,14 @@ public abstract class MainWindowStorybookModule {
     var mockedSearchService = Mockito.mock(FulltextSearchService.class);
     Mockito
       .when(mockedSearchService.getCurrentPathProcessed()).thenReturn(Flux.empty());
+
+    Mockito.when(mockedSearchService.findLastUpdated()).thenReturn(Flux.just(
+      SearchResult.builder().path(Path.of("/a/b/file_1.txt")).fileCreated(LocalDateTime.now()).fileLastUpdated(LocalDateTime.now()).build(),
+      SearchResult.builder().path(Path.of("/a/b/file_2.txt")).fileCreated(LocalDateTime.now()).fileLastUpdated(LocalDateTime.now()).build(),
+      SearchResult.builder().path(Path.of("/a/b/file_3.txt")).fileCreated(LocalDateTime.now()).fileLastUpdated(LocalDateTime.now()).build(),
+      SearchResult.builder().path(Path.of("/a/b/file_4.txt")).fileCreated(LocalDateTime.now()).fileLastUpdated(LocalDateTime.now()).build()
+    ));
+
     return mockedSearchService;
   }
 

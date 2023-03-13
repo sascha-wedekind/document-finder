@@ -7,20 +7,12 @@
    <children>
       <TableView fx:id="resultTable" items="${controller.searchResults}" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
           <columns>
-              <TableColumn fx:id="pathIconColumn" editable="false" maxWidth="28.0" minWidth="28.0" prefWidth="28.0" resizable="false" text="">
+              <TableColumn fx:id="pathIconColumn" editable="false" maxWidth="38.0" minWidth="38.0" prefWidth="38.0" resizable="false" text="">
                   <cellValueFactory>
                       <PropertyValueFactory property="icon" />
                   </cellValueFactory>
               </TableColumn>
-              <TableColumn fx:id="pathNameColumn" editable="false" minWidth="20.0" prefWidth="335.0" text="Name">
-                  <cellValueFactory>
-                      <PropertyValueFactory property="fileOrDirectoryName" />
-                  </cellValueFactory>
-              </TableColumn>
-              <TableColumn fx:id="pathParentColumn" editable="false" maxWidth="362.0" minWidth="20.0" prefWidth="110.0" text="Directory">
-                  <cellValueFactory>
-                      <PropertyValueFactory property="directoryName" />
-                  </cellValueFactory>
+              <TableColumn fx:id="pathNameColumn" editable="false" minWidth="20.0" prefWidth="335.0" text="Name and Directory">
               </TableColumn>
               <TableColumn fx:id="fileModifiedColumn" editable="false" maxWidth="143.0" minWidth="0.0" prefWidth="121.0" text="Last modified">
                   <cellValueFactory>
