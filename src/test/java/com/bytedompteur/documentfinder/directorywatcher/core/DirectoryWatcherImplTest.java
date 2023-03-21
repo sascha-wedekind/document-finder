@@ -15,6 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -73,7 +75,12 @@ class DirectoryWatcherImplTest {
     callPreVisitDirectoryOnFileVisitor(mockedPath);
 
     // Assert
-    verify(mockedPath).register(eq(mockedWatchService), any());
+    verify(mockedPath).register(
+      eq(mockedWatchService),
+      eq(StandardWatchEventKinds.ENTRY_CREATE),
+      eq(StandardWatchEventKinds.ENTRY_DELETE),
+      eq(StandardWatchEventKinds.ENTRY_MODIFY)
+    );
   }
 
   @Test
@@ -101,7 +108,12 @@ class DirectoryWatcherImplTest {
     callPreVisitDirectoryOnFileVisitor(mockedPath);
 
     // Assert
-    verify(mockedPath, times(2)).register(eq(mockedWatchService), any());
+    verify(mockedPath, times(2)).register(
+      eq(mockedWatchService),
+      eq(StandardWatchEventKinds.ENTRY_CREATE),
+      eq(StandardWatchEventKinds.ENTRY_DELETE),
+      eq(StandardWatchEventKinds.ENTRY_MODIFY)
+    );
   }
 
 

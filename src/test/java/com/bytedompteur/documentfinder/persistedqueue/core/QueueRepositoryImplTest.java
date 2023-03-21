@@ -53,7 +53,7 @@ class QueueRepositoryImplTest {
   void save_initsBufferedWriterIfWriterDoesNotExist() throws IOException {
     // Arrange
     Mockito
-      .when(mockedFilesReadWriteAdapter.newBufferedWriter(any(), any()))
+      .when(mockedFilesReadWriteAdapter.newBufferedWriter(any(Path.class), any(OpenOption[].class)))
       .thenReturn(mockedBufferedWriter);
     FileEvent event = new FileEvent(FileEvent.Type.CREATE, Path.of("/a/b/c"));
 
@@ -74,7 +74,7 @@ class QueueRepositoryImplTest {
   void sut_writerWillBeClosed_whenTryWithClauseIsTriggered() throws IOException {
     // Arrange
     Mockito
-      .when(mockedFilesReadWriteAdapter.newBufferedWriter(any(), any()))
+      .when(mockedFilesReadWriteAdapter.newBufferedWriter(any(Path.class), any(OpenOption[].class)))
       .thenReturn(mockedBufferedWriter);
     Mockito
       .doThrow(new IOException("TEST_EXCEPTION"))
