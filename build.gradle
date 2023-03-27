@@ -109,7 +109,7 @@ dependencies {
     //  Because the application release build must be done on the same OS as the target OS
     //  ===================================================================================
     if (operatingSystem.isMacOsX()) {
-        implementation "org.cryptomator:integrations-mac:1.1.2"
+        implementation "org.cryptomator:integrations-mac:1.2.1"
     } else if (operatingSystem.isWindows()) {
         implementation "org.cryptomator:integrations-win:1.1.2"
     } else if (operatingSystem.isLinux()) {
