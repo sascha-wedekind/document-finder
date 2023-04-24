@@ -35,7 +35,7 @@ public class RunOnStartupSettingsservice implements SettingsService {
   public Optional<Settings> read() {
     var result = wrappedSettingsService.read();
     if (result.isPresent() && isRunOnStartupSupported()) {
-      lastSettingRead = result.get().toBuilder().runOnStartup(platformAdapter.isRunOnStartupEnabled()).build();
+      lastSettingRead = result.get().withRunOnStartup(platformAdapter.isRunOnStartupEnabled());
       result = Optional.of(lastSettingRead);
     }
     return result;

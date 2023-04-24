@@ -1,8 +1,9 @@
 package com.bytedompteur.documentfinder.ui.optionswindow;
 
-import com.bytedompteur.documentfinder.settings.adapter.in.Settings;
 import javafx.scene.Parent;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 public class GeneralOptionsViewHelper extends OptionsViewHelper {
 
   private final GeneralOptionsController controller;
@@ -12,16 +13,17 @@ public class GeneralOptionsViewHelper extends OptionsViewHelper {
     this.controller = controller;
   }
 
-  void insertSettingsInController(Settings settings) {
-    controller.setIsDebugLoggingEnabled(settings.isDebugLoggingEnabled());
-    controller.setRunOnStartup(settings.isRunOnStartup());
+  void insertModificationContextInController(OptionsModificationContext context) {
+    controller.setIsDebugLoggingEnabled(context.getSettings().isDebugLoggingEnabled());
+    controller.setRunOnStartup(context.getSettings().isRunOnStartup());
   }
 
-  Settings extractSettingsFromController(Settings settings) {
-    return settings
-      .toBuilder()
-      .debugLoggingEnabled(controller.isDebugLoggingEnabled())
-      .runOnStartup(controller.isRunOnStartup())
-      .build();
+  OptionsModificationContext extractModificationContextFromController(OptionsModificationContext context) {
+    var settings = context.getSettings()
+      .withDebugLoggingEnabled(controller.isDebugLoggingEnabled())
+      .withRunOnStartup(controller.isRunOnStartup());
+    return context
+      .withSettings(settings)
+      .withForceIndexRebuild(controller.isForceIndexRebuild());
   }
 }

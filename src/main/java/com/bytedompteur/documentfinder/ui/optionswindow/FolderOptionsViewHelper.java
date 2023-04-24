@@ -1,8 +1,9 @@
 package com.bytedompteur.documentfinder.ui.optionswindow;
 
-import com.bytedompteur.documentfinder.settings.adapter.in.Settings;
 import javafx.scene.Parent;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 public class FolderOptionsViewHelper extends OptionsViewHelper {
 
   private final FolderOptionsController controller;
@@ -12,14 +13,12 @@ public class FolderOptionsViewHelper extends OptionsViewHelper {
     this.controller = controller;
   }
 
-  void insertSettingsInController(Settings settings) {
-    controller.addToPathListIfNotAlreadyContained(settings.getFolders().toArray(new String[0]));
+  void insertModificationContextInController(OptionsModificationContext context) {
+    controller.addToPathListIfNotAlreadyContained(context.getSettings().getFolders().toArray(new String[0]));
   }
 
-  Settings extractSettingsFromController(Settings settings) {
-    return settings
-      .toBuilder()
-      .folders(controller.getPathsList())
-      .build();
+  OptionsModificationContext extractModificationContextFromController(OptionsModificationContext context) {
+    var settings = context.getSettings().withFolders(controller.getPathsList());
+    return context.withSettings(settings);
   }
 }

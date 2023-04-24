@@ -1,6 +1,5 @@
 package com.bytedompteur.documentfinder.ui.optionswindow;
 
-import com.bytedompteur.documentfinder.settings.adapter.in.Settings;
 import javafx.scene.Parent;
 
 public class AboutViewHelper extends OptionsViewHelper {
@@ -10,12 +9,12 @@ public class AboutViewHelper extends OptionsViewHelper {
   }
 
   @Override
-  void insertSettingsInController(Settings ignore) {
+  void insertModificationContextInController(OptionsModificationContext ignore) {
     // ignore
   }
 
   @Override
-  Settings extractSettingsFromController(Settings settings) {
-    return settings;
+  OptionsModificationContext extractModificationContextFromController(OptionsModificationContext context) {
+    return context;
   }
 }

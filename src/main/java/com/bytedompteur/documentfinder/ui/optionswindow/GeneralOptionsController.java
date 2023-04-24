@@ -13,6 +13,8 @@ import javax.inject.Inject;
 @SuppressWarnings("java:S1172")
 public class GeneralOptionsController extends BaseOptionsController {
 
+  private boolean forceIndexRebuild;
+
   @FXML
   public CheckBox debugLoggingEnabledCheckbox;
   @FXML
@@ -25,7 +27,7 @@ public class GeneralOptionsController extends BaseOptionsController {
 
   @FXML
   public void initialize() {
-
+    // ignore
   }
 
 
@@ -42,6 +44,10 @@ public class GeneralOptionsController extends BaseOptionsController {
     return runOnStartupCheckbox.isSelected();
   }
 
+  public boolean isForceIndexRebuild() {
+    return forceIndexRebuild;
+  }
+
   public void setRunOnStartup(boolean value) {
     runOnStartupCheckbox.setSelected(value);
   }
@@ -52,5 +58,10 @@ public class GeneralOptionsController extends BaseOptionsController {
 
   public void handleCancelButtonClick(ActionEvent ignore) {
     emitCancelButtonClicked();
+  }
+
+  public void handleRebuildSearchIndexButtonClick(ActionEvent ignore) {
+    this.forceIndexRebuild = true;
+    emitOkButtonClicked();
   }
 }

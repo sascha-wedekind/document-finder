@@ -1,8 +1,9 @@
 package com.bytedompteur.documentfinder.ui.optionswindow;
 
-import com.bytedompteur.documentfinder.settings.adapter.in.Settings;
 import javafx.scene.Parent;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 public class FileTypeOptionsViewHelper extends OptionsViewHelper {
 
   private final FileTypeOptionsController controller;
@@ -12,14 +13,12 @@ public class FileTypeOptionsViewHelper extends OptionsViewHelper {
     this.controller = controller;
   }
 
-  void insertSettingsInController(Settings settings) {
-    controller.addToFileTypesListIfNotAlreadyContained(settings.getFileTypes().toArray(new String[0]));
+  void insertModificationContextInController(OptionsModificationContext context) {
+    controller.addToFileTypesListIfNotAlreadyContained(context.getSettings().getFileTypes().toArray(new String[0]));
   }
 
-  Settings extractSettingsFromController(Settings settings) {
-    return settings
-      .toBuilder()
-      .fileTypes(controller.getFileTypesList())
-      .build();
+  OptionsModificationContext extractModificationContextFromController(OptionsModificationContext context) {
+    var settings = context.getSettings().withFileTypes(controller.getFileTypesList());
+    return context.withSettings(settings);
   }
 }

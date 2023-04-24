@@ -1,6 +1,5 @@
 package com.bytedompteur.documentfinder.ui.optionswindow;
 
-import com.bytedompteur.documentfinder.settings.adapter.in.Settings;
 import javafx.scene.Parent;
 import lombok.*;
 import reactor.core.publisher.Flux;
@@ -34,7 +33,7 @@ public abstract class OptionsViewHelper {
     controller.beforeViewHide();
   }
 
-  abstract void insertSettingsInController(Settings settings);
+  abstract void insertModificationContextInController(OptionsModificationContext context);
 
-  abstract Settings extractSettingsFromController(Settings settings);
+  abstract OptionsModificationContext extractModificationContextFromController(OptionsModificationContext context);
 }

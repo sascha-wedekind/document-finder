@@ -128,6 +128,7 @@ dependencies {
     //  ============================================
     testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
     testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testImplementation "com.google.dagger:dagger:${daggerVersion}"
     testAnnotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
