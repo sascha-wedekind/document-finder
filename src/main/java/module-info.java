@@ -3,7 +3,7 @@ module DocumentFinder.main {
   requires reactor.core;
   requires org.slf4j;
   requires dagger;
-  requires dev.failsafe;
+  requires dev.failsafe.core;
   requires transitive  javafx.graphics;
   requires com.google.common;
   requires org.apache.lucene.core;
