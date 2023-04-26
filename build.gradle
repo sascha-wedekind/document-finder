@@ -151,10 +151,15 @@ test {
 }
 
 compileTestJava {
+    dependsOn('createVersionInfoPropertiesFile')
     // Disable Java modules (Jigsaw) while running tests. See gradle-modules-plugin.
     moduleOptions {
         compileOnClasspath = true
     }
+}
+
+jar {
+    dependsOn('createVersionInfoPropertiesFile')
 }
 
 idea {
