@@ -1,108 +1,208 @@
 package com.bytedompteur.documentfinder.ui.mainwindow;
 
-import com.bytedompteur.documentfinder.ui.FileSystemAdapter;
+import com.bytedompteur.documentfinder.ui.adapter.out.FileSystemAdapter;
+import com.bytedompteur.documentfinder.ui.adapter.out.JavaFxPlatformAdapter;
 import com.bytedompteur.documentfinder.ui.mainwindow.dagger.MainWindowScope;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.geometry.Side;
+import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
-
-import static java.util.Objects.nonNull;
+import java.util.stream.Stream;
 
 @Slf4j
 @MainWindowScope
 public class SearchResultTableContextMenu extends ContextMenu {
 
-  public static final String OPEN_WITH_DEFAULT_MENU_ITEM_TEXT = "Open";
-  public static final String OPEN_DIRECTORY_MENU_ITEM_TEXT = "Open directory";
-  public static final String COPY_FILE_MENU_ITEM_TEXT = "Copy";
-  private final MenuItem openWithDefaultApplicationMenuItem;
-  private final MenuItem openDirectoryContainingFileMenuItem;
-  private final MenuItem copyFileToClipbordMenuItem;
-  private final ObjectProperty<SearchResult> selectedSearchResult = new SimpleObjectProperty<>();
-  private final Map<MenuItem, Consumer<SearchResult>> menuItemClickHandlerByMenuItem;
+  private final MenuItem openFilesWithDefaultApplicationMenuItem;
+  private final MenuItem openDirectoriesContainingFileMenuItem;
+  private final MenuItem copyFilesToClipbordMenuItem;
+  private final MenuItem openDirectoriesMenuItem;
+  private final MenuItem copyDirectoriesToClipboradMenuItem;
+  private final ObservableList<SearchResult> selectedSearchResult = FXCollections.observableArrayList();
+  private final Map<MenuItem, Consumer<List<SearchResult>>> menuItemClickHandlerByMenuItem;
   private final FileSystemAdapter fileUtil;
+  private final JavaFxPlatformAdapter platformAdapter;
 
   @Inject
-  public SearchResultTableContextMenu(FileSystemAdapter fileUtil) {
+  public SearchResultTableContextMenu(FileSystemAdapter fileUtil, JavaFxPlatformAdapter platformAdapter) {
     this.fileUtil = fileUtil;
-    openWithDefaultApplicationMenuItem = new MenuItem(OPEN_WITH_DEFAULT_MENU_ITEM_TEXT);
-    openDirectoryContainingFileMenuItem = new MenuItem(OPEN_DIRECTORY_MENU_ITEM_TEXT);
-    copyFileToClipbordMenuItem = new MenuItem(COPY_FILE_MENU_ITEM_TEXT);
+    this.platformAdapter = platformAdapter;
+    openFilesWithDefaultApplicationMenuItem = new MenuItem("");
+    openDirectoriesContainingFileMenuItem = new MenuItem("");
+    copyFilesToClipbordMenuItem = new MenuItem("");
+    openDirectoriesMenuItem = new MenuItem("");
+    copyDirectoriesToClipboradMenuItem = new MenuItem("");
 
     menuItemClickHandlerByMenuItem = Map.of(
-      openWithDefaultApplicationMenuItem, result -> openInOperatingSystem(result.getPath()),
-      openDirectoryContainingFileMenuItem, result -> openInOperatingSystem(result.getPath().getParent()),
-      copyFileToClipbordMenuItem, result -> copyFileToClipboard(result.getPath())
+      openFilesWithDefaultApplicationMenuItem, this::openFilesInOperatingSystem,
+      openDirectoriesContainingFileMenuItem, this::openDirectoriesContainingFile,
+      copyFilesToClipbordMenuItem, this::copyFileToClipboard,
+      openDirectoriesMenuItem, this::openDirectoriesInOperatingSystem,
+      copyDirectoriesToClipboradMenuItem, this::copyDirectoryToClipboard
     );
 
     setOnAction(this::handleContextMenuItemClick);
     setOnHidden(event -> handleContextMenuHidden());
-    selectedSearchResult.addListener((observable, oldValue, newValue) -> handleSelectedSearchResultChange(newValue));
   }
 
-  protected void handleContextMenuItemClick(ActionEvent event) {
-    if (event.getTarget() instanceof MenuItem menuItemClicked && searchResultIsValid()) {
-      var searchResult = selectedSearchResult.get();
-      menuItemClickHandlerByMenuItem.get(menuItemClicked).accept(searchResult);
-    }
+  @Override
+  public void show(Node anchor, Side side, double dx, double dy) {
+    prepareContextMenuItems();
+    super.show(anchor, side, dx, dy);
   }
 
-  protected void handleContextMenuHidden() {
-    selectedSearchResult.setValue(null);
-  }
-
-  protected void handleSelectedSearchResultChange(SearchResult newValue) {
-    if (nonNull(newValue)) {
-      if (newValue.isDirectory()) {
-        getItems().add(openWithDefaultApplicationMenuItem);
-        getItems().add(copyFileToClipbordMenuItem);
-      } else {
-        getItems().add(openWithDefaultApplicationMenuItem);
-        getItems().add(copyFileToClipbordMenuItem);
-        getItems().add(openDirectoryContainingFileMenuItem);
-      }
-    } else {
-      getItems().clear();
-    }
-  }
-
-  protected boolean searchResultIsValid() {
-    return nonNull(selectedSearchResult.get()) && nonNull(selectedSearchResult.get().getPath());
-  }
-
-  protected void openInOperatingSystem(Path path) {
-    fileUtil.openInOperatingSystem(path);
-  }
-
-  protected void copyFileToClipboard(Path path) {
-    var clipboardContent = new ClipboardContent();
-    clipboardContent.putFiles(List.of(path.toFile()));
-    Clipboard.getSystemClipboard().setContent(clipboardContent);
-  }
-
-
-  @SuppressWarnings("unused")
-  public SearchResult getSelectedSearchResult() {
-    return selectedSearchResult.get();
+  @Override
+  public void show(Node anchor, double screenX, double screenY) {
+    prepareContextMenuItems();
+    super.show(anchor, screenX, screenY);
   }
 
   @SuppressWarnings("unused")
-  public ObjectProperty<SearchResult> selectedSearchResultProperty() {
+  public List<SearchResult> getSelectedSearchResult() {
+    return selectedSearchResult.stream().toList();
+  }
+
+  @SuppressWarnings("unused")
+  public ObservableList<SearchResult> selectedSearchResultProperty() {
     return selectedSearchResult;
   }
 
-  public void setSelectedSearchResult(SearchResult selectedSearchResult) {
-    this.selectedSearchResult.set(selectedSearchResult);
+  public void setSelectedSearchResult(List<SearchResult> selectedSearchResult) {
+    this.selectedSearchResult.addAll(selectedSearchResult.stream().toList());
+  }
+
+  protected void prepareContextMenuItems() {
+    var directoriesCount = 0;
+    var fileCount = 0;
+    if (searchResultHasItems()) {
+      for (var searchResult : selectedSearchResult) {
+        if (searchResult.isDirectory()) {
+          directoriesCount++;
+        } else {
+          fileCount++;
+        }
+      }
+    }
+
+    if (directoriesCount > 0) {
+      applyDirectoryRelatedContextMenuItemTexts(directoriesCount);
+      getItems().add(openDirectoriesMenuItem);
+      getItems().add(copyDirectoriesToClipboradMenuItem);
+    }
+
+    if (fileCount > 0) {
+      applyFileRelatedContextMenuItemTexts(fileCount);
+      getItems().add(openFilesWithDefaultApplicationMenuItem);
+      getItems().add(copyFilesToClipbordMenuItem);
+      getItems().add(openDirectoriesContainingFileMenuItem);
+    }
+
+  }
+
+  protected void handleContextMenuItemClick(ActionEvent event) {
+    if (event.getTarget() instanceof MenuItem menuItemClicked) {
+      menuItemClickHandlerByMenuItem.get(menuItemClicked).accept(selectedSearchResult);
+    }
+  }
+
+  private void handleContextMenuHidden() {
+    selectedSearchResult.clear();
+    getItems().clear();
+  }
+
+
+  private boolean searchResultHasItems() {
+    return !selectedSearchResult.isEmpty();
+  }
+
+  private void openDirectoriesInOperatingSystem(List<SearchResult> searchResults) {
+    filterOnlyDirectories(searchResults)
+      .map(SearchResult::getPath)
+      .filter(Objects::nonNull)
+      .forEach(this::openInOperatingSystem);
+  }
+
+  private void copyDirectoryToClipboard(List<SearchResult> searchResults) {
+    var clipboardContent = new ClipboardContent();
+    clipboardContent.putFiles(filterOnlyDirectories(searchResults).map(it -> it.getPath().toFile()).toList());
+    platformAdapter.setClipboardContent(clipboardContent);
+  }
+
+  private void openFilesInOperatingSystem(List<SearchResult> result) {
+    filterOnlyFiles(result)
+      .map(SearchResult::getPath)
+      .filter(Objects::nonNull)
+      .forEach(this::openInOperatingSystem);
+  }
+
+  private void openDirectoriesContainingFile(List<SearchResult> searchResults) {
+    filterOnlyFiles(searchResults)
+      .map(SearchResult::getPath)
+      .filter(Objects::nonNull)
+      .map(Path::getParent)
+      .filter(Objects::nonNull)
+      .distinct()
+      .forEach(this::openInOperatingSystem);
+  }
+
+  private void openInOperatingSystem(Path path) {
+    fileUtil.openInOperatingSystem(path);
+  }
+
+  private void copyFileToClipboard(List<SearchResult> path) {
+    var clipboardContent = new ClipboardContent();
+    clipboardContent.putFiles(filterOnlyFiles(path).map(it -> it.getPath().toFile()).toList());
+    platformAdapter.setClipboardContent(clipboardContent);
+  }
+
+  private static Stream<SearchResult> filterOnlyFiles(List<SearchResult> path) {
+    return path.stream().filter(it -> !it.isDirectory());
+  }
+
+  private static Stream<SearchResult> filterOnlyDirectories(List<SearchResult> path) {
+    return path.stream().filter(SearchResult::isDirectory);
+  }
+
+  private void applyFileRelatedContextMenuItemTexts(int numberOf) {
+    String numberOfTextPart = createNumberOfTextPart(numberOf);
+
+    var message = MessageFormat.format("Copy {0}{1,choice,1#file|2#files} to clipboard", numberOfTextPart, numberOf);
+    var message2 = MessageFormat.format("Open {1,choice,1#directory|2#directories} containing {0}{1,choice,1#file|2#files}", numberOfTextPart, numberOf);
+    var message3 = MessageFormat.format("Open {0}{1,choice,1#file|2#files} with {1,choice,1#|2#their }default {1,choice,1#application|2#applications}", numberOfTextPart, numberOf);
+
+    copyFilesToClipbordMenuItem.setText(message);
+    openDirectoriesContainingFileMenuItem.setText(message2);
+    openFilesWithDefaultApplicationMenuItem.setText(message3);
+  }
+
+  private void applyDirectoryRelatedContextMenuItemTexts(int numberOf) {
+    String numberOfTextPart = createNumberOfTextPart(numberOf);
+
+    var message4 = MessageFormat.format("Copy {0}{1,choice,1#directory|2#directories} to clipboard", numberOfTextPart, numberOf);
+    var message5 = MessageFormat.format("Open {0}{1,choice,1#directory|2#directories}", numberOfTextPart, numberOf);
+
+    copyDirectoriesToClipboradMenuItem.setText(message4);
+    openDirectoriesMenuItem.setText(message5);
+  }
+
+  private static String createNumberOfTextPart(int numberOf) {
+    var numberOfMessagePart = "";
+    if(numberOf > 1) {
+      numberOfMessagePart = MessageFormat.format("{0,number,integer} ", numberOf);
+    }
+    return numberOfMessagePart;
   }
 }

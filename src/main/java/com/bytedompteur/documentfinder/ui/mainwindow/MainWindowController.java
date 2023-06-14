@@ -1,7 +1,7 @@
 package com.bytedompteur.documentfinder.ui.mainwindow;
 
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
-import com.bytedompteur.documentfinder.ui.FileSystemAdapter;
+import com.bytedompteur.documentfinder.ui.adapter.out.FileSystemAdapter;
 import com.bytedompteur.documentfinder.ui.FxController;
 import com.bytedompteur.documentfinder.ui.WindowManager;
 import com.bytedompteur.documentfinder.ui.mainwindow.dagger.MainWindowScope;

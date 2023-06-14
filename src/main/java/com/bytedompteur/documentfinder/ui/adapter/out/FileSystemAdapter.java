@@ -1,5 +1,6 @@
-package com.bytedompteur.documentfinder.ui;
+package com.bytedompteur.documentfinder.ui.adapter.out;
 
+import com.bytedompteur.documentfinder.ui.SystemFileIconProvider;
 import javafx.application.HostServices;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.WritableImage;
