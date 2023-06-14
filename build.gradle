@@ -28,7 +28,7 @@ ext {
     guavaVersion = '31.1-jre'
     tikaVersion = '2.7.0'
     daggerVersion = '2.45'
-    javaFxVersion = '19.0.2.1'
+    javaFxVersion = '20.0.1'
     fontAwesomeFxVersion = '2.2.0-9.1.2'
     testFxVersion = '4.0.16-alpha'
     gsonVersion = '2.10.1'
@@ -67,7 +67,7 @@ repositories {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(19)
     }
 }
 
