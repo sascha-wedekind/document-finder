@@ -14,7 +14,7 @@ public class UITestInitHelper {
   public static void addNodeUnderTestToStage(FxmlFile fxmlFile, FxController controller, Stage stage) {
     var fxmlLoaderFactory = new FxmlLoaderFactory(Map.of(controller.getClass(), () -> controller));
     var node = fxmlLoaderFactory.createParentNode(fxmlFile);
-    stage.setScene(new Scene(node, 100, 50));
+    stage.setScene(new Scene(node, 300, 200));
   }
 
 }

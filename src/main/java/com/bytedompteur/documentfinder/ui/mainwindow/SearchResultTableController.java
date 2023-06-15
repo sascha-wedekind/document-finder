@@ -1,6 +1,6 @@
 package com.bytedompteur.documentfinder.ui.mainwindow;
 
-import com.bytedompteur.documentfinder.ui.FileSystemAdapter;
+import com.bytedompteur.documentfinder.ui.adapter.out.FileSystemAdapter;
 import com.bytedompteur.documentfinder.ui.FxController;
 import com.bytedompteur.documentfinder.ui.mainwindow.dagger.MainWindowScope;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -47,6 +47,7 @@ public class SearchResultTableController implements FxController {
       resultTable.getColumns().get(2).setMaxWidth(1f * Integer.MAX_VALUE * 20); // File modification date
     });
 
+    resultTable.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.MULTIPLE);
 
     //noinspection unchecked
     resultTable.getColumns()
@@ -69,7 +70,7 @@ public class SearchResultTableController implements FxController {
 
     resultTable.setContextMenu(contextMenu);
     resultTable.setOnContextMenuRequested(event -> Optional
-      .ofNullable(resultTable.getSelectionModel().getSelectedItem())
+      .ofNullable(resultTable.getSelectionModel().getSelectedItems())
       .ifPresent(it -> {
         contextMenu.setSelectedSearchResult(it);
         contextMenu.show(event.getPickResult().getIntersectedNode(), event.getScreenX(), event.getScreenY());

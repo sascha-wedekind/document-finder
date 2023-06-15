@@ -2,7 +2,7 @@ package com.bytedompteur.documentfinder.storybook.mainwindow;
 
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.SearchResult;
-import com.bytedompteur.documentfinder.ui.FileSystemAdapter;
+import com.bytedompteur.documentfinder.ui.adapter.out.FileSystemAdapter;
 import com.bytedompteur.documentfinder.ui.WindowManager;
 import com.bytedompteur.documentfinder.ui.mainwindow.dagger.BaseMainWindowModule;
 import dagger.Module;
