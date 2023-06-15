@@ -119,7 +119,20 @@ class SearchResultTableContextMenuTest {
         var contextMenu = textField.getContextMenu();
         contextMenu.show(textField, topLeft.getX(), topLeft.getY());
       })
-      .clickOn(arguments.getString(2)) // Click on context menu entry having the given text
+      .interact(() -> {
+        // Click on context menu entry having the given text
+        // Implemented this way because search with FxRobot doesn't work in headless tests (JavaFx Monocle renderer)
+        var contextMenu = textField.getContextMenu();
+        var menuItem = contextMenu.getItems().stream()
+          .filter(item -> item.getText().equals(arguments.getString(2)))
+          .findFirst()
+          .orElseThrow();
+        menuItem.fire();
+      })
+      .interact(() -> {
+        // Hide context menu
+        textField.getContextMenu().hide();
+      })
 
       // Assert
       .interact(() -> {
