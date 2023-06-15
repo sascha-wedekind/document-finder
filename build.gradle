@@ -18,17 +18,17 @@ ext {
     lombokVersion = '1.18.26'
     slf4jVersion = '2.0.7'
     jclOverSlf4jVersion = '2.0.7'
-    logbackVersion = '1.4.6'
+    logbackVersion = '1.4.7'
     janinoVersion = "3.1.9"
     luceneVersion = '9.5.0'
-    junitVersion = '5.9.2'
+    junitVersion = '5.9.3'
     mockitoVersion = '5.2.0'
     assertjVersion = '3.24.2'
     reactorVersion = '3.5.5'
     guavaVersion = '31.1-jre'
     tikaVersion = '2.7.0'
     daggerVersion = '2.46'
-    javaFxVersion = '19.0.2.1'
+    javaFxVersion = '20.0.1'
     fontAwesomeFxVersion = '2.2.0-9.1.2'
     testFxVersion = '4.0.16-alpha'
     gsonVersion = '2.10.1'
@@ -67,7 +67,7 @@ repositories {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(19)
     }
 }
 
@@ -132,6 +132,7 @@ dependencies {
     testAnnotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
 
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"

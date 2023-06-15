@@ -38,7 +38,8 @@ public class SystemTrayIconController {
           log.info("Showing tray icon");
           this.trayIcon = new TrayIcon(imageFactory.loadImage(), "Document Finder", trayMenuController.getMenu());
           trayIcon.setImageAutoSize(true);
-          if (platformAdapter.isWindowsOs()) {
+          // On windows the main window will be displayes with a single left click. On MacOs with a right click.
+          if (platformAdapter.isWindowsOs() || platformAdapter.isMacOs()) {
             trayIcon.addActionListener(trayMenuController::showMainWindowHandler);
           }
 

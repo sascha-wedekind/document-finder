@@ -1,6 +1,8 @@
 package com.bytedompteur.documentfinder.ui.adapter.out;
 
 import javafx.application.Platform;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.SystemUtils;
 
@@ -36,5 +38,9 @@ public class JavaFxPlatformAdapter {
 
   public boolean isSystemTraySupported() {
     return !isLinuxOs() && SystemTray.isSupported();
+  }
+
+  public void setClipboardContent(ClipboardContent value) {
+    Clipboard.getSystemClipboard().setContent(value);
   }
 }
