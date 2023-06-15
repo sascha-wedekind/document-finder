@@ -2,6 +2,8 @@ package com.bytedompteur.documentfinder.ui.mainwindow;
 
 import com.bytedompteur.documentfinder.ui.adapter.out.FileSystemAdapter;
 import com.bytedompteur.documentfinder.ui.adapter.out.JavaFxPlatformAdapter;
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
@@ -109,7 +111,14 @@ class SearchResultTableContextMenuTest {
       })
 
       // Act
-      .clickOn(textField, MouseButton.SECONDARY)
+      .interact(() -> {
+        // Show context menu without using the mouse, because the right click with FxRobot doesn't work in headless
+        // tests (JavaFx Monocle renderer)
+        Bounds boundsInParent = textField.getBoundsInParent();
+        Point2D topLeft = textField.localToScreen(boundsInParent.getMinX(), boundsInParent.getMinY());
+        var contextMenu = textField.getContextMenu();
+        contextMenu.show(textField, topLeft.getX(), topLeft.getY());
+      })
       .clickOn(arguments.getString(2)) // Click on context menu entry having the given text
 
       // Assert
