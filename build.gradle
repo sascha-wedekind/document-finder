@@ -9,7 +9,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'application'
-    id 'org.openjfx.javafxplugin' version '0.0.13'
+    id 'org.openjfx.javafxplugin' version '0.0.14'
     id 'org.beryx.jlink' version '2.26.0'
     id 'me.qoomon.git-versioning' version '6.4.2'
 }
