@@ -22,15 +22,15 @@ ext {
     janinoVersion = "3.1.9"
     luceneVersion = '9.7.0'
     mockitoVersion = '5.4.0'
-    junitVersion = '5.9.3'
+    junitVersion = '5.10.0'
     assertjVersion = '3.24.2'
     reactorVersion = '3.5.9'
     guavaVersion = '31.1-jre'
     tikaVersion = '2.8.0'
     daggerVersion = '2.47'
-    javaFxVersion = '20.0.1'
+    javaFxVersion = '21'
     fontAwesomeFxVersion = '2.2.0-9.1.2'
-    testFxVersion = '4.0.16-alpha'
+    testFxVersion = '4.0.17'
     gsonVersion = '2.10.1'
     jsonAssertVersion = '1.5.1'
     xercesImplVersion = '2.12.2'
@@ -134,6 +134,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    testImplementation 'org.hamcrest:hamcrest:2.2' // Required for FXTest. The FXRobot has a direct dependency to hamcrest.
 
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
