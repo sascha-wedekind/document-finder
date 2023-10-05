@@ -3,13 +3,11 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import java.nio.file.Paths
 import java.util.regex.Pattern
 
-//https://github.com/qoomon/gradle-git-versioning-plugin
-
 plugins {
     id 'java'
     id 'idea'
     id 'application'
-    id 'org.openjfx.javafxplugin' version '0.0.14'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
     id 'org.beryx.jlink' version '2.26.0'
     id 'me.qoomon.git-versioning' version '6.4.2'
 }
@@ -76,6 +74,7 @@ configurations {
     // Exclude cryptomator linux integration dependencies, which lead to duplicate module error while executing jpackage
     all*.exclude group: 'org.purejava' // org.purejava:kdewallet
     all*.exclude group: 'de.swiesend' // de.swiesend:secret-service
+    all*.exclude group: 'javax.inject' // javax.inject
 }
 
 dependencies {
@@ -103,6 +102,7 @@ dependencies {
     implementation "de.jensd:fontawesomefx-materialicons:${fontAwesomeFxVersion}"
     implementation "com.google.code.gson:gson:${gsonVersion}"
     implementation "com.github.Dansoftowner:jSystemThemeDetector:${jSystemThemeDetectorVersion}"
+    implementation "jakarta.inject:jakarta.inject-api:1.0.5"
 
     //  ===================================================================================
     //  Operating system dependent runtime
@@ -120,6 +120,7 @@ dependencies {
     //  Compile only
     //  ============================================
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "jakarta.inject:jakarta.inject-api:1.0.5"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
 
@@ -142,22 +143,19 @@ dependencies {
     testImplementation "org.testfx:testfx-core:${testFxVersion}"
     testImplementation "org.testfx:testfx-junit5:${testFxVersion}"
     testImplementation "org.skyscreamer:jsonassert:${jsonAssertVersion}"
+    testAnnotationProcessor "jakarta.inject:jakarta.inject-api:1.0.5"
 }
 
 test {
     useJUnitPlatform()
-    // Disable Java modules (Jigsaw) while running tests. See gradle-modules-plugin.
-    moduleOptions {
-        runOnClasspath = true
-    }
+    // Disable Java modules (Jigsaw) while running tests.
+    modularity.inferModulePath = false
 }
 
 compileTestJava {
     dependsOn('createVersionInfoPropertiesFile')
-    // Disable Java modules (Jigsaw) while running tests. See gradle-modules-plugin.
-    moduleOptions {
-        compileOnClasspath = true
-    }
+    // Disable Java modules (Jigsaw) while running tests.
+    modularity.inferModulePath = false
 }
 
 jar {
