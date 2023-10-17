@@ -10,6 +10,7 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.1.0'
     id 'org.beryx.jlink' version '2.26.0'
     id 'me.qoomon.git-versioning' version '6.4.2'
+    id 'org.gradlex.extra-java-module-info' version '1.4.2'
 }
 
 ext {
@@ -23,7 +24,7 @@ ext {
     junitVersion = '5.10.0'
     assertjVersion = '3.24.2'
     reactorVersion = '3.5.9'
-    guavaVersion = '31.1-jre'
+    guavaVersion = '32.1.2-jre'
     tikaVersion = '2.8.0'
     daggerVersion = '2.47'
     javaFxVersion = '21'
@@ -74,7 +75,6 @@ configurations {
     // Exclude cryptomator linux integration dependencies, which lead to duplicate module error while executing jpackage
     all*.exclude group: 'org.purejava' // org.purejava:kdewallet
     all*.exclude group: 'de.swiesend' // de.swiesend:secret-service
-    all*.exclude group: 'javax.inject' // javax.inject
 }
 
 dependencies {
@@ -102,7 +102,10 @@ dependencies {
     implementation "de.jensd:fontawesomefx-materialicons:${fontAwesomeFxVersion}"
     implementation "com.google.code.gson:gson:${gsonVersion}"
     implementation "com.github.Dansoftowner:jSystemThemeDetector:${jSystemThemeDetectorVersion}"
-    implementation "jakarta.inject:jakarta.inject-api:1.0.5"
+    implementation 'io.github.g00fy2:versioncompare:1.4.1'
+    implementation('com.pixelduke:transit:1.0.0') {
+        exclude group: 'org.openjfx', module: '*' // exclude dependency on javafx, which is already provided by javafx plugin
+    }
 
     //  ===================================================================================
     //  Operating system dependent runtime
@@ -120,7 +123,6 @@ dependencies {
     //  Compile only
     //  ============================================
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
-    annotationProcessor "jakarta.inject:jakarta.inject-api:1.0.5"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
 
@@ -143,19 +145,60 @@ dependencies {
     testImplementation "org.testfx:testfx-core:${testFxVersion}"
     testImplementation "org.testfx:testfx-junit5:${testFxVersion}"
     testImplementation "org.skyscreamer:jsonassert:${jsonAssertVersion}"
-    testAnnotationProcessor "jakarta.inject:jakarta.inject-api:1.0.5"
 }
 
 test {
     useJUnitPlatform()
-    // Disable Java modules (Jigsaw) while running tests.
-    modularity.inferModulePath = false
+    configurations {
+        testRuntimeClasspath {
+            attributes { attribute(Attribute.of("javaModule", Boolean), false) }
+        }
+    }
 }
 
 compileTestJava {
     dependsOn('createVersionInfoPropertiesFile')
-    // Disable Java modules (Jigsaw) while running tests.
-    modularity.inferModulePath = false
+    configurations {
+        testCompileClasspath {
+            attributes { attribute(Attribute.of("javaModule", Boolean), false) }
+        }
+    }
+}
+
+// https://github.com/gradlex-org/extra-java-module-info
+extraJavaModuleInfo {
+    module("io.github.g00fy2:versioncompare", "versioncompare") {
+        exports("io.github.g00fy2.versioncompare")
+    }
+
+    automaticModule("xerces:xercesImpl", "xerces")
+    automaticModule("org.codehaus.janino:janino", "janino")
+    automaticModule("org.codehaus.janino:janino", "janino")
+    automaticModule("org.codehaus.janino:commons-compiler", "janino.compiler")
+    automaticModule("com.google.guava:failureaccess", "guava.failureaccess")
+    automaticModule("com.google.guava:listenablefuture", "guava.listenablefuture")
+    automaticModule("com.google.code.findbugs:jsr305", "google.findbugs.jsr305")
+    automaticModule("com.google.j2objc:j2objc-annotations", "google.j2objc.annotations")
+    automaticModule("org.apache.tika:tika-parser-mail-commons", "tika.parser.mail.commons")
+    automaticModule("org.apache.james:apache-mime4j-dom", "apache.mime4j.dom")
+    automaticModule("org.apache.james:apache-mime4j-core", "apache.mime4j.core")
+    automaticModule("org.apache.pdfbox:jempbox", "pdfbox.jempbox")
+    automaticModule("com.pff:java-libpst", "pff.java.libpst")
+    automaticModule("commons-logging:commons-logging", "apache.commons.logging")
+    automaticModule("com.googlecode.plist:dd-plist", "plist.dd")
+    automaticModule("org.apache.commons:commons-math3", "apache.commons.math3")
+    automaticModule("com.zaxxer:SparseBitSet", "zaxxer.sparsebitset")
+    automaticModule("org.ccil.cowan.tagsoup:tagsoup", "tagsoup")
+    automaticModule("com.google.dagger:dagger-compiler", "dagger.compiler")
+    automaticModule("com.google.dagger:dagger-spi", "dagger.spi")
+    automaticModule("com.google.dagger:dagger-producers", "dagger.producers")
+    automaticModule("com.google.googlejavaformat:google-java-format", "google.googlejavaformat")
+    automaticModule("com.google.devtools.ksp:symbol-processing-api", "google.devtools.ksp.symbol.processing.api")
+    automaticModule("net.ltgt.gradle.incap:incap", "net.ltgt.gradle.incap")
+    automaticModule("com.google.errorprone:javac-shaded", "google.errorprone.javac.shaded")
+    automaticModule("org.jetbrains.kotlin:kotlin-stdlib-common", "kotlin.stdlib.common")
+    automaticModule("org.jetbrains:annotations", "org.jetbrains.annotations")
+    automaticModule("javax.inject:javax.inject", "javax.inject")
 }
 
 jar {
@@ -174,7 +217,7 @@ idea {
 //As documented here https://openjfx.io/openjfx-docs/#gradle
 javafx {
     version = "${javaFxVersion}"
-    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing' ]
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing', 'javafx.web' ]
 }
 
 application {
