@@ -173,3 +173,6 @@ src/main/generated
 /src/test/generated_tests/
 !src/**/out
 /APPLICATION_HOME_DIRECTORY_FOR_LOGGING_IS_UNDEFINED/
+/.idea/modules.xml
+/.idea/modules
+/.idea/.name
