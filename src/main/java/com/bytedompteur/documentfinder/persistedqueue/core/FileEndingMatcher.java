@@ -1,5 +1,6 @@
-package com.bytedompteur.documentfinder.filewalker.core;
+package com.bytedompteur.documentfinder.persistedqueue.core;
 
+import com.bytedompteur.documentfinder.filewalker.core.FileMatcher;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;

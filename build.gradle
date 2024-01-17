@@ -32,7 +32,6 @@ ext {
     testFxVersion = '4.0.17'
     gsonVersion = '2.10.1'
     jsonAssertVersion = '1.5.1'
-    xercesImplVersion = '2.12.2'
     jSystemThemeDetectorVersion = '3.8'
     failsafeVersion = '3.3.2'
     defaultMainClass = 'com.bytedompteur.documentfinder.DocumentFinderMain'
@@ -81,7 +80,6 @@ dependencies {
     //  ============================================
     //  Runtime
     //  ============================================
-    implementation "xerces:xercesImpl:${xercesImplVersion}"
     implementation "dev.failsafe:failsafe:${failsafeVersion}"
     implementation "org.slf4j:slf4j-api:${slf4jVersion}"
     implementation "ch.qos.logback:logback-classic:${logbackVersion}"
@@ -168,10 +166,7 @@ extraJavaModuleInfo {
         exports("io.github.g00fy2.versioncompare")
     }
 
-    module("xerces:xercesImpl", "xerces") {
-        exports("org.apache.xerces.xni")
-        exports("org.apache.xerces.impl")
-    }
+    automaticModule("xerces:xercesImpl", "xerces")
     automaticModule("org.codehaus.janino:janino", "janino")
     automaticModule("org.codehaus.janino:commons-compiler", "janino.compiler")
     automaticModule("com.google.guava:failureaccess", "guava.failureaccess")
