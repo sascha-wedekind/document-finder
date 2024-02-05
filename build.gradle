@@ -10,7 +10,7 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.1.0'
     id 'org.beryx.jlink' version '3.0.1'
     id 'me.qoomon.git-versioning' version '6.4.2'
-    id 'org.gradlex.extra-java-module-info' version '1.4.2'
+    id 'org.gradlex.extra-java-module-info' version '1.8'
 }
 
 ext {
