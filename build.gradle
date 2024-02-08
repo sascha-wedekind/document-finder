@@ -181,7 +181,6 @@ extraJavaModuleInfo {
     automaticModule("commons-logging:commons-logging", "apache.commons.logging")
     automaticModule("com.googlecode.plist:dd-plist", "plist.dd")
     automaticModule("org.apache.commons:commons-math3", "apache.commons.math")
-    automaticModule("org.apache.commons:commons-collections4", "org.apache.commons.collections")
     automaticModule("com.zaxxer:SparseBitSet", "zaxxer.sparsebitset")
     automaticModule("org.ccil.cowan.tagsoup:tagsoup", "tagsoup")
     automaticModule("com.google.dagger:dagger-compiler", "dagger.compiler")
@@ -192,7 +191,11 @@ extraJavaModuleInfo {
     automaticModule("net.ltgt.gradle.incap:incap", "net.ltgt.gradle.incap")
     automaticModule("com.google.errorprone:javac-shaded", "google.errorprone.javac.shaded")
     automaticModule("org.jetbrains.kotlin:kotlin-stdlib-common", "kotlin.stdlib.common")
-    automaticModule("org.jetbrains:annotations", "org.jetbrains.annotations")
+    module("org.jetbrains:annotations", "org.jetbrains.annotations"){
+        patchRealModule()
+        exportAllPackages()
+        requireAllDefinedDependencies()
+    }
     automaticModule("javax.inject:javax.inject", "javax.inject")
 }
 
