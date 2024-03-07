@@ -40,7 +40,7 @@ public interface UIComponent {
     UIComponent.Builder applicationHomeDirectory(@Named("applicationHomeDirectory") String value);
 
     @BindsInstance
-    UIComponent.Builder numberOfThreads(@Named("numberOfThreads") int value);
+    UIComponent.Builder numberOfVirtualThreads(@Named("numberOfVirtualThreads") int value);
 
     @BindsInstance
     UIComponent.Builder primaryStage(@Named("primaryStage") Stage value);

@@ -24,6 +24,7 @@ module DocumentFinder.main {
   requires com.jthemedetector;
   requires org.cryptomator.integrations.api;
   requires versioncompare;
+  requires org.apache.commons.io;
 
   requires javax.inject;
   requires static lombok;

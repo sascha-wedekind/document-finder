@@ -56,9 +56,10 @@ public class DocumentFinderUIMain
   }
 
   private UIComponent createUIComponent(Stage primaryStage) {
+    int cores = Runtime.getRuntime().availableProcessors();
     return DaggerUIComponent
       .builder()
-      .numberOfThreads(4)
+      .numberOfVirtualThreads(cores * 12)
       .applicationHomeDirectory(DocumentFinderMain.determineApplicationHomeDirectory())
       .primaryStage(primaryStage)
       .hostServices(getHostServices())

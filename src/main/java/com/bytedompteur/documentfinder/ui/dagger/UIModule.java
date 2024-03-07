@@ -1,5 +1,6 @@
 package com.bytedompteur.documentfinder.ui.dagger;
 
+import com.bytedompteur.documentfinder.CustomNamePrefixThreadFactoryBuilder;
 import com.bytedompteur.documentfinder.PathUtil;
 import com.bytedompteur.documentfinder.commands.dagger.CommandsModule;
 import com.bytedompteur.documentfinder.settings.dagger.SettingsModule;
@@ -18,6 +19,7 @@ import javax.inject.Singleton;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 @Module(
   subcomponents = {MainWindowComponent.class, OptionsWindowComponent.class, SystemTrayComponent.class},
@@ -43,8 +45,8 @@ public abstract class UIModule {
 
   @Provides
   @Singleton
-  static ExecutorService provideExecutorService(@Named("numberOfThreads") int numberOfThreads) {
-    return Executors.newFixedThreadPool(Math.max(1, numberOfThreads));
+  static ExecutorService provideExecutorService(@Named("numberOfVirtualThreads") int numberOfThreads, ThreadFactory threadFactory) {
+    return Executors.newFixedThreadPool(Math.max(1, numberOfThreads), threadFactory);
   }
 
   @Provides
@@ -53,6 +55,7 @@ public abstract class UIModule {
     return TrayIntegrationProvider.get();
   }
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   @Provides
   @Singleton
   static WindowManager provideWindowManager(
@@ -72,5 +75,11 @@ public abstract class UIModule {
       WindowManager.DEFAULT_SCENE_FACTORY,
       trayIntegrationProvider
     );
+  }
+
+  @Provides
+  @Singleton
+  static ThreadFactory provideThreadFactory() {
+    return new CustomNamePrefixThreadFactoryBuilder().build();
   }
 }
