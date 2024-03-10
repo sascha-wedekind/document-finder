@@ -330,7 +330,7 @@ jlink {
 tasks.register('createVersionInfoPropertiesFile', WriteProperties) {
     description "Creates a version properties file in the build resources directory"
     dependsOn 'processResources'
-    outputFile Paths.get(sourceSets.main.output.resourcesDir.getPath(), 'version-info.properties').toFile()
+    setDestinationFile(Paths.get(sourceSets.main.output.resourcesDir.getPath(), 'version-info.properties').toFile())
     property 'version', version
     property 'commit', project.property("git.commit")
     property 'commit-date', project.property("git.commit.timestamp.datetime")
