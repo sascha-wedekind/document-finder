@@ -35,7 +35,7 @@ ext {
     jSystemThemeDetectorVersion = '3.8'
     failsafeVersion = '3.3.2'
     commonsIoVersion = '2.15.1'
-    g00fy2VersionCompareVersion = '1.4.1'
+    g00fy2VersionCompareVersion = '1.5.0'
     defaultMainClass = 'com.bytedompteur.documentfinder.DocumentFinderMain'
 }
 
