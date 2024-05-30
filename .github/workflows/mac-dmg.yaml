@@ -26,9 +26,9 @@ jobs:
 #            output-suffix: arm64
 #            xcode-path: '/Applications/Xcode_13.2.1.app'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
@@ -40,7 +40,7 @@ jobs:
       - name: Build
         run: ./gradlew jpackage
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: DocumentFinder-${{ matrix.output-suffix }}.dmg
           path: build/jpackage/DocumentFinder-*.dmg

@@ -16,10 +16,10 @@ jobs:
           sudo apt-get install xvfb tigervnc-standalone-server tigervnc-common
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '21'
@@ -33,7 +33,7 @@ jobs:
         run: |
           xvfb-run ./gradlew build test
       - name: Upload test result
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-reports
