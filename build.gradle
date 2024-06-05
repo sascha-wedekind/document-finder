@@ -25,7 +25,7 @@ ext {
     assertjVersion = '3.26.0'
     reactorVersion = '3.6.2'
     guavaVersion = '33.0.0-jre'
-    tikaVersion = '2.9.1'
+    tikaVersion = '2.9.2'
     daggerVersion = '2.47'
     javaFxVersion = '22.0.1'
     fontAwesomeFxVersion = '2.2.0-9.1.2'
@@ -228,10 +228,8 @@ extraJavaModuleInfo {
     automaticModule("org.apache.james:apache-mime4j-core", "apache.mime4j.core")
     automaticModule("org.apache.pdfbox:jempbox", "pdfbox.jempbox")
     automaticModule("com.pff:java-libpst", "pff.java.libpst")
-    automaticModule("commons-logging:commons-logging", "apache.commons.logging")
     automaticModule("com.googlecode.plist:dd-plist", "plist.dd")
     automaticModule("org.apache.commons:commons-math3", "apache.commons.math")
-    automaticModule("com.zaxxer:SparseBitSet", "zaxxer.sparsebitset")
     automaticModule("org.ccil.cowan.tagsoup:tagsoup", "tagsoup")
     automaticModule("com.google.dagger:dagger-compiler", "dagger.compiler")
     automaticModule("com.google.dagger:dagger-spi", "dagger.spi")
