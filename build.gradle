@@ -32,7 +32,7 @@ ext {
     testFxVersion = '4.0.18'
     gsonVersion = '2.10.1'
     jsonAssertVersion = '1.5.1'
-    jSystemThemeDetectorVersion = '3.8'
+    jSystemThemeDetectorVersion = '3.9.1'
     failsafeVersion = '3.3.2'
     commonsIoVersion = '2.15.1'
     g00fy2VersionCompareVersion = '1.5.0'
