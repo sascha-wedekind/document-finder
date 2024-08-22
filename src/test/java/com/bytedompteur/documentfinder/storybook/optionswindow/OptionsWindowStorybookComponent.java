@@ -5,7 +5,7 @@ import com.bytedompteur.documentfinder.ui.optionswindow.dagger.OptionsWindowComp
 import com.bytedompteur.documentfinder.ui.optionswindow.dagger.OptionsWindowScope;
 import dagger.Component;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Component(modules = OptionsWindowStorybookModule.class)
 @Singleton

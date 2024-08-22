@@ -8,7 +8,7 @@ import com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.mess
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 @Slf4j

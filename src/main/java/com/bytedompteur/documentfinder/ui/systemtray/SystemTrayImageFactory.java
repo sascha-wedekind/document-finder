@@ -6,7 +6,7 @@ import com.jthemedetecor.OsThemeDetector;
 import lombok.RequiredArgsConstructor;
 
 import javax.imageio.ImageIO;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.awt.*;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))

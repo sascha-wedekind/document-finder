@@ -9,7 +9,7 @@ import dagger.Module;
 import dagger.Provides;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j

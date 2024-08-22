@@ -8,7 +8,7 @@ import com.bytedompteur.documentfinder.filewalker.core.WalkerFactory;
 import dagger.Module;
 import dagger.Provides;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.util.concurrent.ExecutorService;
 
 @Module

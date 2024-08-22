@@ -13,7 +13,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.input.ClipboardContent;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.List;

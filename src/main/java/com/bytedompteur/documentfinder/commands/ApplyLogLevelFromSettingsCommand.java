@@ -6,7 +6,7 @@ import com.bytedompteur.documentfinder.settings.adapter.in.SettingsService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class ApplyLogLevelFromSettingsCommand implements Runnable {

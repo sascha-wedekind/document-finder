@@ -2,47 +2,38 @@ package com.bytedompteur.documentfinder.ui.optionswindow.dagger;
 
 import com.bytedompteur.documentfinder.ui.FxController;
 import com.bytedompteur.documentfinder.ui.FxmlFile;
-import com.bytedompteur.documentfinder.ui.dagger.FxControllerMapKey;
 import com.bytedompteur.documentfinder.ui.dagger.FxmlLoaderFactory;
 import com.bytedompteur.documentfinder.ui.dagger.FxmlParent;
 import com.bytedompteur.documentfinder.ui.optionswindow.*;
-import dagger.Binds;
 import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
-import dagger.multibindings.IntoMap;
+import jakarta.inject.Provider;
 import javafx.scene.Parent;
 
-import javax.inject.Provider;
 import java.util.Map;
 
 @Module
 public abstract class OptionsWindowModule {
 
-  @Binds
-  @IntoMap
-  @FxControllerMapKey(OptionsWindowController.class)
-  abstract FxController bindOptionsWindowController(OptionsWindowController value);
+  // Moved from @Binds to @Provides because of a bug in Dagger 2.52
+  @Provides
+  static Map<Class<? extends FxController>, Provider<FxController>> controllerFactoriesByClassMap(
+    OptionsWindowController value1,
+    FileTypeOptionsController value2,
+    FolderOptionsController value3,
+    AboutController value4,
+    GeneralOptionsController value5
+  ) {
 
-  @Binds
-  @IntoMap
-  @FxControllerMapKey(FileTypeOptionsController.class)
-  abstract FxController bindFileTypeOptionsController(FileTypeOptionsController value);
-
-  @Binds
-  @IntoMap
-  @FxControllerMapKey(FolderOptionsController.class)
-  abstract FxController bindFolderOptionsController(FolderOptionsController value);
-
-  @Binds
-  @IntoMap
-  @FxControllerMapKey(AboutController.class)
-  abstract FxController bindAboutController(AboutController value);
-
-  @Binds
-  @IntoMap
-  @FxControllerMapKey(GeneralOptionsController.class)
-  abstract FxController bindGeneralOptionsController(GeneralOptionsController value);
+    return Map.of(
+      OptionsWindowController.class, () -> value1,
+      FileTypeOptionsController.class, () -> value2,
+      FolderOptionsController.class, () -> value3,
+      AboutController.class, () -> value4,
+      GeneralOptionsController.class, () -> value5
+    );
+  }
 
   @Provides
   static FxmlLoaderFactory provideFxmlLoaderFactory(Map<Class<? extends FxController>, Provider<FxController>> controllerFactoriesByClassMap) {

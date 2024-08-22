@@ -3,7 +3,7 @@ package com.bytedompteur.documentfinder.commands;
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
 import lombok.RequiredArgsConstructor;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class ClearFulltextSearchServiceIndexCommand implements Runnable {

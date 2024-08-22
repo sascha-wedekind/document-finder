@@ -6,7 +6,7 @@ import javafx.scene.input.ClipboardContent;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.SystemUtils;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.awt.*;
 
 @NoArgsConstructor(onConstructor = @__(@Inject))

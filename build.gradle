@@ -15,18 +15,18 @@ plugins {
 
 ext {
     lombokVersion = '1.18.30'
-    slf4jVersion = '2.0.12'
-    jclOverSlf4jVersion = '2.0.13'
-    logbackVersion = '1.5.3'
-    janinoVersion = "3.1.9"
-    luceneVersion = '9.10.0'
+    slf4jVersion = '2.0.14'
+    jclOverSlf4jVersion = '2.0.14'
+    logbackVersion = '1.5.6'
+    janinoVersion = "3.1.12"
+    luceneVersion = '9.11.1'
     mockitoVersion = '5.4.0'
     junitVersion = '5.10.2'
     assertjVersion = '3.26.0'
-    reactorVersion = '3.6.2'
-    guavaVersion = '33.0.0-jre'
+    reactorVersion = '3.6.8'
+    guavaVersion = '33.2.1-jre'
     tikaVersion = '2.9.2'
-    daggerVersion = '2.47'
+    daggerVersion = '2.52'
     javaFxVersion = '22.0.1'
     fontAwesomeFxVersion = '2.2.0-9.1.2'
     testFxVersion = '4.0.18'
@@ -76,6 +76,7 @@ configurations {
     // Exclude cryptomator linux integration dependencies, which lead to duplicate module error while executing jpackage
     all*.exclude group: 'org.purejava' // org.purejava:kdewallet
     all*.exclude group: 'de.swiesend' // de.swiesend:secret-service
+    all*.exclude group: 'commons-logging', module: 'commons-logging' // replaced by jcl-over-slf4j
 }
 
 dependencies {
@@ -101,7 +102,10 @@ dependencies {
     implementation "com.google.dagger:dagger:${daggerVersion}"
     implementation "de.jensd:fontawesomefx-materialicons:${fontAwesomeFxVersion}"
     implementation "com.google.code.gson:gson:${gsonVersion}"
-    implementation "com.github.Dansoftowner:jSystemThemeDetector:${jSystemThemeDetectorVersion}"
+    implementation ("com.github.Dansoftowner:jSystemThemeDetector:${jSystemThemeDetectorVersion}") {
+        exclude group: 'net.java.dev.jna', module: 'jna-platform-jpms'
+        exclude group: 'net.java.dev.jna', module: 'jna-jpms'
+    }
     implementation "io.github.g00fy2:versioncompare:${g00fy2VersionCompareVersion}"
     implementation "commons-io:commons-io:${commonsIoVersion}"
 
@@ -122,7 +126,9 @@ dependencies {
     //  ============================================
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-    annotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
+    annotationProcessor ("com.google.dagger:dagger-compiler:${daggerVersion}") {
+        exclude group: 'org.jetbrains', module: 'annotations'
+    }
 
     //  ============================================
     //  Test
@@ -130,7 +136,9 @@ dependencies {
     testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
     testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testImplementation "com.google.dagger:dagger:${daggerVersion}"
-    testAnnotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
+    testAnnotationProcessor ("com.google.dagger:dagger-compiler:${daggerVersion}") {
+        exclude group: 'org.jetbrains', module: 'annotations'
+    }
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
@@ -163,90 +171,6 @@ compileTestJava {
     }
 }
 
-// https://github.com/gradlex-org/extra-java-module-info
-extraJavaModuleInfo {
-    module("io.github.g00fy2:versioncompare", "versioncompare") {
-        exports("io.github.g00fy2.versioncompare")
-    }
-
-    // No automatic module, because 'org.w3c.dom.html' shall be excluded. It's contained in Java 21
-    module("xerces:xercesImpl", "xerces") {
-        exports("org.apache.html.dom")
-        exports("org.apache.wml")
-        exports("org.apache.wml.dom")
-        exports("org.apache.xerces.dom")
-        exports("org.apache.xerces.dom.events")
-        exports("org.apache.xerces.dom3.as")
-        exports("org.apache.xerces.impl")
-        exports("org.apache.xerces.impl.dtd")
-        exports("org.apache.xerces.impl.dtd.models")
-        exports("org.apache.xerces.impl.dv")
-        exports("org.apache.xerces.impl.dv.dtd")
-        exports("org.apache.xerces.impl.dv.util")
-        exports("org.apache.xerces.impl.dv.xs")
-        exports("org.apache.xerces.impl.io")
-        exports("org.apache.xerces.impl.msg")
-        exports("org.apache.xerces.impl.validation")
-        exports("org.apache.xerces.impl.xpath")
-        exports("org.apache.xerces.impl.xpath.regex")
-        exports("org.apache.xerces.impl.xs")
-        exports("org.apache.xerces.impl.xs.identity")
-        exports("org.apache.xerces.impl.xs.models")
-        exports("org.apache.xerces.impl.xs.opti")
-        exports("org.apache.xerces.impl.xs.traversers")
-        exports("org.apache.xerces.impl.xs.util")
-        exports("org.apache.xerces.jaxp")
-        exports("org.apache.xerces.jaxp.datatype")
-        exports("org.apache.xerces.jaxp.validation")
-        exports("org.apache.xerces.parsers")
-        exports("org.apache.xerces.stax")
-        exports("org.apache.xerces.stax.events")
-        exports("org.apache.xerces.util")
-        exports("org.apache.xerces.xinclude")
-        exports("org.apache.xerces.xni")
-        exports("org.apache.xerces.xni.grammars")
-        exports("org.apache.xerces.xni.parser")
-        exports("org.apache.xerces.xpointer")
-        exports("org.apache.xerces.xs")
-        exports("org.apache.xerces.xs.datatypes")
-        exports("org.apache.xml.serialize")
-
-        requires("java.xml")
-    }
-
-    automaticModule("xml-apis:xml-apis", "xmlapis")
-    automaticModule("org.codehaus.janino:janino", "janino")
-    automaticModule("org.codehaus.janino:commons-compiler", "janino.compiler")
-    automaticModule("com.google.guava:failureaccess", "guava.failureaccess"){
-        overrideModuleName()
-    }
-    automaticModule("com.google.guava:listenablefuture", "guava.listenablefuture")
-    automaticModule("com.google.code.findbugs:jsr305", "google.findbugs.jsr")
-    automaticModule("com.google.j2objc:j2objc-annotations", "google.j2objc.annotations")
-    automaticModule("org.apache.tika:tika-parser-mail-commons", "tika.parser.mail.commons")
-    automaticModule("org.apache.james:apache-mime4j-dom", "apache.mime4j.dom")
-    automaticModule("org.apache.james:apache-mime4j-core", "apache.mime4j.core")
-    automaticModule("org.apache.pdfbox:jempbox", "pdfbox.jempbox")
-    automaticModule("com.pff:java-libpst", "pff.java.libpst")
-    automaticModule("com.googlecode.plist:dd-plist", "plist.dd")
-    automaticModule("org.apache.commons:commons-math3", "apache.commons.math")
-    automaticModule("org.ccil.cowan.tagsoup:tagsoup", "tagsoup")
-    automaticModule("com.google.dagger:dagger-compiler", "dagger.compiler")
-    automaticModule("com.google.dagger:dagger-spi", "dagger.spi")
-    automaticModule("com.google.dagger:dagger-producers", "dagger.producers")
-    automaticModule("com.google.googlejavaformat:google-java-format", "google.googlejavaformat")
-    automaticModule("com.google.devtools.ksp:symbol-processing-api", "google.devtools.ksp.symbol.processing.api")
-    automaticModule("net.ltgt.gradle.incap:incap", "net.ltgt.gradle.incap")
-    automaticModule("com.google.errorprone:javac-shaded", "google.errorprone.javac.shaded")
-    automaticModule("org.jetbrains.kotlin:kotlin-stdlib-common", "kotlin.stdlib.common")
-    module("org.jetbrains:annotations", "org.jetbrains.annotations"){
-        patchRealModule()
-        exportAllPackages()
-        requireAllDefinedDependencies()
-    }
-    automaticModule("javax.inject:javax.inject", "javax.inject")
-}
-
 jar {
     dependsOn('createVersionInfoPropertiesFile')
 }
@@ -271,11 +195,18 @@ application {
     mainModule = 'DocumentFinder.main'
 }
 
+// https://github.com/gradlex-org/extra-java-module-info
+extraJavaModuleInfo {
+    failOnMissingModuleInfo.set(false)
+
+    automaticModule("javax.inject:javax.inject", "javax.inject")
+}
+
 jlink {
     def osSpecificCryptomatorIntegrationsPackageRequired = null
     def semverPattern = Pattern.compile("\\d.*\\.\\d.*\\.\\d.*")
     def isSnapshotBuild = !semverPattern.matcher("${version}").matches()
-    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages', '--verbose', '--ignore-signing-information'] // Ignoring signing information is required since usage of Java 21 an Apache Tika parser (org.bouncycastle:bcpkix-jdk18on) but the signature-related files of the signed modular JARs aren't copied to the runtime image.
+    options = ['--strip-debug', '--compress', 'zip-9', '--no-header-files', '--no-man-pages', '--verbose', '--ignore-signing-information']  // Ignoring signing information is required since usage of Java 21 an Apache Tika parser (org.bouncycastle:bcpkix-jdk18on) but the signature-related files of the signed modular JARs aren't copied to the runtime image.
     launcher {
         name = isSnapshotBuild ? "DocumentFinder-SNAPSHOT-${project.property("git.commit")}" : "DocumentFinder"
     }
@@ -314,14 +245,14 @@ jlink {
         excludeProvides servicePattern: 'org.xml.sax.driver'
         excludeProvides servicePattern: 'io.micrometer.context.ContextAccessor'
         excludeProvides servicePattern: 'reactor.blockhound.integration.BlockHoundIntegration'
-        //requires 'org.slf4j' // apache.tika.core requires org.slf4j
 //        requires 'jdk.jdwp.agent' // Required for remote debugging
         if (!operatingSystem.isLinux()) {
             requires osSpecificCryptomatorIntegrationsPackageRequired // OS specific tray and dock integration
         }
     }
-    addExtraDependencies('javafx')
-    addExtraDependencies('integrations')
+    addExtraDependencies('integrations', 'javafx', 'annotations', 'jcl-over-slf4j')
+    forceMerge("jna")
+    forceMerge("log4j-api")
 }
 
 

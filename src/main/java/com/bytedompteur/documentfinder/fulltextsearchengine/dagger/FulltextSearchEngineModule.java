@@ -12,8 +12,8 @@ import dagger.Provides;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.index.IndexWriter;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 

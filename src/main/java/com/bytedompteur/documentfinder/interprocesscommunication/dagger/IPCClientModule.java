@@ -5,7 +5,7 @@ import com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.IPCS
 import dagger.Module;
 import dagger.Provides;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Module(includes = IPCBaseModule.class)
 public abstract class IPCClientModule {

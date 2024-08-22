@@ -14,8 +14,8 @@ import dagger.Provides;
 import javafx.stage.Stage;
 import org.cryptomator.integrations.tray.TrayIntegrationProvider;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

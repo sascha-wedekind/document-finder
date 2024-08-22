@@ -2,7 +2,7 @@ package com.bytedompteur.documentfinder.commands;
 
 import lombok.RequiredArgsConstructor;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 

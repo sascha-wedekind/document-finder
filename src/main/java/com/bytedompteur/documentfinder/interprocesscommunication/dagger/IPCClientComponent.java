@@ -4,8 +4,8 @@ import com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.IPCS
 import dagger.BindsInstance;
 import dagger.Component;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 @Component(modules = IPCClientModule.class)
 @Singleton

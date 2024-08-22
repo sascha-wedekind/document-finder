@@ -5,7 +5,7 @@ import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.SearchRes
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 

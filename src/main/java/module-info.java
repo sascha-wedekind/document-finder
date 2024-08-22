@@ -23,10 +23,9 @@ module DocumentFinder.main {
   requires jdk.management;
   requires com.jthemedetector;
   requires org.cryptomator.integrations.api;
-  requires versioncompare;
   requires org.apache.commons.io;
 
-  requires javax.inject;
+  requires jakarta.inject;
   requires static lombok;
 
   opens com.bytedompteur.documentfinder.ui.mainwindow to javafx.fxml, javafx.base;

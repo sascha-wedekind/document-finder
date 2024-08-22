@@ -15,7 +15,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
 import lombok.RequiredArgsConstructor;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;

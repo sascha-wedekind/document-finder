@@ -14,7 +14,7 @@ import dagger.Module;
 import dagger.Provides;
 import org.mockito.Mockito;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 
 @Module(includes = OptionsWindowModule.class)

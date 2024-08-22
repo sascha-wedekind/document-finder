@@ -13,8 +13,8 @@ import dagger.Component;
 import javafx.application.HostServices;
 import javafx.stage.Stage;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 @Component(modules = {UIModule.class, IPCModule.class})
 @Singleton

@@ -7,7 +7,7 @@ import javafx.scene.image.WritableImage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;

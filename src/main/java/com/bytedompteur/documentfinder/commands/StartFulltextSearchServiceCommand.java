@@ -5,7 +5,7 @@ import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import lombok.RequiredArgsConstructor;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.time.Duration;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))

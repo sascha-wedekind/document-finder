@@ -10,8 +10,8 @@ import dagger.Provides;
 import org.mockito.Mockito;
 import reactor.core.publisher.Flux;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;

@@ -2,7 +2,7 @@ package com.bytedompteur.documentfinder.commands;
 
 import lombok.RequiredArgsConstructor;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class StartAllCommand implements Runnable {

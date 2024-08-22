@@ -9,8 +9,8 @@ import com.bytedompteur.documentfinder.settings.core.SettingsServiceImpl;
 import dagger.Module;
 import dagger.Provides;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 @Module
 public abstract class SettingsModule {

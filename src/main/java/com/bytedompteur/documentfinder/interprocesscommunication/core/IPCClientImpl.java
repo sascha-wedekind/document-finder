@@ -5,7 +5,7 @@ import com.bytedompteur.documentfinder.interprocesscommunication.adapter.in.IPCS
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.net.ConnectException;
 import java.net.StandardProtocolFamily;
 import java.nio.ByteBuffer;

@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Optional;

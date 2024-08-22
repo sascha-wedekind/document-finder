@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Slf4j
 @OptionsWindowScope
