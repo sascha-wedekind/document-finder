@@ -1,10 +1,11 @@
 package com.bytedompteur.documentfinder.ui;
 
-import javax.swing.*;
+import javafx.scene.image.Image;
+
 import java.io.File;
 
 public interface SystemFileIconProvider {
 
-  Icon getSystemFileIcon(File file);
+  Image getSystemFileIcon(File file);
 
 }

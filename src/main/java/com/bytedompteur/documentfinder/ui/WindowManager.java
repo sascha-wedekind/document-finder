@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.cryptomator.integrations.tray.TrayIntegrationProvider;
 
 import java.awt.*;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -23,8 +24,17 @@ public class WindowManager {
 
   public static final Function<Parent, Scene> DEFAULT_SCENE_FACTORY = p -> {
     var result = new Scene(p, 640, 480);
-    result.getStylesheets().add(WindowManager.class.getResource("/css/default.css").toExternalForm());
-    return result;
+      try {
+          result.getStylesheets()
+              .add(
+                  Objects
+                      .requireNonNull(WindowManager.class.getResource("/css/default.css"))
+                      .toExternalForm()
+              );
+      } catch (Exception e) {
+          log.error("Could not load default.css", e);
+      }
+      return result;
   };
 
   private final Stage stage;
@@ -35,6 +45,7 @@ public class WindowManager {
 
   private final Function<Parent, Scene> sceneFactory;
 
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private final Optional<TrayIntegrationProvider> trayIntegrationProvider;
 
   private MainWindowComponent mainWindowComponent;
@@ -100,12 +111,16 @@ public class WindowManager {
 
   protected void setDockOrTaskbarIcon() {
     if (Taskbar.isTaskbarSupported()) {
-      Taskbar taskbar = Taskbar.getTaskbar();
-      if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
-        var defaultToolkit = Toolkit.getDefaultToolkit();
-        var image = defaultToolkit.getImage(getClass().getResource("/images/DocumentFinderIcon_512.png"));
-        taskbar.setIconImage(image);
-      }
+        try {
+            Taskbar taskbar = Taskbar.getTaskbar();
+            if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
+              var defaultToolkit = Toolkit.getDefaultToolkit();
+              var image = defaultToolkit.getImage(getClass().getResource("/images/DocumentFinderIcon_512.png"));
+              taskbar.setIconImage(image);
+            }
+        } catch (Exception e) {
+            log.error("Could not set taskbar icon", e);
+        }
     }
   }
 

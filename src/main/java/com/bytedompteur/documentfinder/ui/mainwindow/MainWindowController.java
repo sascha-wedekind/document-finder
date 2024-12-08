@@ -10,8 +10,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import lombok.RequiredArgsConstructor;
 import reactor.core.Disposable;
@@ -122,7 +122,7 @@ public class MainWindowController implements FxController {
     searchForFilesMatchingSearchText();
   }
 
-  private static Function<WritableImage, ImageView> toImageView() {
+  private static Function<Image, ImageView> toImageView() {
     return i -> {
       var result = new ImageView(i);
       result.setSmooth(true);

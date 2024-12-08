@@ -1,15 +1,12 @@
 package com.bytedompteur.documentfinder.ui.adapter.out;
 
 import com.bytedompteur.documentfinder.ui.SystemFileIconProvider;
+import jakarta.inject.Inject;
 import javafx.application.HostServices;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.WritableImage;
+import javafx.scene.image.Image;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import jakarta.inject.Inject;
-import javax.swing.*;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,21 +14,16 @@ import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.util.Optional;
 
-import static java.util.Objects.nonNull;
-
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 @Slf4j
 public class FileSystemAdapter {
     private final HostServices hostServices;
     private final SystemFileIconProvider systemFileIconProvider;
 
-    public Optional<WritableImage> getSystemIcon(Path path) {
-        var result = Optional.<WritableImage>empty();
+    public Optional<Image> getSystemIcon(Path path) {
+        Optional<Image> result = Optional.empty();
         try {
-            var icon = systemFileIconProvider.getSystemFileIcon(path.toFile());
-            if (nonNull(icon)) {
-                result = Optional.of(toWritableImage(icon));
-            }
+            result = Optional.ofNullable(systemFileIconProvider.getSystemFileIcon(path.toFile()));
         } catch (Exception e) {
             log.error("Can't get system icon for '{}'", path, e);
         }
@@ -51,16 +43,6 @@ public class FileSystemAdapter {
 
     public void openInOperatingSystem(Path path) {
         hostServices.showDocument(path.toUri().toString());
-    }
-
-    private static WritableImage toWritableImage(Icon swingIcon) {
-        BufferedImage bufferedImage = new BufferedImage(
-                swingIcon.getIconWidth(),
-                swingIcon.getIconHeight(),
-                BufferedImage.TYPE_INT_ARGB
-        );
-        swingIcon.paintIcon(null, bufferedImage.getGraphics(), 0, 0);
-        return SwingFXUtils.toFXImage(bufferedImage, null);
     }
 
 }
