@@ -38,7 +38,6 @@ public class MainWindowStorybook {
         .build();
       var lazyNode = playbookComponent.mainViewNode();
       var node = lazyNode.get();
-      node.getStylesheets().add(getClass().getResource("/css/default.css").toExternalForm());
 
       var button = new Button("Close Storybook Window");
       button.setStyle("-fx-background-color: #ff9100; ");
@@ -55,6 +54,7 @@ public class MainWindowStorybook {
       borderPane.autosize();
 
       Scene scene = new Scene(borderPane);
+      scene.getStylesheets().add(getClass().getResource("/css/default-light.css").toExternalForm());
       primaryStage.setScene(scene);
 //      primaryStage.show();
     }

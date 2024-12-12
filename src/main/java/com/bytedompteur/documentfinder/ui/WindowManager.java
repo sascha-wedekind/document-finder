@@ -5,6 +5,7 @@ import com.bytedompteur.documentfinder.ui.mainwindow.dagger.MainWindowComponent;
 import com.bytedompteur.documentfinder.ui.optionswindow.dagger.OptionsWindowComponent;
 import com.bytedompteur.documentfinder.ui.systemtray.SystemTrayIconController;
 import com.bytedompteur.documentfinder.ui.systemtray.dagger.SystemTrayComponent;
+import com.jthemedetecor.OsThemeDetector;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -22,20 +23,9 @@ import java.util.function.Function;
 @Slf4j
 public class WindowManager {
 
-  public static final Function<Parent, Scene> DEFAULT_SCENE_FACTORY = p -> {
-    var result = new Scene(p, 640, 480);
-      try {
-          result.getStylesheets()
-              .add(
-                  Objects
-                      .requireNonNull(WindowManager.class.getResource("/css/default.css"))
-                      .toExternalForm()
-              );
-      } catch (Exception e) {
-          log.error("Could not load default.css", e);
-      }
-      return result;
-  };
+  public static final Function<Parent, Scene> DEFAULT_SCENE_FACTORY = p -> new Scene(p, 640, 480);
+  private final OsThemeDetector osThemeDetector = OsThemeDetector.getDetector();
+  private boolean osThemeDetectorListenerRegistered = false;
 
   private final Stage stage;
   private final MainWindowComponent.Builder mainWindowComponentBuilder;
@@ -99,14 +89,38 @@ public class WindowManager {
   }
 
   protected void show(Parent value) {
+    registerOsThemeChangeListenerIfNotAlreadyRegistered();
+
     Scene scene = sceneFactory.apply(value);
     platformAdapter.runLater(() -> {
       trayIntegrationProvider.ifPresent(TrayIntegrationProvider::restoredFromTray);
       setDockOrTaskbarIcon();
+        if (osThemeDetector.isDark()) {
+            applyStylesheet(scene, "/css/default-dark.css");
+            } else {
+            applyStylesheet(scene, "/css/default-light.css");
+        }
       stage.setScene(scene);
       stage.show();
       stage.toFront();
     });
+  }
+
+  private void registerOsThemeChangeListenerIfNotAlreadyRegistered() {
+    if(!osThemeDetectorListenerRegistered) {
+      osThemeDetectorListenerRegistered = true;
+      osThemeDetector.registerListener(isDark -> {
+        platformAdapter.runLater(() -> {
+          var stylesheets = stage.getScene().getStylesheets();
+          stylesheets.clear();
+          if (isDark) {
+            applyStylesheet(stage.getScene(), "/css/default-dark.css");
+          } else {
+           applyStylesheet(stage.getScene(), "/css/default-light.css");
+          }
+        });
+      });
+    }
   }
 
   protected void setDockOrTaskbarIcon() {
@@ -137,6 +151,19 @@ public class WindowManager {
   private void obtainSystemTrayIconController() {
     if (systemTrayIconController == null) {
       systemTrayIconController = systemTrayComponentBuilder.build().systemTrayIconController().get();
+    }
+  }
+
+  private static void applyStylesheet(Scene scene, String stylesheetPath) {
+    try {
+      var stylesheetURL = Objects
+//          .requireNonNull(WindowManager.class.getResource("/css/default-light.css"))
+          .requireNonNull(WindowManager.class.getResource(stylesheetPath))
+          .toExternalForm();
+      scene.getStylesheets().clear();
+      scene.getStylesheets().add(stylesheetURL);
+    } catch (Exception e) {
+      log.error("Could not load default.css", e);
     }
   }
 }

@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <a href="https://github.com/haraldk/TwelveMonkeys-NativeSwing/blob/master/src/main/java/com/twelvemonkeys/spice/osx/OSXImageUtil.java">...</a>
@@ -30,7 +31,7 @@ public class JnaMacOsFileIconProvider implements SystemFileIconProvider {
     @SuppressWarnings("unused")
     private final javax.swing.JFileChooser fc = new javax.swing.JFileChooser();
     private static final JnaMacOsFileIconProvider INSTANCE = new JnaMacOsFileIconProvider();
-    private final Map<String, javafx.scene.image.Image> iconsByFileExtensionMap = new java.util.HashMap<>();
+    private final Map<String, javafx.scene.image.Image> iconsByFileExtensionMap = new ConcurrentHashMap<>();
 
     private JnaMacOsFileIconProvider() {
     }

@@ -1,0 +1,131 @@
+@font-face {
+    font-family: 'InterRegular';
+    src: url('../inter-font/Inter-Regular.otf');
+}
+
+@font-face {
+    font-family: 'InterRegularBold';
+    src: url('../inter-font/Inter-Bold.otf');
+}
+
+.root {
+    MAIN_COLOR: #2B2D30;
+    SECOND_COLOR: #5A5D62;
+    TEXT_COLOR: #DFE1E5;
+    TEXT_HINT_COLOR: #5A5D62;
+}
+
+#mainWindows {
+    -fx-font-familiy: 'InterRegular' ;
+    -fx-font-size: 1.2em;
+    -fx-background-color: MAIN_COLOR;
+}
+
+
+.text-field {
+    -fx-text-fill: TEXT_COLOR;
+    -fx-prompt-text-fill: TEXT_HINT_COLOR;
+    -fx-background-color: MAIN_COLOR;
+    -fx-border-color: MAIN_COLOR MAIN_COLOR SECOND_COLOR MAIN_COLOR;
+    -fx-border-width: 1;
+    -fx-border-radius: 0;
+    -fx-padding: 5;
+}
+
+
+.button {
+    -fx-border-radius: 10;
+    -fx-background-color: MAIN_COLOR;
+    -fx-border-color: SECOND_COLOR;
+    -fx-border-width: 1;
+}
+
+.button .glyph-icon {
+    -fx-fill: TEXT_COLOR;
+}
+
+.label {
+    -fx-text-fill: TEXT_HINT_COLOR;
+}
+
+.table-view {
+    -fx-background-color:  MAIN_COLOR;
+}
+
+.table-view .placeholder .label {
+    -fx-text-fill: TEXT_HINT_COLOR;
+}
+
+#resultTable {
+    -fx-border-color: MAIN_COLOR;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+#resultTable .column-header,
+#resultTable .column-header .filler,
+#resultTable .column-header-background .filler {
+    -fx-background-color: MAIN_COLOR;
+    -fx-border-color: MAIN_COLOR;
+}
+
+#resultTable .column-header .label {
+    -fx-text-fill: TEXT_HINT_COLOR;
+    -fx-font-familiy: 'InterRegularBold' ;
+    -fx-font-size: 1.0em;
+}
+
+#resultTable .cell {
+    -fx-alignment: center;
+    -fx-text-fill: TEXT_COLOR;
+    -fx-background-color:  MAIN_COLOR;
+    -fx-border-color: MAIN_COLOR;
+    -fx-padding: 0.3em;
+}
+
+#resultTable .two-line-table-cell VBox {
+    -fx-spacing: 0.5em;
+}
+
+#resultTable .two-line-table-cell .filename-label {
+    -fx-text-overrun: center-ellipsis;
+    -fx-text-fill: TEXT_COLOR;
+}
+
+#resultTable .two-line-table-cell .directory-label {
+    -fx-text-overrun: center-ellipsis;
+    -fx-text-fill: TEXT_COLOR;
+}
+
+
+
+
+/* Style the track */
+.scroll-bar .track {
+    -fx-background-color: MAIN_COLOR; /* Light gray background */
+    -fx-border-color: MAIN_COLOR;     /* Slightly darker border */
+    -fx-border-width: 1px;
+    -fx-background-radius: 5px;    /* Rounded corners */
+    -fx-border-radius: 5px;
+}
+
+/* Style the thumb */
+.scroll-bar .thumb {
+    -fx-background-color: TEXT_HINT_COLOR; /* Darker gray thumb */
+    -fx-background-insets: 2px;     /* Add some insets */
+    -fx-background-radius: 5px;    /* Rounded corners */
+}
+
+/* Style the increment and decrement buttons (optional) */
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: MAIN_COLOR; /* Hide the default buttons */
+    -fx-border-color: MAIN_COLOR;
+    -fx-padding: 0;
+}
+
+/* Style the increment and decrement arrows (optional) */
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: " "; /* Hide the default arrows */
+}
