@@ -20,6 +20,7 @@ public class OptionsWindowStorybook {
     FxToolkit.registerPrimaryStage();
     FxToolkit.setupApplication(OptionsWindowPlaybookApplication::new);
     countDownLatch.await();
+    System.exit(0);
   }
 
   public static class OptionsWindowPlaybookApplication extends Application {
@@ -48,6 +49,8 @@ public class OptionsWindowStorybook {
       borderPane.autosize();
 
       Scene scene = new Scene(borderPane);
+      scene.getStylesheets().add(getClass().getResource("/css/default-dark.css").toExternalForm());
+//      scene.getStylesheets().add(getClass().getResource("/css/default-light.css").toExternalForm());
       primaryStage.setScene(scene);
       primaryStage.show();
     }

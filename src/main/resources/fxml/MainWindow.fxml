@@ -9,9 +9,6 @@
       <HBox spacing="10.0" BorderPane.alignment="CENTER">
          <children>
             <TextField fx:id="searchTextField" minWidth="10.0" onAction="#handleSearchTextFieldAction" onKeyTyped="#searchAsYouType" promptText="text to search" HBox.hgrow="ALWAYS">
-               <HBox.margin>
-                  <Insets />
-               </HBox.margin>
             </TextField>
             <Button fx:id="clearSearchTextFieldButton" mnemonicParsing="false" onAction="#handleClearSearchTextButtonClick" HBox.hgrow="NEVER">
                <graphic>

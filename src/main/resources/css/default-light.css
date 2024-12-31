@@ -13,6 +13,7 @@
     SECOND_COLOR: #B0B0B0;
     TEXT_COLOR: #202020;
     TEXT_HINT_COLOR: #707070;
+    SELECTED_COLOR: #1A6BE3;
 }
 
 #mainWindows {
@@ -37,6 +38,7 @@
     -fx-border-radius: 10;
     -fx-background-color: MAIN_COLOR;
     -fx-border-color: SECOND_COLOR;
+    -fx-text-fill: TEXT_COLOR;
     -fx-border-width: 1;
 }
 
@@ -45,21 +47,32 @@
 }
 
 .label {
+    -fx-text-fill: TEXT_COLOR;
+}
+
+#currentFileProcessedLabel {
     -fx-text-fill: TEXT_HINT_COLOR;
 }
 
-.table-view {
-    -fx-background-color:  MAIN_COLOR;
+#numberOfSearchResultsLabel {
+    -fx-text-fill: TEXT_HINT_COLOR;
 }
 
-.table-view .placeholder .label {
+#resultTable .placeholder .label {
     -fx-text-fill: TEXT_HINT_COLOR;
+}
+
+#searchTextField {
+    -fx-border-insets: 0 2em 0 0;
 }
 
 #resultTable {
     -fx-border-color: MAIN_COLOR;
+    -fx-table-cell-border-color: MAIN_COLOR;
+    -fx-background-color:  MAIN_COLOR;
     -fx-background-insets: 0;
     -fx-padding: 0;
+    -fx-padding: 1.5em 0 1em 0;
 }
 
 #resultTable .column-header,
@@ -73,14 +86,25 @@
     -fx-text-fill: TEXT_HINT_COLOR;
     -fx-font-familiy: 'InterRegularBold' ;
     -fx-font-size: 1.0em;
+    -fx-alignment: center-left;
+    -fx-label-padding: 0 0 0 10 ;
+}
+
+#resultTable .table-row-cell {
+    -fx-background-color:  MAIN_COLOR;
+    -fx-border-color: MAIN_COLOR
 }
 
 #resultTable .cell {
     -fx-alignment: center;
     -fx-text-fill: TEXT_COLOR;
-    -fx-background-color:  MAIN_COLOR;
-    -fx-border-color: MAIN_COLOR;
     -fx-padding: 0.3em;
+}
+
+#resultTable .table-row-cell:selected {
+    -fx-background-color: SELECTED_COLOR;
+    -fx-border-color: SELECTED_COLOR;
+    -fx-table-cell-border-color: SELECTED_COLOR;
 }
 
 #resultTable .two-line-table-cell VBox {
@@ -96,9 +120,6 @@
     -fx-text-overrun: center-ellipsis;
     -fx-text-fill: TEXT_COLOR;
 }
-
-
-
 
 /* Style the track */
 .scroll-bar .track {
@@ -128,4 +149,39 @@
 .scroll-bar .increment-arrow,
 .scroll-bar .decrement-arrow {
     -fx-shape: " "; /* Hide the default arrows */
+}
+
+#optionWindow {
+    -fx-font-familiy: 'InterRegular' ;
+    -fx-font-size: 1.2em;
+    -fx-background-color: MAIN_COLOR;
+}
+
+#optionWindow #navigationBar {
+    -fx-background-color: derive(MAIN_COLOR, -10%);
+}
+
+#optionWindow #navigationBar .hyperlink {
+    -fx-text-fill: TEXT_COLOR;
+    -fx-graphic-text-gap: 10px;
+    -fx-underline: false;
+    -fx-border-width: 0px;
+}
+
+#optionWindow #navigationBar .hyperlink  .glyph-icon {
+    -fx-fill: TEXT_COLOR;
+}
+
+#optionWindow #navigationBar .hyperlink:focused {
+    -fx-border-width: 0px;
+    -fx-underline: false;
+}
+
+.context-menu {
+    -fx-background-color: MAIN_COLOR;
+    -fx-text-fill: TEXT_COLOR;
+}
+
+.menu-item:focused {
+    -fx-background-color: derive(MAIN_COLOR, -10%);
 }

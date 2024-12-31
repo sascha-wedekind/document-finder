@@ -55,6 +55,7 @@ public class MainWindowStorybook {
 
       Scene scene = new Scene(borderPane);
       scene.getStylesheets().add(getClass().getResource("/css/default-light.css").toExternalForm());
+//      scene.getStylesheets().add(getClass().getResource("/css/default-dark.css").toExternalForm());
       primaryStage.setScene(scene);
 //      primaryStage.show();
     }

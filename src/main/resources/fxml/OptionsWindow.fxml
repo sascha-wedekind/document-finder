@@ -5,41 +5,29 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="446.0" prefWidth="576.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bytedompteur.documentfinder.ui.optionswindow.OptionsWindowController">
+<BorderPane fx:id="optionWindow" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="446.0" prefWidth="576.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bytedompteur.documentfinder.ui.optionswindow.OptionsWindowController">
    <left>
-      <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" style="-fx-background-color: lightgrey;" BorderPane.alignment="CENTER_LEFT">
+      <VBox fx:id="navigationBar" prefHeight="200.0" prefWidth="100.0" spacing="10.0" BorderPane.alignment="CENTER_LEFT">
          <children>
-            <Hyperlink graphicTextGap="8.0" maxWidth="1.7976931348623157E308" minWidth="-Infinity" onAction="#handleFileTypeOptionsSectionClick" style="-fx-text-fill: black;" text="File types">
+            <Hyperlink maxWidth="1.7976931348623157E308" minWidth="-Infinity" onAction="#handleFileTypeOptionsSectionClick" text="File types">
                <graphic>
                   <MaterialIconView glyphName="LABEL" />
                </graphic>
-               <font>
-                  <Font size="13.0" />
-               </font>
             </Hyperlink>
-            <Hyperlink graphicTextGap="8.0" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" minWidth="-Infinity" onAction="#handleFolderOptionsSectionClick" style="-fx-text-fill: black;" text="Folders">
+            <Hyperlink layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" minWidth="-Infinity" onAction="#handleFolderOptionsSectionClick" text="Folders">
                <graphic>
                   <MaterialIconView glyphName="FOLDER" />
                </graphic>
-               <font>
-                  <Font size="13.0" />
-               </font>
             </Hyperlink>
-           <Hyperlink graphicTextGap="8.0" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" minWidth="-Infinity" onAction="#handleGeneralOptionsSectionClick" style="-fx-text-fill: black;" text="General">
+           <Hyperlink layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" minWidth="-Infinity" onAction="#handleGeneralOptionsSectionClick" text="General">
              <graphic>
                <MaterialIconView glyphName="BUILD" />
              </graphic>
-             <font>
-               <Font size="13.0" />
-             </font>
            </Hyperlink>
-            <Hyperlink graphicTextGap="8.0" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" minWidth="-Infinity" onAction="#handleAboutSectionClick" style="-fx-text-fill: black;" text="About">
+            <Hyperlink layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" minWidth="-Infinity" onAction="#handleAboutSectionClick" text="About">
                  <graphic>
                      <MaterialIconView glyphName="INFO" />
                  </graphic>
-                 <font>
-                     <Font size="13.0" />
-                 </font>
              </Hyperlink>
          </children>
          <opaqueInsets>
