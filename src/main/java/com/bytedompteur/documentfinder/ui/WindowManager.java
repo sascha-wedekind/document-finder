@@ -16,6 +16,7 @@ import org.cryptomator.integrations.tray.TrayIntegrationProvider;
 import java.awt.*;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 
@@ -23,147 +24,150 @@ import java.util.function.Function;
 @Slf4j
 public class WindowManager {
 
-  public static final Function<Parent, Scene> DEFAULT_SCENE_FACTORY = p -> new Scene(p, 640, 480);
-  private final OsThemeDetector osThemeDetector = OsThemeDetector.getDetector();
-  private boolean osThemeDetectorListenerRegistered = false;
+    public static final Function<Parent, Scene> DEFAULT_SCENE_FACTORY = p -> Optional.ofNullable(p.getScene()).orElse(new Scene(p, 640, 480));
+    private final OsThemeDetector osThemeDetector = OsThemeDetector.getDetector();
+    private boolean osThemeDetectorListenerRegistered = false;
 
-  private final Stage stage;
-  private final MainWindowComponent.Builder mainWindowComponentBuilder;
-  private final OptionsWindowComponent.Builder optionsWindowComponentBuilder;
-  private final SystemTrayComponent.Builder systemTrayComponentBuilder;
-  private final JavaFxPlatformAdapter platformAdapter;
+    private final Stage stage;
+    private final MainWindowComponent.Builder mainWindowComponentBuilder;
+    private final OptionsWindowComponent.Builder optionsWindowComponentBuilder;
+    private final SystemTrayComponent.Builder systemTrayComponentBuilder;
+    private final JavaFxPlatformAdapter platformAdapter;
 
-  private final Function<Parent, Scene> sceneFactory;
+    private final Function<Parent, Scene> sceneFactory;
 
-  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private final Optional<TrayIntegrationProvider> trayIntegrationProvider;
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private final Optional<TrayIntegrationProvider> trayIntegrationProvider;
 
-  private MainWindowComponent mainWindowComponent;
-  private OptionsWindowComponent optionsWindowComponent;
-  private SystemTrayIconController systemTrayIconController;
-  private FxController currentController;
+    private MainWindowComponent mainWindowComponent;
+    private OptionsWindowComponent optionsWindowComponent;
+    private SystemTrayIconController systemTrayIconController;
+    private FxController currentController;
+    private final AtomicBoolean windowWasAlreadyShown = new AtomicBoolean(false);
 
-  public void showMainWindow() {
-    if (mainWindowComponent == null) {
-      mainWindowComponent = mainWindowComponentBuilder.build();
-    }
-    notifyCurrentControllerBeforeViewHide();
-    currentController = mainWindowComponent.mainWindowController();
-    show(mainWindowComponent.mainViewNode().get());
-    notifyCurrentControllerAfterViewShown();
-  }
 
-  public void showOptionsWindow() {
-    if (optionsWindowComponent == null) {
-      optionsWindowComponent = optionsWindowComponentBuilder.build();
-    }
-    notifyCurrentControllerBeforeViewHide();
-    currentController = optionsWindowComponent.optionsWindowController();
-    show(optionsWindowComponent.optionsViewNode().get());
-    notifyCurrentControllerAfterViewShown();
-  }
-
-  public void notifyCurrentControllerBeforeViewHide() {
-    if (currentController != null) {
-      platformAdapter.runLater(() -> currentController.beforeViewHide());
-    }
-  }
-
-  public void hideSystemTrayIcon() {
-    obtainSystemTrayIconController();
-    systemTrayIconController.unregisterTrayIcon();
-  }
-
-  public void showSystemTrayIcon() {
-    obtainSystemTrayIconController();
-    systemTrayIconController.registerTrayIcon();
-  }
-
-  public void hideApplicationWindow() {
-    platformAdapter.runLater(stage::close);
-    platformAdapter.runLater(() -> trayIntegrationProvider.ifPresent(TrayIntegrationProvider::minimizedToTray));
-  }
-
-  public boolean isSystemTraySupported() {
-    return platformAdapter.isSystemTraySupported();
-  }
-
-  protected void show(Parent value) {
-    registerOsThemeChangeListenerIfNotAlreadyRegistered();
-
-    Scene scene = sceneFactory.apply(value);
-    platformAdapter.runLater(() -> {
-      trayIntegrationProvider.ifPresent(TrayIntegrationProvider::restoredFromTray);
-      setDockOrTaskbarIcon();
-        if (osThemeDetector.isDark()) {
-            applyStylesheet(scene, "/css/default-dark.css");
-            } else {
-            applyStylesheet(scene, "/css/default-light.css");
+    public void showMainWindow() {
+        if (mainWindowComponent == null) {
+            mainWindowComponent = mainWindowComponentBuilder.build();
         }
-      stage.setScene(scene);
-      stage.show();
-      stage.toFront();
-    });
-  }
+        notifyCurrentControllerBeforeViewHide();
+        currentController = mainWindowComponent.mainWindowController();
+        show(mainWindowComponent.mainViewNode().get());
+        notifyCurrentControllerAfterViewShown();
+    }
 
-  private void registerOsThemeChangeListenerIfNotAlreadyRegistered() {
-    if(!osThemeDetectorListenerRegistered) {
-      osThemeDetectorListenerRegistered = true;
-      osThemeDetector.registerListener(isDark -> {
+    public void showOptionsWindow() {
+        if (optionsWindowComponent == null) {
+            optionsWindowComponent = optionsWindowComponentBuilder.build();
+        }
+        notifyCurrentControllerBeforeViewHide();
+        currentController = optionsWindowComponent.optionsWindowController();
+        show(optionsWindowComponent.optionsViewNode().get());
+        notifyCurrentControllerAfterViewShown();
+    }
+
+    public void notifyCurrentControllerBeforeViewHide() {
+        if (currentController != null) {
+            platformAdapter.runLater(() -> currentController.beforeViewHide());
+        }
+    }
+
+    public void hideSystemTrayIcon() {
+        obtainSystemTrayIconController();
+        systemTrayIconController.unregisterTrayIcon();
+    }
+
+    public void showSystemTrayIcon() {
+        obtainSystemTrayIconController();
+        systemTrayIconController.registerTrayIcon();
+    }
+
+    public void hideApplicationWindow() {
+        platformAdapter.runLater(stage::close);
+        platformAdapter.runLater(() -> trayIntegrationProvider.ifPresent(TrayIntegrationProvider::minimizedToTray));
+    }
+
+    public boolean isSystemTraySupported() {
+        return platformAdapter.isSystemTraySupported();
+    }
+
+    protected void show(Parent value) {
+        registerOsThemeChangeListenerIfNotAlreadyRegistered();
+
+        Scene scene = sceneFactory.apply(value);
         platformAdapter.runLater(() -> {
-          var stylesheets = stage.getScene().getStylesheets();
-          stylesheets.clear();
-          if (isDark) {
-            applyStylesheet(stage.getScene(), "/css/default-dark.css");
-          } else {
-           applyStylesheet(stage.getScene(), "/css/default-light.css");
-          }
+            trayIntegrationProvider.ifPresent(TrayIntegrationProvider::restoredFromTray);
+            setDockOrTaskbarIcon();
+            applyStylesheet(scene, osThemeDetector.isDark());
+            setSceneOnStageAndShow(scene);
         });
-      });
     }
-  }
 
-  protected void setDockOrTaskbarIcon() {
-    if (Taskbar.isTaskbarSupported()) {
-        try {
-            Taskbar taskbar = Taskbar.getTaskbar();
-            if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
-              var defaultToolkit = Toolkit.getDefaultToolkit();
-              var image = defaultToolkit.getImage(getClass().getResource("/images/DocumentFinderIcon_512.png"));
-              taskbar.setIconImage(image);
+    protected void setDockOrTaskbarIcon() {
+        if (Taskbar.isTaskbarSupported()) {
+            try {
+                Taskbar taskbar = Taskbar.getTaskbar();
+                if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
+                    var defaultToolkit = Toolkit.getDefaultToolkit();
+                    var image = defaultToolkit.getImage(getClass().getResource("/images/DocumentFinderIcon_512.png"));
+                    taskbar.setIconImage(image);
+                }
+            } catch (Exception e) {
+                log.error("Could not set taskbar icon", e);
             }
-        } catch (Exception e) {
-            log.error("Could not set taskbar icon", e);
         }
     }
-  }
 
-  protected FxController getCurrentController() {
-    return currentController;
-  }
+    // For testing
 
-  private void notifyCurrentControllerAfterViewShown() {
-    if (currentController != null) {
-      platformAdapter.runLater(() -> currentController.afterViewShown());
+    protected FxController getCurrentController() {
+        return currentController;
     }
-  }
-
-  private void obtainSystemTrayIconController() {
-    if (systemTrayIconController == null) {
-      systemTrayIconController = systemTrayComponentBuilder.build().systemTrayIconController().get();
+    private void notifyCurrentControllerAfterViewShown() {
+        if (currentController != null) {
+            platformAdapter.runLater(() -> currentController.afterViewShown());
+        }
     }
-  }
 
-  private static void applyStylesheet(Scene scene, String stylesheetPath) {
-    try {
-      var stylesheetURL = Objects
-//          .requireNonNull(WindowManager.class.getResource("/css/default-light.css"))
-          .requireNonNull(WindowManager.class.getResource(stylesheetPath))
-          .toExternalForm();
-      scene.getStylesheets().clear();
-      scene.getStylesheets().add(stylesheetURL);
-    } catch (Exception e) {
-      log.error("Could not load default.css", e);
+    private void obtainSystemTrayIconController() {
+        if (systemTrayIconController == null) {
+            systemTrayIconController = systemTrayComponentBuilder.build().systemTrayIconController().get();
+        }
     }
-  }
+
+    private static void applyStylesheet(Scene scene, boolean useDarkTheme) {
+        try {
+            var stylesheetPath = useDarkTheme ? "/css/default-dark.css" : "/css/default-light.css";
+            var stylesheetURL = Objects
+                .requireNonNull(WindowManager.class.getResource(stylesheetPath))
+                .toExternalForm();
+            scene.getStylesheets().clear();
+            scene.getStylesheets().add(stylesheetURL);
+        } catch (Exception e) {
+            log.error("Could not load default.css", e);
+        }
+    }
+
+    private void registerOsThemeChangeListenerIfNotAlreadyRegistered() {
+        if (!osThemeDetectorListenerRegistered) {
+            osThemeDetectorListenerRegistered = true;
+            osThemeDetector.registerListener(isDark ->
+                platformAdapter.runLater(() -> applyStylesheet(stage.getScene(), isDark))
+            );
+        }
+    }
+
+    private void setSceneOnStageAndShow(Scene scene) {
+        var width = stage.getWidth();
+        var height = stage.getHeight();
+        stage.setScene(scene);
+        if (windowWasAlreadyShown.get()) {
+            stage.setWidth(width);
+            stage.setHeight(height);
+        } else {
+            windowWasAlreadyShown.set(true);
+        }
+        stage.show();
+        stage.toFront();
+    }
 }
