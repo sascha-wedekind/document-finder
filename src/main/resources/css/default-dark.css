@@ -120,7 +120,9 @@
     -fx-text-fill: TEXT_COLOR;
 }
 
-
+#resultTable .file-modified-cell {
+    -fx-alignment: top-left;
+}
 
 
 /* Style the track */

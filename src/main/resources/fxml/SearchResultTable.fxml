@@ -14,7 +14,7 @@
               </TableColumn>
               <TableColumn fx:id="pathNameColumn" editable="false" minWidth="20.0" prefWidth="335.0" text="Name and Directory">
               </TableColumn>
-              <TableColumn fx:id="fileModifiedColumn" editable="false" maxWidth="143.0" minWidth="0.0" prefWidth="121.0" text="Last modified">
+              <TableColumn fx:id="fileModifiedColumn" editable="false" resizable="false" text="Last modified">
                   <cellValueFactory>
                       <PropertyValueFactory property="updated" />
                   </cellValueFactory>
