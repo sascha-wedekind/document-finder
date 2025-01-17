@@ -6,6 +6,7 @@ import com.bytedompteur.documentfinder.ui.optionswindow.dagger.OptionsWindowComp
 import com.bytedompteur.documentfinder.ui.systemtray.dagger.SystemTrayComponent;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -19,8 +20,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class WindowManagerTest {
@@ -42,6 +42,11 @@ class WindowManagerTest {
 
   @InjectMocks
   WindowManager sut;
+
+  @BeforeEach
+  void setUp() {
+    when(mockedSceneFactory.apply(any())).thenReturn(mock(Scene.class));
+  }
 
   @Test
   void showMainWindow_setsCurrentControllerToMainWindowController() {

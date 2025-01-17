@@ -13,10 +13,13 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Text;
 import lombok.RequiredArgsConstructor;
 
 import jakarta.inject.Inject;
+
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -26,88 +29,94 @@ import java.util.Optional;
 @MainWindowScope
 public class SearchResultTableController implements FxController {
 
-  private final SearchResultTableContextMenu contextMenu;
+    public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
-  private final ObservableList<SearchResult> searchResults = FXCollections.observableArrayList();
 
-  private final FileSystemAdapter fileUtil;
+    private final SearchResultTableContextMenu contextMenu;
 
-  @FXML
-  public TableView<SearchResult> resultTable;
+    private final ObservableList<SearchResult> searchResults = FXCollections.observableArrayList();
 
-  public ObservableList<SearchResult> getSearchResults() {
-    return searchResults;
-  }
+    private final FileSystemAdapter fileUtil;
 
-  @FXML
-  public void initialize() {
-    // Autolayout columns on table resize. 40%, 20%, 20%
-    resultTable.widthProperty().addListener((observable, oldValue, newValue) -> {
-      resultTable.getColumns().get(1).setMaxWidth(1f * Integer.MAX_VALUE * 60); // Filename
-      resultTable.getColumns().get(2).setMaxWidth(1f * Integer.MAX_VALUE * 20); // File modification date
-    });
+    @FXML
+    public TableView<SearchResult> resultTable;
 
-    resultTable.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.MULTIPLE);
+    public ObservableList<SearchResult> getSearchResults() {
+        return searchResults;
+    }
 
-    //noinspection unchecked
-    resultTable.getColumns()
-      .stream()
-      .filter(it -> it.getId().equals("fileModifiedColumn"))
-      .findFirst()
-      .map(it -> (TableColumn<SearchResult, Instant>) it)
-      .ifPresent(this::applyFileModifiedColumnCellFactory);
+    @FXML
+    public void initialize() {
+        var format = DATE_FORMATTER.format(LocalDateTime.now());
+        var text = new Text();
+        text.setText(format);
 
-    //noinspection unchecked
-    resultTable.getColumns()
-      .stream()
-      .filter(it -> it.getId().equals("pathNameColumn"))
-      .findFirst()
-      .map(it -> (TableColumn<SearchResult, SearchResult>) it)
-      .ifPresent(column -> {
-        column.cellValueFactoryProperty().set(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
-        column.cellFactoryProperty().set(param -> new TwoLineTableCell());
-      });
+        resultTable.widthProperty().addListener((observable, oldValue, newValue) -> {
+            resultTable.getColumns().get(1).setMaxWidth(1f * Integer.MAX_VALUE * 60); // Filename
+            resultTable.getColumns().get(2).setMaxWidth(text.getLayoutBounds().getWidth() + 40);
+            resultTable.getColumns().get(2).setMinWidth(text.getLayoutBounds().getWidth() + 40);
+        });
 
-    resultTable.setContextMenu(contextMenu);
-    resultTable.setOnContextMenuRequested(event -> Optional
-      .ofNullable(resultTable.getSelectionModel().getSelectedItems())
-      .ifPresent(it -> {
-        contextMenu.setSelectedSearchResult(it);
-        contextMenu.show(event.getPickResult().getIntersectedNode(), event.getScreenX(), event.getScreenY());
-      }));
-    resultTable.setRowFactory(param -> { // Row factory to register double click listener
-      var result = new TableRow<SearchResult>();
-      result.setOnMouseClicked(handleTableRowLeftClick(result));
-      return result;
-    });
-  }
+        resultTable.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.MULTIPLE);
 
-  protected EventHandler<MouseEvent> handleTableRowLeftClick(TableRow<SearchResult> result) {
-    return e -> {
-      if (e.getClickCount() == 2) {
-        fileUtil.openInOperatingSystem(result.getItem().getPath());
-      }
-    };
-  }
+        //noinspection unchecked
+        resultTable.getColumns()
+            .stream()
+            .filter(it -> it.getId().equals("fileModifiedColumn"))
+            .findFirst()
+            .map(it -> (TableColumn<SearchResult, Instant>) it)
+            .ifPresent(this::applyFileModifiedColumnCellFactory);
 
-  public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+        //noinspection unchecked
+        resultTable.getColumns()
+            .stream()
+            .filter(it -> it.getId().equals("pathNameColumn"))
+            .findFirst()
+            .map(it -> (TableColumn<SearchResult, SearchResult>) it)
+            .ifPresent(column -> {
+                column.cellValueFactoryProperty().set(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
+                column.cellFactoryProperty().set(param -> new TwoLineTableCell());
+            });
 
-  private void applyFileModifiedColumnCellFactory(TableColumn<SearchResult, Instant> column) {
-    column.setCellFactory(it -> new TableCell<>() {
-      @Override
-      protected void updateItem(Instant item, boolean empty) {
-        if (Objects.equals(item, getItem())) {
-          return;
-        }
-        super.updateItem(item, empty);
-        if (Objects.nonNull(item)) {
-          super.setText(DATE_FORMATTER.format(item.atZone(ZoneId.systemDefault())));
-          super.setGraphic(null);
-        } else {
-          super.setText(null);
-          super.setGraphic(null);
-        }
-      }
-    });
-  }
+        resultTable.setContextMenu(contextMenu);
+        resultTable.setOnContextMenuRequested(event -> Optional
+            .ofNullable(resultTable.getSelectionModel().getSelectedItems())
+            .ifPresent(it -> {
+                contextMenu.setSelectedSearchResult(it);
+                contextMenu.show(event.getPickResult().getIntersectedNode(), event.getScreenX(), event.getScreenY());
+            }));
+        resultTable.setRowFactory(param -> { // Row factory to register double click listener
+            var result = new TableRow<SearchResult>();
+            result.setOnMouseClicked(handleTableRowLeftClick(result));
+            return result;
+        });
+    }
+
+    protected EventHandler<MouseEvent> handleTableRowLeftClick(TableRow<SearchResult> result) {
+        return e -> {
+            if (e.getClickCount() == 2) {
+                fileUtil.openInOperatingSystem(result.getItem().getPath());
+            }
+        };
+    }
+
+    private void applyFileModifiedColumnCellFactory(TableColumn<SearchResult, Instant> column) {
+        column.setCellFactory(it -> new TableCell<>() {
+            @Override
+            protected void updateItem(Instant item, boolean empty) {
+                if (Objects.equals(item, getItem())) {
+                    return;
+                }
+                super.updateItem(item, empty);
+                super.getStyleClass().add("file-modified-cell");
+                if (Objects.nonNull(item)) {
+                    super.setText(DATE_FORMATTER.format(item.atZone(ZoneId.systemDefault())));
+                    super.setGraphic(null);
+                } else {
+                    super.setText(null);
+                    super.setGraphic(null);
+                }
+            }
+        });
+    }
 }

@@ -110,6 +110,11 @@ public class FileEventHandler {
       log.warn("Path {} is empty, ignoring", path);
       pathInvalid = true;
     }
+
+    if (filesAdapter.isOperatingSystemSpecialFile(path)) {
+      log.warn("Path {} is operating system special, ignoring", path);
+      pathInvalid = true;
+    }
     return pathInvalid;
   }
 }
