@@ -6,14 +6,21 @@ import com.bytedompteur.documentfinder.ui.optionswindow.dagger.OptionsWindowComp
 import com.bytedompteur.documentfinder.ui.systemtray.SystemTrayIconController;
 import com.bytedompteur.documentfinder.ui.systemtray.dagger.SystemTrayComponent;
 import com.jthemedetecor.OsThemeDetector;
+import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cryptomator.integrations.tray.TrayIntegrationProvider;
 
 import java.awt.*;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -33,12 +40,14 @@ public class WindowManager {
     private final OptionsWindowComponent.Builder optionsWindowComponentBuilder;
     private final SystemTrayComponent.Builder systemTrayComponentBuilder;
     private final JavaFxPlatformAdapter platformAdapter;
+    private final KeyboardShortcuts keyboardShortcuts;
 
     private final Function<Parent, Scene> sceneFactory;
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private final Optional<TrayIntegrationProvider> trayIntegrationProvider;
 
+    @Getter
     private MainWindowComponent mainWindowComponent;
     private OptionsWindowComponent optionsWindowComponent;
     private SystemTrayIconController systemTrayIconController;
@@ -95,6 +104,16 @@ public class WindowManager {
         registerOsThemeChangeListenerIfNotAlreadyRegistered();
 
         Scene scene = sceneFactory.apply(value);
+
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, ke -> keyboardShortcuts
+            .findKeyBoardShortcutByKeyEvent(ke)
+            .ifPresent(it -> {
+                log.debug("Key combination for '{}' pressed: {}", it.getDescription(), it.getDisplayText());
+                ke.consume();
+                it.executeAction(WindowManager.this);
+            }));
+
+
         platformAdapter.runLater(() -> {
             trayIntegrationProvider.ifPresent(TrayIntegrationProvider::restoredFromTray);
             setDockOrTaskbarIcon();
@@ -123,6 +142,7 @@ public class WindowManager {
     protected FxController getCurrentController() {
         return currentController;
     }
+
     private void notifyCurrentControllerAfterViewShown() {
         if (currentController != null) {
             platformAdapter.runLater(() -> currentController.afterViewShown());
