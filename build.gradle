@@ -34,7 +34,7 @@ ext {
     jsonAssertVersion = '1.5.1'
     jSystemThemeDetectorVersion = '3.9.1'
     failsafeVersion = '3.3.2'
-    commonsIoVersion = '2.15.1'
+    commonsIoVersion = '2.18.0'
     g00fy2VersionCompareVersion = '1.5.0'
     jnaVersion = '5.15.0'
     defaultMainClass = 'com.bytedompteur.documentfinder.DocumentFinderMain'
