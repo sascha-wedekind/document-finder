@@ -36,7 +36,7 @@ ext {
     failsafeVersion = '3.3.2'
     commonsIoVersion = '2.18.0'
     g00fy2VersionCompareVersion = '1.5.0'
-    jnaVersion = '5.15.0'
+    jnaVersion = '5.16.0'
     defaultMainClass = 'com.bytedompteur.documentfinder.DocumentFinderMain'
 }
 
