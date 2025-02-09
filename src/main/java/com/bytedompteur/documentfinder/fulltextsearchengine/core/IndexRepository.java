@@ -211,7 +211,7 @@ public class IndexRepository {
   protected Optional<Document> loadDocumentFromIndexSearcher(IndexSearcher indexSearcher, int documentId) {
     Optional<Document> document = Optional.empty();
     try {
-      document = Optional.ofNullable(indexSearcher.doc(documentId, FIELDS_TO_LOAD_FROM_INDEX));
+         document = Optional.ofNullable(indexSearcher.storedFields().document(documentId, FIELDS_TO_LOAD_FROM_INDEX));
     } catch (IOException e) {
       log.error("Could not load document with id {} from index searcher", documentId, e);
     }

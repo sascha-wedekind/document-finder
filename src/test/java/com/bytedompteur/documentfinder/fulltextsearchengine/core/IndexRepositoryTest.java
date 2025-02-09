@@ -6,6 +6,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.MultiReader;
+import org.apache.lucene.index.StoredFields;
 import org.apache.lucene.search.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +35,9 @@ class IndexRepositoryTest {
   @Mock
   IndexWriter mockedIndexWriter;
 
+  @Mock
+  StoredFields mockedStoredFields;
+
   @InjectMocks
   IndexRepository sut;
 
@@ -41,7 +45,9 @@ class IndexRepositoryTest {
   void loadDocumentFromIndexSearcher_returnsEmptyOptional_whenDocumentCouldNotBeFound() throws IOException {
     // Arrange
     Mockito
-      .when(mockedIndexSearcher.doc(eq(123), anySet()))
+        .when(mockedIndexSearcher.storedFields()).thenReturn(mockedStoredFields);
+    Mockito
+      .when(mockedStoredFields.document(eq(123), anySet()))
       .thenReturn(null);
 
     // Act
@@ -55,7 +61,9 @@ class IndexRepositoryTest {
   void loadDocumentFromIndexSearcher_returnsEmptyOptional_whenIndexSearcherThrows() throws IOException {
     // Arrange
     Mockito
-      .when(mockedIndexSearcher.doc(eq(123), anySet()))
+        .when(mockedIndexSearcher.storedFields()).thenReturn(mockedStoredFields);
+    Mockito
+        .when(mockedStoredFields.document(eq(123), anySet()))
       .thenThrow(new IOException("Expected exception from unit test"));
 
     // Act
@@ -69,8 +77,10 @@ class IndexRepositoryTest {
   void loadDocumentFromIndexSearcher_returnsOptionalContainingDocument_whenDocumentCouldBeFound() throws IOException {
     // Arrange
     Mockito
-      .when(mockedIndexSearcher.doc(eq(123), anySet()))
-      .thenReturn(new Document());
+        .when(mockedIndexSearcher.storedFields()).thenReturn(mockedStoredFields);
+    Mockito
+        .when(mockedStoredFields.document(eq(123), anySet()))
+        .thenReturn(new Document());
 
     // Act
     var result = sut.loadDocumentFromIndexSearcher(mockedIndexSearcher, 123);
@@ -88,7 +98,9 @@ class IndexRepositoryTest {
     document2.add(new StringField("path", "d/e/f", Field.Store.NO));
 
     Mockito
-      .when(mockedIndexSearcher.doc(anyInt(), Mockito.anySet()))
+        .when(mockedIndexSearcher.storedFields()).thenReturn(mockedStoredFields);
+    Mockito
+        .when(mockedStoredFields.document(anyInt(), anySet()))
       .thenReturn(document1) // for ScoreDoc 1
       .thenReturn(null) // for ScoreDoc 3
       .thenReturn(document2); // for ScoreDoc 3
@@ -177,7 +189,9 @@ class IndexRepositoryTest {
     };
 
     Mockito
-      .when(mockedIndexSearcher.doc(anyInt(), Mockito.anySet()))
+        .when(mockedIndexSearcher.storedFields()).thenReturn(mockedStoredFields);
+    Mockito
+        .when(mockedStoredFields.document(anyInt(), anySet()))
       .thenReturn(document1) // for ScoreDoc 1
       .thenReturn(document2); // for ScoreDoc 2
 
