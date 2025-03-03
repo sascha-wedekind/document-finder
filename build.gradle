@@ -16,7 +16,7 @@ plugins {
 ext {
     lombokVersion = '1.18.36'
     slf4jVersion = '2.0.16'
-    jclOverSlf4jVersion = '2.0.14'
+    jclOverSlf4jVersion = '2.0.17'
     logbackVersion = '1.5.16'
     janinoVersion = "3.1.12"
     luceneVersion = '10.1.0'
