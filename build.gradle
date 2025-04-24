@@ -26,9 +26,8 @@ ext {
     reactorVersion = '3.7.2'
     guavaVersion = '33.3.0-jre'
     tikaVersion = '3.1.0'
-    daggerVersion = '2.56.1'
-    // https://gluonhq.com/products/javafx/openjfx-24-release-notes/
-    javaFxVersion = '24'
+    daggerVersion = '2.52'
+    javaFxVersion = '22.0.1'
     fontAwesomeFxVersion = '2.2.0-9.1.2'
     testFxVersion = '4.0.18'
     gsonVersion = '2.11.0'
@@ -69,7 +68,7 @@ repositories {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
