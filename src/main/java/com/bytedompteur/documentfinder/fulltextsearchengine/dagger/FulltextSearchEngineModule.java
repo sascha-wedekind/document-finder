@@ -6,6 +6,7 @@ import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.out.FilesAda
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.out.PersistedUniqueFileEventQueueAdapter;
 import com.bytedompteur.documentfinder.fulltextsearchengine.core.*;
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.PersistedUniqueFileEventQueue;
+import com.bytedompteur.documentfinder.searchhistory.SearchHistoryManager; // Added import
 import com.bytedompteur.documentfinder.persistedqueue.dagger.PersistedQueueModule;
 import dagger.Module;
 import dagger.Provides;
@@ -65,7 +66,19 @@ public class FulltextSearchEngineModule {
 
   @Provides
   @Singleton
-  public FulltextSearchService provideFulltextSearchService(FileEventHandler handler, IndexRepository repository) {
-    return new FulltextSearchServiceImpl(handler, repository);
+  public FulltextSearchService provideFulltextSearchService(
+      FileEventHandler handler,
+      IndexRepository repository,
+      SearchHistoryManager searchHistoryManager // Added parameter
+  ) {
+    return new FulltextSearchServiceImpl(handler, repository, searchHistoryManager); // Pass to constructor
+  }
+
+  @Provides
+  @Singleton // Assuming SearchHistoryManager should be a singleton
+  public SearchHistoryManager provideSearchHistoryManager() {
+    // This uses the default constructor of SearchHistoryManager,
+    // which internally uses PathUtil.getApplicationDataFolder()
+    return new SearchHistoryManager();
   }
 }
