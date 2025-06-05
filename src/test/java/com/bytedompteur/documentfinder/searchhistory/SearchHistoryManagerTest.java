@@ -30,7 +30,7 @@ class SearchHistoryManagerTest {
     }
 
     @Test
-    void testAddQuery_newList_shouldAddQuery() {
+    void addSearchQuery_shouldAddQuery_whenHistoryIsEmpty() {
         // arrange
         String query = "query1";
 
@@ -44,7 +44,7 @@ class SearchHistoryManagerTest {
     }
 
     @Test
-    void testAddQuery_existingQuery_shouldMoveToTop() {
+    void addSearchQuery_shouldMoveQueryToTop_whenQueryAlreadyExists() {
         // arrange
         sut.addSearchQuery("query1");
         sut.addSearchQuery("query2");
@@ -59,7 +59,7 @@ class SearchHistoryManagerTest {
     }
 
     @Test
-    void testAddQuery_historyAtLimit_shouldRemoveOldest() {
+    void addSearchQuery_shouldRemoveOldestQuery_whenHistoryIsFull() {
         // arrange
         for (int i = 1; i <= 10; i++) {
             sut.addSearchQuery("query" + i);
@@ -81,7 +81,7 @@ class SearchHistoryManagerTest {
     }
 
     @Test
-    void testAddQuery_addMultipleQueries_verifyOrderAndLimit() {
+    void addSearchQuery_shouldMaintainOrderAndLimit_whenMultipleQueriesAdded() {
         // arrange
         sut.addSearchQuery("first");
         sut.addSearchQuery("second");
@@ -110,7 +110,7 @@ class SearchHistoryManagerTest {
     }
 
     @Test
-    void testAddQuery_nullOrEmptyQuery_shouldNotAdd() {
+    void addSearchQuery_shouldNotAddQuery_whenQueryIsNullOrWhitespace() {
         // act
         sut.addSearchQuery(null);
         // assert
@@ -128,7 +128,7 @@ class SearchHistoryManagerTest {
     }
 
     @Test
-    void testLoadHistory_fileExists_shouldLoadQueries() throws IOException {
+    void loadHistory_shouldLoadQueriesInFileOrder_whenFileExistsAndIsReadable() throws IOException {
         // arrange
         List<String> initialQueries = Arrays.asList("old_query1", "old_query2", "old_query3");
         Files.write(historyFilePath, initialQueries, StandardCharsets.UTF_8);
@@ -143,7 +143,7 @@ class SearchHistoryManagerTest {
     }
 
     @Test
-    void testLoadHistory_fileNotExists_shouldReturnEmptyHistory() {
+    void loadHistory_shouldReturnEmptyList_whenFileDoesNotExist() {
         // arrange
         // sut is initialized with historyFilePath which doesn't exist yet (or is empty from @TempDir)
         // act
@@ -164,7 +164,7 @@ class SearchHistoryManagerTest {
     }
 
     @Test
-    void testLoadHistory_emptyFile_shouldReturnEmptyHistory() throws IOException {
+    void loadHistory_shouldReturnEmptyList_whenFileIsEmpty() throws IOException {
         // arrange
         Files.createFile(historyFilePath); // Create an empty file
         SearchHistoryManager newManager = new SearchHistoryManager(historyFilePath);
@@ -179,7 +179,7 @@ class SearchHistoryManagerTest {
     }
 
     @Test
-    void testPersistence_saveAndLoad_queriesShouldPersist() {
+    void addSearchQuery_shouldPersistQueries_whenCalledMultipleTimes() {
         // arrange
         sut.addSearchQuery("persist_query1");
         sut.addSearchQuery("persist_query2"); // This saves the history
@@ -194,7 +194,7 @@ class SearchHistoryManagerTest {
     }
 
     @Test
-    void testGetSearchHistory_returnsUnmodifiableList() {
+    void getSearchHistory_shouldReturnUnmodifiableList_always() {
         // arrange
         sut.addSearchQuery("query1");
 
@@ -209,7 +209,7 @@ class SearchHistoryManagerTest {
     }
 
     @Test
-    void testLoadHistory_fileWithMoreThanMaxEntries_shouldLoadOnlyMaxEntriesFromFileOrder() throws IOException {
+    void loadHistory_shouldLoadMaxEntriesInFileOrder_whenFileExceedsMaxSize() throws IOException {
         // arrange
         List<String> oversizedQueries = new LinkedList<>();
         for (int i = 1; i <= 15; i++) {
@@ -228,7 +228,7 @@ class SearchHistoryManagerTest {
     }
 
     @Test
-    void testLoadHistory_fileWithEmptyLines_shouldIgnoreThem() throws IOException {
+    void loadHistory_shouldIgnoreEmptyOrBlankLines_whenFileContainsThem() throws IOException {
         // arrange
         List<String> queriesWithEmptyLines = Arrays.asList("queryA", "", "queryB", "   ", "queryC", "");
         Files.write(historyFilePath, queriesWithEmptyLines, StandardCharsets.UTF_8);

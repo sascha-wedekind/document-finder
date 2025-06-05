@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.*; // AssertJ imports
 class LuceneQueryUtilTest {
 
     @Test
-    void testSanitize_nullInput_shouldReturnNull() {
+    void sanitizeQuery_shouldReturnNull_whenInputIsNull() {
         // arrange
         String query = null;
 
@@ -25,7 +25,7 @@ class LuceneQueryUtilTest {
     }
 
     @Test
-    void testSanitize_emptyInput_shouldReturnEmpty() {
+    void sanitizeQuery_shouldReturnEmptyString_whenInputIsEmptyString() {
         // arrange
         String query = "";
 
@@ -37,7 +37,7 @@ class LuceneQueryUtilTest {
     }
 
     @Test
-    void testSanitize_noSpecialChars_shouldReturnSame() {
+    void sanitizeQuery_shouldReturnUnchangedString_whenInputHasNoSpecialChars() {
         // arrange
         String query = "This is a normal query 123";
 
@@ -56,7 +56,7 @@ class LuceneQueryUtilTest {
 
     @ParameterizedTest
     @MethodSource("specialCharactersProvider")
-    void testSanitize_singleSpecialChar_shouldBeEscaped(char specialChar) {
+    void sanitizeQuery_shouldEscapeCharacter_whenInputContainsSingleSpecialCharacter(char specialChar) {
         // arrange
         String query = "prefix" + specialChar + "suffix";
         String expected = "prefix\\" + specialChar + "suffix";
@@ -71,7 +71,7 @@ class LuceneQueryUtilTest {
     }
 
     @Test
-    void testSanitize_logicalAndOr_shouldEscapeIndividualChars() {
+    void sanitizeQuery_shouldEscapeIndividualAmpersandAndPipe_whenInputContainsDoubleAmpersandOrDoublePipe() {
         // arrange
         String queryAnd = "query&&suffix";
         String expectedAnd = "query\\&\\&suffix";
@@ -90,7 +90,7 @@ class LuceneQueryUtilTest {
     }
 
     @Test
-    void testSanitize_multipleSpecialChars_shouldAllBeEscaped() {
+    void sanitizeQuery_shouldEscapeAllCharacters_whenInputContainsMultipleMixedSpecialChars() {
         // arrange
         String query = "find+(me)-if:you*can?";
         String expected = "find\\+\\(me\\)\\-if\\:you\\*can\\?";
@@ -103,7 +103,7 @@ class LuceneQueryUtilTest {
     }
 
     @Test
-    void testSanitize_allSpecialCharsInSequence_shouldAllBeEscaped() {
+    void sanitizeQuery_shouldEscapeAllCharacters_whenInputIsSequenceOfAllSpecialChars() {
         // arrange
         String query = "+-&|!(){}[]^\"~*?:\\/";
         String expected = "\\+\\-\\&\\|\\!\\(\\)\\{\\}\\[\\]\\^\\\"\\~\\*\\?\\:\\\\\\/";
@@ -116,7 +116,7 @@ class LuceneQueryUtilTest {
     }
 
     @Test
-    void testSanitize_backslashAtEnd_shouldBeEscaped() {
+    void sanitizeQuery_shouldEscapeBackslash_whenInputEndsWithBackslash() {
         // arrange
         String query = "query\\";
         String expected = "query\\\\";
@@ -129,7 +129,7 @@ class LuceneQueryUtilTest {
     }
 
     @Test
-    void testSanitize_specialCharsAtStartAndEnd_shouldBeEscaped() {
+    void sanitizeQuery_shouldEscapeCharacters_whenInputHasSpecialCharsAtStartAndEnd() {
         // arrange
         String query1 = "*query*";
         String expected1 = "\\*query\\*";
@@ -146,7 +146,7 @@ class LuceneQueryUtilTest {
     }
 
     @Test
-    void testSanitize_queryWithOnlySpecialChars_shouldBeFullyEscaped() {
+    void sanitizeQuery_shouldEscapeAllCharacters_whenInputContainsOnlySpecialChars() {
         // arrange
         String query = "()[]{}:"; // Note: { } were not in the original special char set, but are in the provider.
                                  // The provider is correct as per Lucene spec.
@@ -160,7 +160,7 @@ class LuceneQueryUtilTest {
     }
 
     @Test
-    void testSanitize_exampleFromOriginalTask_shouldMatch() {
+    void sanitizeQuery_shouldCorrectlyEscapeExampleQuery_fromTaskDescription() {
         // arrange
         String query = "(1+1):2";
         String expected = "\\(1\\+1\\)\\:2";
