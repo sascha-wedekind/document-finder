@@ -3,31 +3,51 @@ package com.bytedompteur.documentfinder.util;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
+// import org.junit.jupiter.params.provider.ValueSource; // No longer needed if MethodSource is used for single chars
 
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*; // AssertJ imports
+// import static org.junit.jupiter.api.Assertions.*; // JUnit imports to be removed by overwrite
 
 class LuceneQueryUtilTest {
 
     @Test
     void testSanitize_nullInput_shouldReturnNull() {
-        assertNull(LuceneQueryUtil.sanitizeQuery(null), "Null input should return null.");
+        // arrange
+        String query = null;
+
+        // act
+        String sanitizedQuery = LuceneQueryUtil.sanitizeQuery(query);
+
+        // assert
+        assertThat(sanitizedQuery).isNull();
     }
 
     @Test
     void testSanitize_emptyInput_shouldReturnEmpty() {
-        assertEquals("", LuceneQueryUtil.sanitizeQuery(""), "Empty input should return an empty string.");
+        // arrange
+        String query = "";
+
+        // act
+        String sanitizedQuery = LuceneQueryUtil.sanitizeQuery(query);
+
+        // assert
+        assertThat(sanitizedQuery).isEmpty();
     }
 
     @Test
     void testSanitize_noSpecialChars_shouldReturnSame() {
+        // arrange
         String query = "This is a normal query 123";
-        assertEquals(query, LuceneQueryUtil.sanitizeQuery(query), "Query with no special chars should remain unchanged.");
+
+        // act
+        String sanitizedQuery = LuceneQueryUtil.sanitizeQuery(query);
+
+        // assert
+        assertThat(sanitizedQuery).isEqualTo(query);
     }
 
-    // Method source for special characters
     private static Stream<Character> specialCharactersProvider() {
         // Lucene special characters: + - && || ! ( ) { } [ ] ^ " ~ * ? : \ /
         // The characters & and | are treated individually by the current sanitizer.
@@ -37,70 +57,118 @@ class LuceneQueryUtilTest {
     @ParameterizedTest
     @MethodSource("specialCharactersProvider")
     void testSanitize_singleSpecialChar_shouldBeEscaped(char specialChar) {
+        // arrange
         String query = "prefix" + specialChar + "suffix";
         String expected = "prefix\\" + specialChar + "suffix";
-        assertEquals(expected, LuceneQueryUtil.sanitizeQuery(query),
-                "Failed for special character: " + specialChar + ". Expected: " + expected + ", Got: " + LuceneQueryUtil.sanitizeQuery(query));
+
+        // act
+        String sanitizedQuery = LuceneQueryUtil.sanitizeQuery(query);
+
+        // assert
+        assertThat(sanitizedQuery)
+            .as("Failed for special character: '%s'", specialChar)
+            .isEqualTo(expected);
     }
 
     @Test
     void testSanitize_logicalAndOr_shouldEscapeIndividualChars() {
-        // Test "&&"
-        assertEquals("query\\&\\&suffix", LuceneQueryUtil.sanitizeQuery("query&&suffix"),
-                "Logical AND '&&' should be escaped as individual '&' characters.");
+        // arrange
+        String queryAnd = "query&&suffix";
+        String expectedAnd = "query\\&\\&suffix";
+        String queryOr = "query||suffix";
+        String expectedOr = "query\\|\\|suffix";
 
-        // Test "||"
-        assertEquals("query\\|\\|suffix", LuceneQueryUtil.sanitizeQuery("query||suffix"),
-                "Logical OR '||' should be escaped as individual '|' characters.");
+        // act
+        String sanitizedAnd = LuceneQueryUtil.sanitizeQuery(queryAnd);
+        String sanitizedOr = LuceneQueryUtil.sanitizeQuery(queryOr);
+
+        // assert
+        assertThat(sanitizedAnd).isEqualTo(expectedAnd)
+            .as("Logical AND '&&' should be escaped as individual '&' characters.");
+        assertThat(sanitizedOr).isEqualTo(expectedOr)
+            .as("Logical OR '||' should be escaped as individual '|' characters.");
     }
 
     @Test
     void testSanitize_multipleSpecialChars_shouldAllBeEscaped() {
+        // arrange
         String query = "find+(me)-if:you*can?";
         String expected = "find\\+\\(me\\)\\-if\\:you\\*can\\?";
-        assertEquals(expected, LuceneQueryUtil.sanitizeQuery(query));
+
+        // act
+        String sanitizedQuery = LuceneQueryUtil.sanitizeQuery(query);
+
+        // assert
+        assertThat(sanitizedQuery).isEqualTo(expected);
     }
 
     @Test
     void testSanitize_allSpecialCharsInSequence_shouldAllBeEscaped() {
-        // Test string with all defined special characters: + - & | ! ( ) { } [ ] ^ " ~ * ? : \ /
+        // arrange
         String query = "+-&|!(){}[]^\"~*?:\\/";
-        // Expected escaped string: \+\-\&\|\!\(\)\{\}\[\]\^\"\~\*\?\:\\\/
-        // Java string literal for the expected string (double backslashes):
         String expected = "\\+\\-\\&\\|\\!\\(\\)\\{\\}\\[\\]\\^\\\"\\~\\*\\?\\:\\\\\\/";
-        assertEquals(expected, LuceneQueryUtil.sanitizeQuery(query));
+
+        // act
+        String sanitizedQuery = LuceneQueryUtil.sanitizeQuery(query);
+
+        // assert
+        assertThat(sanitizedQuery).isEqualTo(expected);
     }
 
     @Test
     void testSanitize_backslashAtEnd_shouldBeEscaped() {
+        // arrange
         String query = "query\\";
-        String expected = "query\\\\"; // Escaped backslash (in Java string: \\\\)
-        assertEquals(expected, LuceneQueryUtil.sanitizeQuery(query));
+        String expected = "query\\\\";
+
+        // act
+        String sanitizedQuery = LuceneQueryUtil.sanitizeQuery(query);
+
+        // assert
+        assertThat(sanitizedQuery).isEqualTo(expected);
     }
 
     @Test
     void testSanitize_specialCharsAtStartAndEnd_shouldBeEscaped() {
+        // arrange
         String query1 = "*query*";
         String expected1 = "\\*query\\*";
-        assertEquals(expected1, LuceneQueryUtil.sanitizeQuery(query1));
-
         String query2 = "!another!";
         String expected2 = "\\!another\\!";
-        assertEquals(expected2, LuceneQueryUtil.sanitizeQuery(query2));
+
+        // act
+        String sanitized1 = LuceneQueryUtil.sanitizeQuery(query1);
+        String sanitized2 = LuceneQueryUtil.sanitizeQuery(query2);
+
+        // assert
+        assertThat(sanitized1).isEqualTo(expected1);
+        assertThat(sanitized2).isEqualTo(expected2);
     }
 
     @Test
     void testSanitize_queryWithOnlySpecialChars_shouldBeFullyEscaped() {
-        String query = "()[]{}:";
-        String expected = "\\(\\)\\[\\]\\{\\}\\:"; // Corrected based on defined set { } are special
-        assertEquals(expected, LuceneQueryUtil.sanitizeQuery(query));
+        // arrange
+        String query = "()[]{}:"; // Note: { } were not in the original special char set, but are in the provider.
+                                 // The provider is correct as per Lucene spec.
+        String expected = "\\(\\)\\[\\]\\{\\}\\:";
+
+        // act
+        String sanitizedQuery = LuceneQueryUtil.sanitizeQuery(query);
+
+        // assert
+        assertThat(sanitizedQuery).isEqualTo(expected);
     }
 
     @Test
     void testSanitize_exampleFromOriginalTask_shouldMatch() {
-        // Original example: (1+1):2  ->  \(1\+1\)\:2
+        // arrange
         String query = "(1+1):2";
         String expected = "\\(1\\+1\\)\\:2";
-        assertEquals(expected, LuceneQueryUtil.sanitizeQuery(query));
+
+        // act
+        String sanitizedQuery = LuceneQueryUtil.sanitizeQuery(query);
+
+        // assert
+        assertThat(sanitizedQuery).isEqualTo(expected);
     }
 }
