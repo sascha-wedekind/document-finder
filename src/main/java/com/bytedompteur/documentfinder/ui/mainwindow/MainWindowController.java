@@ -18,7 +18,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
-import lombok.RequiredArgsConstructor; // Will be removed
+// import lombok.RequiredArgsConstructor; // Will be removed
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
@@ -67,13 +67,13 @@ public class MainWindowController implements FxController {
             FulltextSearchService fulltextSearchService,
             FileSystemAdapter fileSystemAdapter,
             WindowManager windowManager,
-            SearchHistoryManager searchHistoryManager) {
+            SearchHistoryManager searchHistoryManager) { // Added parameter
         this.searchResultTable = searchResultTable;
         this.progressBarController = progressBarController;
         this.fulltextSearchService = fulltextSearchService;
         this.fileSystemAdapter = fileSystemAdapter;
         this.windowManager = windowManager;
-        this.searchHistoryManager = searchHistoryManager;
+        this.searchHistoryManager = searchHistoryManager; // Assign
     }
 
     public void clearView() {
@@ -139,7 +139,7 @@ public class MainWindowController implements FxController {
             .just(searchTextField.getCharacters())
             .doOnEach(it -> clearSearchResults())
             .filter(it -> !it.isEmpty())
-            .flatMapMany(fulltextSearchService::findFilesWithNamesOrContentMatching)
+            .flatMapMany(fulltextSearchService::findFilesWithNamesOrContentMatching) // SearchHistoryManager.addSearchQuery is called inside here
             .filter(it -> it.getPath().toFile().exists()) // Exclude if file does not exist
             .map(it -> SearchResult.build(
                 it.getPath(),
@@ -160,7 +160,8 @@ public class MainWindowController implements FxController {
                     fileSystemAdapter.getSystemIcon(it.getPath()).map(toImageView()).orElse(null),
                     it.getFileLastUpdated().atZone(ZoneId.systemDefault()).toInstant()
                 ))
-                .doOnComplete(this::updateSearchHistoryView) // Added call
+                // findLastUpdated typically doesn't add to search history, so no call to updateSearchHistoryView here
+                // unless requirements change. If it *should* update (e.g. to show it was performed), then add doOnComplete.
                 .subscribe(this::addToSearchResults);
         });
     }
@@ -177,24 +178,16 @@ public class MainWindowController implements FxController {
 
         // Add click listener for search history
         searchHistoryListView.setOnMouseClicked(event -> {
-            String selectedQuery = searchHistoryListView.getSelectionModel().getSelectedItem();
-            if (selectedQuery != null && !selectedQuery.isEmpty()) {
-                // The items in the list view are already sanitized.
-                // We need the raw query to set in the text field.
-                // For simplicity, we assume the order in getSearchHistory() is preserved
-                // and the selected item's text (sanitized) can be used to find the raw one.
-                // This is not perfectly robust if sanitized queries could be identical for different raw queries.
-                // A more robust way would be to store a list of raw queries in the controller,
-                // or have SearchHistoryManager return objects with both raw and sanitized versions.
-
-                // Let's find the raw query by index. This assumes the list view items
-                // are in the same order as searchHistoryManager.getSearchHistory()
+            String selectedSanitizedQuery = searchHistoryListView.getSelectionModel().getSelectedItem();
+            if (selectedSanitizedQuery != null && !selectedSanitizedQuery.isEmpty()) {
+                // Retrieve the raw query by index as items in ListView are sanitized
                 int selectedIndex = searchHistoryListView.getSelectionModel().getSelectedIndex();
-                List<String> rawHistory = searchHistoryManager.getSearchHistory();
+                List<String> rawHistory = searchHistoryManager.getSearchHistory(); // Assumes this is up-to-date
+
                 if (selectedIndex >= 0 && selectedIndex < rawHistory.size()) {
                     String rawQuery = rawHistory.get(selectedIndex);
-                    searchTextField.setText(rawQuery); // Set raw query
-                    searchForFilesMatchingSearchText();
+                    searchTextField.setText(rawQuery);
+                    searchForFilesMatchingSearchText(); // This will also call updateSearchHistoryView via doOnComplete
                 }
             }
         });
@@ -202,9 +195,9 @@ public class MainWindowController implements FxController {
 
     private void updateSearchHistoryView() {
         List<String> history = searchHistoryManager.getSearchHistory();
-        // Sanitize for display, but for click-to-search, we'll need the raw query.
+        // Sanitize for display in the ListView
         List<String> sanitizedHistory = history.stream()
-                .map(LuceneQueryUtil::sanitizeQuery) // Sanitize for display
+                .map(LuceneQueryUtil::sanitizeQuery)
                 .collect(Collectors.toList());
 
         Platform.runLater(() -> {

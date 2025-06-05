@@ -12,37 +12,39 @@ public class PathUtil {
 
   private static final String APPLICATION_NAME = "DocumentFinder";
 
+  /**
+   * Returns the application-specific data folder based on the operating system.
+   * It creates the directory if it doesn't exist.
+   *
+   * @return The path to the application data folder.
+   */
   public static Path getApplicationDataFolder() {
     String osName = System.getProperty("os.name").toLowerCase();
     Path appDataPath;
 
     if (osName.contains("win")) {
-      String appData = System.getenv("APPDATA");
-      if (appData != null && !appData.isEmpty()) {
-        appDataPath = Paths.get(appData, APPLICATION_NAME);
+      String appDataEnv = System.getenv("APPDATA");
+      if (appDataEnv != null && !appDataEnv.isEmpty()) {
+        appDataPath = Paths.get(appDataEnv, APPLICATION_NAME);
       } else {
-        // Fallback if APPDATA is not set (unlikely for modern Windows)
+        // Fallback for Windows if APPDATA is not set
         appDataPath = Paths.get(System.getProperty("user.home"), "AppData", "Roaming", APPLICATION_NAME);
       }
     } else if (osName.contains("mac")) {
       appDataPath = Paths.get(System.getProperty("user.home"), "Library", "Application Support", APPLICATION_NAME);
     } else if (osName.contains("nix") || osName.contains("nux") || osName.contains("aix")) {
-      // Using .local/share as a common standard for user-specific application data
       appDataPath = Paths.get(System.getProperty("user.home"), ".local", "share", APPLICATION_NAME);
     } else {
-      // Fallback for other OSes (e.g., Solaris) or if detection fails
+      // Generic fallback
       appDataPath = Paths.get(System.getProperty("user.home"), "." + APPLICATION_NAME);
     }
 
     try {
       Files.createDirectories(appDataPath);
     } catch (IOException e) {
-      // Handle the exception, e.g., log it or throw a runtime exception
-      // For now, print to stderr, but a more robust solution would be better
       System.err.println("Failed to create application data directory: " + appDataPath + " - " + e.getMessage());
-      // Depending on the application's needs, it might be critical to stop,
-      // or it might be possible to continue (e.g., by using a temporary directory or in-memory storage).
-      // For this example, we'll proceed, and the application might fail later if the path is unusable.
+      // Depending on the application's needs, this might be a critical failure.
+      // For now, we print an error and return the path, trusting the caller to handle usability.
     }
     return appDataPath;
   }

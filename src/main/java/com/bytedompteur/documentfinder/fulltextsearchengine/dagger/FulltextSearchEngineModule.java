@@ -75,7 +75,7 @@ public class FulltextSearchEngineModule {
   }
 
   @Provides
-  @Singleton // Assuming SearchHistoryManager should be a singleton
+  @Singleton // SearchHistoryManager should be a singleton
   public SearchHistoryManager provideSearchHistoryManager() {
     // This uses the default constructor of SearchHistoryManager,
     // which internally uses PathUtil.getApplicationDataFolder()

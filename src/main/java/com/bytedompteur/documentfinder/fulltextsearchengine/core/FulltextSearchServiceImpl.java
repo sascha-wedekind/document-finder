@@ -3,14 +3,14 @@ package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.SearchResult;
 import com.bytedompteur.documentfinder.searchhistory.SearchHistoryManager; // Added import
-import lombok.RequiredArgsConstructor; // This will be removed as we modify constructor
+// import lombok.RequiredArgsConstructor; // Will be removed
 import reactor.core.publisher.Flux;
 
-import jakarta.inject.Inject;
+import jakarta.inject.Inject; // Keep for constructor injection
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-// @RequiredArgsConstructor will be removed as we are manually defining the constructor
+// @RequiredArgsConstructor will be removed as constructor is now manually defined.
 public class FulltextSearchServiceImpl implements FulltextSearchService {
 
   private final FileEventHandler fileEventHandler;
@@ -18,7 +18,7 @@ public class FulltextSearchServiceImpl implements FulltextSearchService {
   private final SearchHistoryManager searchHistoryManager; // Added field
   private final AtomicBoolean eventHandlingStarted = new AtomicBoolean(false);
 
-  @Inject // Ensure Dagger uses this constructor
+  @Inject // Dagger uses this constructor
   public FulltextSearchServiceImpl(FileEventHandler fileEventHandler,
                                    IndexRepository indexRepository,
                                    SearchHistoryManager searchHistoryManager) {
@@ -64,9 +64,9 @@ public class FulltextSearchServiceImpl implements FulltextSearchService {
   @Override
   public Flux<SearchResult> findFilesWithNamesOrContentMatching(CharSequence charSequence) {
     if (charSequence != null) {
-      String query = charSequence.toString();
-      if (!query.trim().isEmpty()) {
-        searchHistoryManager.addSearchQuery(query);
+      String query = charSequence.toString().trim(); // Trim the query
+      if (!query.isEmpty()) {
+        this.searchHistoryManager.addSearchQuery(query);
       }
     }
     return indexRepository.findByFileNameOrContent(charSequence);

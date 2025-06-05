@@ -38,13 +38,13 @@
             <Insets bottom="15.0" />
          </BorderPane.margin>
       </HBox>
-      <VBox spacing="5.0" BorderPane.alignment="CENTER">
+      <VBox spacing="5.0" BorderPane.alignment="CENTER_LEFT">
          <children>
             <Label text="Recent Searches:" />
-            <ListView fx:id="searchHistoryListView" prefHeight="100.0" />
+            <ListView fx:id="searchHistoryListView" prefHeight="100.0" VBox.vgrow="NEVER" />
          </children>
          <BorderPane.margin>
-            <Insets bottom="10.0" />
+            <Insets bottom="10.0" top="5.0" />
          </BorderPane.margin>
       </VBox>
    </top>
