@@ -1,7 +1,8 @@
 package com.bytedompteur.documentfinder.ui.mainwindow;
 
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
-import com.bytedompteur.documentfinder.searchhistory.SearchHistoryManager; // Added
+// Old import: import com.bytedompteur.documentfinder.searchhistory.SearchHistoryManager;
+import com.bytedompteur.documentfinder.searchhistory.adapter.in.SearchHistoryService; // Correct import
 import com.bytedompteur.documentfinder.settings.adapter.out.PlatformAdapter;
 import com.bytedompteur.documentfinder.ui.adapter.out.FileSystemAdapter;
 import com.bytedompteur.documentfinder.ui.FxController;
@@ -43,7 +44,7 @@ public class MainWindowController implements FxController {
     private final FulltextSearchService fulltextSearchService;
     private final FileSystemAdapter fileSystemAdapter;
     private final WindowManager windowManager;
-    private final SearchHistoryManager searchHistoryManager; // Added
+    private final SearchHistoryService searchHistoryService; // Changed type and name
     private final AtomicBoolean ignoreNextSearchAsYouTypeKeyEvent = new AtomicBoolean(false);
 
     @FXML
@@ -67,13 +68,13 @@ public class MainWindowController implements FxController {
             FulltextSearchService fulltextSearchService,
             FileSystemAdapter fileSystemAdapter,
             WindowManager windowManager,
-            SearchHistoryManager searchHistoryManager) { // Added parameter
+            SearchHistoryService searchHistoryService) { // Changed type and name
         this.searchResultTable = searchResultTable;
         this.progressBarController = progressBarController;
         this.fulltextSearchService = fulltextSearchService;
         this.fileSystemAdapter = fileSystemAdapter;
         this.windowManager = windowManager;
-        this.searchHistoryManager = searchHistoryManager; // Assign
+        this.searchHistoryService = searchHistoryService; // Assign to new field
     }
 
     public void clearView() {
@@ -182,7 +183,7 @@ public class MainWindowController implements FxController {
             if (selectedSanitizedQuery != null && !selectedSanitizedQuery.isEmpty()) {
                 // Retrieve the raw query by index as items in ListView are sanitized
                 int selectedIndex = searchHistoryListView.getSelectionModel().getSelectedIndex();
-                List<String> rawHistory = searchHistoryManager.getSearchHistory(); // Assumes this is up-to-date
+                List<String> rawHistory = searchHistoryService.getSearchHistory(); // Use new field
 
                 if (selectedIndex >= 0 && selectedIndex < rawHistory.size()) {
                     String rawQuery = rawHistory.get(selectedIndex);
@@ -194,7 +195,7 @@ public class MainWindowController implements FxController {
     }
 
     private void updateSearchHistoryView() {
-        List<String> history = searchHistoryManager.getSearchHistory();
+        List<String> history = searchHistoryService.getSearchHistory(); // Use new field
         // Sanitize for display in the ListView
         List<String> sanitizedHistory = history.stream()
                 .map(LuceneQueryUtil::sanitizeQuery)

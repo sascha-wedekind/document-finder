@@ -3,6 +3,7 @@ package com.bytedompteur.documentfinder.ui.dagger;
 import com.bytedompteur.documentfinder.CustomNamePrefixThreadFactoryBuilder;
 import com.bytedompteur.documentfinder.PathUtil;
 import com.bytedompteur.documentfinder.commands.dagger.CommandsModule;
+import com.bytedompteur.documentfinder.searchhistory.dagger.SearchHistoryModule; // Added import
 import com.bytedompteur.documentfinder.settings.dagger.SettingsModule;
 import com.bytedompteur.documentfinder.ui.KeyboardShortcut;
 import com.bytedompteur.documentfinder.ui.KeyboardShortcuts;
@@ -32,7 +33,7 @@ import java.util.concurrent.ThreadFactory;
 
 @Module(
     subcomponents = {MainWindowComponent.class, OptionsWindowComponent.class, SystemTrayComponent.class},
-    includes = {SettingsModule.class, CommandsModule.class}
+    includes = {SettingsModule.class, CommandsModule.class, SearchHistoryModule.class} // Added SearchHistoryModule
 )
 public abstract class UIModule {
 

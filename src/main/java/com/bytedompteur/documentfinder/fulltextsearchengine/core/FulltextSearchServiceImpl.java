@@ -2,7 +2,8 @@ package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.SearchResult;
-import com.bytedompteur.documentfinder.searchhistory.SearchHistoryManager; // Added import
+// Old import: import com.bytedompteur.documentfinder.searchhistory.SearchHistoryManager;
+import com.bytedompteur.documentfinder.searchhistory.adapter.in.SearchHistoryService; // Correct import
 // import lombok.RequiredArgsConstructor; // Will be removed
 import reactor.core.publisher.Flux;
 
@@ -15,16 +16,16 @@ public class FulltextSearchServiceImpl implements FulltextSearchService {
 
   private final FileEventHandler fileEventHandler;
   private final IndexRepository indexRepository;
-  private final SearchHistoryManager searchHistoryManager; // Added field
+  private final SearchHistoryService searchHistoryService; // Changed type and name
   private final AtomicBoolean eventHandlingStarted = new AtomicBoolean(false);
 
   @Inject // Dagger uses this constructor
   public FulltextSearchServiceImpl(FileEventHandler fileEventHandler,
                                    IndexRepository indexRepository,
-                                   SearchHistoryManager searchHistoryManager) {
+                                   SearchHistoryService searchHistoryService) { // Changed type and name
     this.fileEventHandler = fileEventHandler;
     this.indexRepository = indexRepository;
-    this.searchHistoryManager = searchHistoryManager;
+    this.searchHistoryService = searchHistoryService; // Assign to new field
   }
 
   @Override
@@ -66,7 +67,7 @@ public class FulltextSearchServiceImpl implements FulltextSearchService {
     if (charSequence != null) {
       String query = charSequence.toString().trim(); // Trim the query
       if (!query.isEmpty()) {
-        this.searchHistoryManager.addSearchQuery(query);
+        this.searchHistoryService.addSearchQuery(query); // Use new field and interface method
       }
     }
     return indexRepository.findByFileNameOrContent(charSequence);

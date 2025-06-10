@@ -6,8 +6,10 @@ import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.out.FilesAda
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.out.PersistedUniqueFileEventQueueAdapter;
 import com.bytedompteur.documentfinder.fulltextsearchengine.core.*;
 import com.bytedompteur.documentfinder.persistedqueue.adapter.in.PersistedUniqueFileEventQueue;
-import com.bytedompteur.documentfinder.searchhistory.SearchHistoryManager; // Added import
+// Remove old SearchHistoryManager import: import com.bytedompteur.documentfinder.searchhistory.SearchHistoryManager;
 import com.bytedompteur.documentfinder.persistedqueue.dagger.PersistedQueueModule;
+import com.bytedompteur.documentfinder.searchhistory.dagger.SearchHistoryModule; // Added import
+import com.bytedompteur.documentfinder.searchhistory.adapter.in.SearchHistoryService; // Added import
 import dagger.Module;
 import dagger.Provides;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +20,7 @@ import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 
-@Module(includes = PersistedQueueModule.class)
+@Module(includes = {PersistedQueueModule.class, SearchHistoryModule.class}) // Added SearchHistoryModule
 @Slf4j
 public class FulltextSearchEngineModule {
 
@@ -69,16 +71,10 @@ public class FulltextSearchEngineModule {
   public FulltextSearchService provideFulltextSearchService(
       FileEventHandler handler,
       IndexRepository repository,
-      SearchHistoryManager searchHistoryManager // Added parameter
+      SearchHistoryService searchHistoryService // Changed parameter type
   ) {
-    return new FulltextSearchServiceImpl(handler, repository, searchHistoryManager); // Pass to constructor
+    return new FulltextSearchServiceImpl(handler, repository, searchHistoryService); // Pass new type
   }
 
-  @Provides
-  @Singleton // SearchHistoryManager should be a singleton
-  public SearchHistoryManager provideSearchHistoryManager() {
-    // This uses the default constructor of SearchHistoryManager,
-    // which internally uses PathUtil.getApplicationDataFolder()
-    return new SearchHistoryManager();
-  }
+  // Removed provideSearchHistoryManager() method as it's now in SearchHistoryModule
 }
