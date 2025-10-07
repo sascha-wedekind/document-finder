@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 
 @RequiredArgsConstructor
@@ -26,8 +27,9 @@ public class FileParserRepositoryAdapter implements Runnable {
       var timeCreated = basicFileAttributes.creationTime();
       var timeUpdated = basicFileAttributes.lastModifiedTime();
       var reader = parserTask.getReader();
+      var locale = parserTask.isLanguageDetectionReliable() ? parserTask.getDetectedLanguage().get() : Locale.ENGLISH;
       log.info("Start indexing '{}'", path);
-      repository.save(new FileRecord(path, reader, timeCreated.toInstant(), timeUpdated.toInstant()));
+      repository.save(new FileRecord(path, reader, locale, timeCreated.toInstant(), timeUpdated.toInstant()));
     } catch (Exception e) {
       log.error("Could not index '{}' to repository", path, e);
     } finally {
