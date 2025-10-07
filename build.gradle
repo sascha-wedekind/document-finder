@@ -8,9 +8,9 @@ plugins {
     id 'idea'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
-    id 'org.beryx.jlink' version '3.0.1'
-    id 'me.qoomon.git-versioning' version '6.4.2'
-    id 'org.gradlex.extra-java-module-info' version '1.10'
+    id 'org.beryx.jlink' version '3.1.4-rc'
+    id 'me.qoomon.git-versioning' version '6.4.4'
+    id 'org.gradlex.extra-java-module-info' version '1.13.1'
 }
 
 ext {
@@ -100,8 +100,7 @@ dependencies {
     implementation "org.apache.tika:tika-parser-microsoft-module:${tikaVersion}"
     implementation "org.apache.tika:tika-parser-apple-module:${tikaVersion}"
     implementation "org.apache.tika:tika-parser-text-module:${tikaVersion}"
-//    implementation "org.apache.tika:tika-langdetect:${tikaVersion}"
-    implementation 'org.apache.tika:tika-langdetect-optimaize:3.2.2'
+    implementation "org.apache.tika:tika-langdetect-optimaize:${tikaVersion}"
     implementation "com.google.dagger:dagger:${daggerVersion}"
     implementation "de.jensd:fontawesomefx-materialicons:${fontAwesomeFxVersion}"
     implementation "com.google.code.gson:gson:${gsonVersion}"
