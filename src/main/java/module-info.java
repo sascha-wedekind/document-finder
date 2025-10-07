@@ -44,7 +44,4 @@ module DocumentFinder.main {
   opens com.bytedompteur.documentfinder.ui to javafx.base, javafx.fxml, javafx.graphics;
   opens com.bytedompteur.documentfinder.ui.adapter.out to javafx.base, javafx.fxml, javafx.graphics;
   exports com.bytedompteur.documentfinder.ui.adapter.out to com.sun.jna, javafx.fxml;
-//  exports com.bytedompteur.documentfinder.ui.adapter.out.macos to com.sun.jna, javafx.fxml;
-//  opens com.bytedompteur.documentfinder.ui.adapter.out.macos to javafx.base, javafx.fxml, javafx.graphics;
-//  exports com.bytedompteur.documentfinder.ui.adapter.out to com.sun.jna, javafx.fxml;
 }

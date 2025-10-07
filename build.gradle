@@ -25,7 +25,7 @@ ext {
     assertjVersion = '3.26.3'
     reactorVersion = '3.7.2'
     guavaVersion = '33.3.0-jre'
-    tikaVersion = '3.1.0'
+    tikaVersion = '3.2.2'
     daggerVersion = '2.52'
     javaFxVersion = '22.0.1'
     fontAwesomeFxVersion = '2.2.0-9.1.2'
@@ -100,6 +100,8 @@ dependencies {
     implementation "org.apache.tika:tika-parser-microsoft-module:${tikaVersion}"
     implementation "org.apache.tika:tika-parser-apple-module:${tikaVersion}"
     implementation "org.apache.tika:tika-parser-text-module:${tikaVersion}"
+//    implementation "org.apache.tika:tika-langdetect:${tikaVersion}"
+    implementation 'org.apache.tika:tika-langdetect-optimaize:3.2.2'
     implementation "com.google.dagger:dagger:${daggerVersion}"
     implementation "de.jensd:fontawesomefx-materialicons:${fontAwesomeFxVersion}"
     implementation "com.google.code.gson:gson:${gsonVersion}"
