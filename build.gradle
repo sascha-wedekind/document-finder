@@ -257,7 +257,6 @@ jlink {
     }
     addExtraDependencies('integrations', 'javafx', 'annotations', 'jcl-over-slf4j')
     forceMerge("jna")
-    forceMerge("log4j-api")
 }
 
 

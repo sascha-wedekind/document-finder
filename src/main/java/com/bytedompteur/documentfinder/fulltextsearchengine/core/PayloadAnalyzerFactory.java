@@ -2,7 +2,10 @@ package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.analysis.TokenFilterFactory;
 import org.apache.lucene.analysis.classic.ClassicTokenizerFactory;
+import org.apache.lucene.analysis.core.DecimalDigitFilterFactory;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.core.StopFilterFactory;
 import org.apache.lucene.analysis.custom.CustomAnalyzer;
@@ -52,9 +55,8 @@ public class PayloadAnalyzerFactory {
                 .addTokenFilter(WordDelimiterGraphFilterFactory.NAME, WORD_DELIMITER_CONFIG)
                 .addTokenFilter(GermanStemFilterFactory.NAME)
                 .addTokenFilter(LowerCaseFilterFactory.NAME)
-//                .addTokenFilter(StopFilterFactory.NAME, "ignoreCase", "true", "words", "/org/apache/lucene/analysis/snowball/german_stop.txt", "format", "snowball")
-                .addTokenFilter(StopFilterFactory.NAME, "ignoreCase", "true", "words", "analysis/snowball/german_stop.txt", "format", "snowball")
-//                .addTokenFilter(SnowballPorterFilterFactory.NAME, "language", "German")
+                .addTokenFilter(StopFilterFactory.NAME, "ignoreCase", "true", "words", "german_stop.txt", "format", "snowball")
+                .addTokenFilter(DecimalDigitFilterFactory.NAME)
                 .build();
         } catch (IOException e) {
             log.error("While generating german analyzer", e);
@@ -71,6 +73,7 @@ public class PayloadAnalyzerFactory {
                 .addTokenFilter(LowerCaseFilterFactory.NAME)
                 .addTokenFilter(KStemFilterFactory.NAME)
                 .addTokenFilter(StopFilterFactory.NAME, "ignoreCase", "true") // Uses english stop words by default
+                .addTokenFilter(DecimalDigitFilterFactory.NAME)
                 .build();
         } catch (IOException e) {
             log.error("While generating german analyzer", e);

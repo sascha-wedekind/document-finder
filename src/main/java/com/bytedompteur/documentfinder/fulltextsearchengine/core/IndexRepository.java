@@ -123,7 +123,10 @@ public class IndexRepository {
                 var searchTextString = searchText.toString();
                 Query query = createQueryFromParseSearchText(searchTextString);
                 result = executeSearch(query, MAX_RESULT_LIMIT);
-            } catch (ParseException | IOException e) {
+            } catch (ParseException e) {
+                // IGNORE - this error will be thrown search text could not be parsed by lucene.
+                log.debug("Failed to search for search text '{}'", searchText, e);
+            } catch (IOException e) {
                 log.error("Failed to search for '{}'", searchText, e);
             }
         }
