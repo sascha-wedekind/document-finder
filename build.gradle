@@ -14,20 +14,20 @@ plugins {
 }
 
 ext {
-    lombokVersion = '1.18.36'
-    slf4jVersion = '2.0.16'
-    jclOverSlf4jVersion = '2.0.14'
+    lombokVersion = '1.18.42'
+    slf4jVersion = '2.0.17'
+    jclOverSlf4jVersion = '2.0.17'
     logbackVersion = '1.5.16'
     janinoVersion = "3.1.12"
     luceneVersion = '10.1.0'
-    mockitoVersion = '5.4.0'
+    mockitoVersion = '5.20.0'
     junitVersion = '5.11.4'
     assertjVersion = '3.26.3'
     reactorVersion = '3.7.2'
     guavaVersion = '33.3.0-jre'
     tikaVersion = '3.2.2'
     daggerVersion = '2.52'
-    javaFxVersion = '22.0.1'
+    javaFxVersion = '25'
     fontAwesomeFxVersion = '2.2.0-9.1.2'
     testFxVersion = '4.0.18'
     gsonVersion = '2.11.0'
@@ -68,16 +68,16 @@ repositories {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
-configurations {
-    all*.exclude group: 'xml-apis'
+configurations.all {
+    exclude group: 'xml-apis'
     // Exclude cryptomator linux integration dependencies, which lead to duplicate module error while executing jpackage
-    all*.exclude group: 'org.purejava' // org.purejava:kdewallet
-    all*.exclude group: 'de.swiesend' // de.swiesend:secret-service
-    all*.exclude group: 'commons-logging', module: 'commons-logging' // replaced by jcl-over-slf4j
+    exclude group: 'org.purejava' // org.purejava:kdewallet
+    exclude group: 'de.swiesend' // de.swiesend:secret-service
+    exclude group: 'commons-logging', module: 'commons-logging' // replaced by jcl-over-slf4j
 }
 
 dependencies {
@@ -117,11 +117,11 @@ dependencies {
     //  Because the application release build must be done on the same OS as the target OS
     //  ===================================================================================
     if (operatingSystem.isMacOsX()) {
-        implementation "org.cryptomator:integrations-mac:1.2.3"
+        implementation "org.cryptomator:integrations-mac:1.4.1"
     } else if (operatingSystem.isWindows()) {
-        implementation "org.cryptomator:integrations-win:1.2.5"
+        implementation "org.cryptomator:integrations-win:1.5.1"
     } else if (operatingSystem.isLinux()) {
-        implementation "org.cryptomator:integrations-linux:1.4.5"
+        implementation "org.cryptomator:integrations-linux:1.6.1"
     }
 
     //  ============================================
@@ -145,6 +145,7 @@ dependencies {
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
+    testImplementation "org.junit.platform:junit-platform-launcher:6.0.0"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
     testImplementation 'org.hamcrest:hamcrest:3.0' // Required for FXTest. The FXRobot has a direct dependency to hamcrest.
 
@@ -204,6 +205,9 @@ extraJavaModuleInfo {
 
     automaticModule("javax.inject:javax.inject", "javax.inject")
     automaticModule("io.github.g00fy2:versioncompare", "versioncompare")
+    module("org.slf4j:jcl-over-slf4j", "org.apache.commons.logging") {
+        patchRealModule()
+    }
 }
 
 jlink {
@@ -254,7 +258,7 @@ jlink {
             requires osSpecificCryptomatorIntegrationsPackageRequired // OS specific tray and dock integration
         }
     }
-    addExtraDependencies('integrations', 'javafx', 'annotations', 'jcl-over-slf4j')
+    addExtraDependencies('integrations', 'javafx', 'annotations')
     forceMerge("jna")
 }
 
