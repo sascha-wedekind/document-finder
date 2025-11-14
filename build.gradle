@@ -17,7 +17,7 @@ ext {
     lombokVersion = '1.18.42'
     slf4jVersion = '2.0.17'
     jclOverSlf4jVersion = '2.0.17'
-    logbackVersion = '1.5.16'
+    logbackVersion = '1.5.21'
     janinoVersion = "3.1.12"
     luceneVersion = '10.1.0'
     mockitoVersion = '5.20.0'
@@ -158,6 +158,20 @@ dependencies {
 }
 
 test {
+    /*
+     * Add Mockito as javaagent to unit tests.
+     */
+    doFirst {
+        def mockitoAgent = configurations.testRuntimeClasspath.find {
+            it.name.contains('mockito-core')
+        }
+        if (mockitoAgent != null) {
+            jvmArgs "-javaagent:${mockitoAgent.absolutePath}"
+        } else {
+            logger.warn("Mockito-core not found on testRuntimeClasspath. Cannot attach Java agent.")
+        }
+    }
+
     useJUnitPlatform()
     configurations {
         testRuntimeClasspath {
@@ -205,11 +219,8 @@ extraJavaModuleInfo {
 
     automaticModule("javax.inject:javax.inject", "javax.inject")
     automaticModule("io.github.g00fy2:versioncompare", "versioncompare")
-    module("org.slf4j:jcl-over-slf4j", "org.apache.commons.logging") {
-        patchRealModule()
-    }
+    automaticModule("com.optimaize.languagedetector:language-detector", "language.detector")
 }
-
 jlink {
     def osSpecificCryptomatorIntegrationsPackageRequired = null
     def semverPattern = Pattern.compile("\\d.*\\.\\d.*\\.\\d.*")
@@ -260,6 +271,7 @@ jlink {
     }
     addExtraDependencies('integrations', 'javafx', 'annotations')
     forceMerge("jna")
+    forceMerge("jcl-over-slf4")
 }
 
 
