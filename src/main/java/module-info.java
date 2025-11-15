@@ -31,6 +31,8 @@ module DocumentFinder.main {
   requires jakarta.inject;
   requires static lombok;
   requires java.desktop;
+  requires language.detector;
+  requires org.apache.commons.logging; // for apache apis
 
   opens com.bytedompteur.documentfinder.ui.mainwindow to javafx.fxml, javafx.base;
   opens com.bytedompteur.documentfinder.ui.optionswindow to javafx.fxml, javafx.base;

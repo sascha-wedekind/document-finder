@@ -1,19 +1,23 @@
 package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 
 
+import com.optimaize.langdetect.DetectedLanguage;
+import com.optimaize.langdetect.LanguageDetector;
+import com.optimaize.langdetect.LanguageDetectorBuilder;
+import com.optimaize.langdetect.i18n.LdLocale;
+import com.optimaize.langdetect.ngram.NgramExtractors;
+import com.optimaize.langdetect.profiles.LanguageProfile;
+import com.optimaize.langdetect.profiles.LanguageProfileReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.exception.TikaException;
-import org.apache.tika.language.detect.LanguageConfidence;
-import org.apache.tika.language.detect.LanguageHandler;
-import org.apache.tika.language.detect.LanguageResult;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.sax.BodyContentHandler;
-import org.apache.tika.sax.TeeContentHandler;
 import org.xml.sax.SAXException;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -21,19 +25,42 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 public class FileParserTask implements Runnable {
 
-    private BodyContentHandler bodyContentHandler;
-    private LanguageResult languageResult;
+    private static final List<LdLocale> SUPPORTED_LANGUAGES = List.of(LdLocale.fromString("en"), LdLocale.fromString("de"));
+    private static List<LanguageProfile> languageProfiles = null;
+
+    static {
+        try {
+            languageProfiles = new LanguageProfileReader().readBuiltIn(SUPPORTED_LANGUAGES);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load language profiles", e);
+        }
+    }
+
+    private static final ThreadLocal<LanguageDetector> DETECTOR_THREAD_LOCAL =
+        ThreadLocal.withInitial(() -> {
+            return LanguageDetectorBuilder
+                .create(NgramExtractors.standard())
+                .withProfiles(languageProfiles)
+                .build();
+        });
+
+    private final AtomicReference<StringReader> contentReader = new AtomicReference<>();
 
     public enum State {UNUSED, RUNNING, FINISHED}
 
     private final Path path;
-    private final AutoDetectParser autoDetectParser = new AutoDetectParser();
-    private final Metadata metadata = new Metadata();
-    private final AtomicReference<Exception> exceptionWhileParsing = new AtomicReference<>(null);
+    private final AtomicReference<Throwable> exceptionWhileParsing = new AtomicReference<>(null);
     private final AtomicReference<State> state = new AtomicReference<>(State.UNUSED);
+    private final AtomicReference<Optional<Locale>> detectedLanguage = new AtomicReference<>(Optional.empty());
+    private final InputStreamFactory streamFactory;
 
     private FileParserTask(Path path) {
+        this(path, new InputStreamFactory());
+    }
+
+    protected FileParserTask(Path path, InputStreamFactory streamFactory) {
         this.path = path;
+        this.streamFactory = streamFactory;
     }
 
     @SuppressWarnings("java:S2095")
@@ -42,51 +69,65 @@ public class FileParserTask implements Runnable {
     }
 
     public Reader getReader() {
-        return new StringReader(bodyContentHandler.toString());
+        return contentReader.get();
     }
 
     public State getState() {
         return state.get();
     }
 
-    public Optional<Exception> getExceptionThrownWhileParsing() {
+    public Optional<Throwable> getExceptionThrownWhileParsing() {
         return Optional.ofNullable(exceptionWhileParsing.get());
     }
 
 
     public Optional<Locale> getDetectedLanguage() {
-        return Optional
-            .ofNullable(languageResult.getLanguage())
-            .map(Locale::of);
+        return detectedLanguage.get();
     }
 
-    /**
-     * @return true when the language confidence of Tika is high, otherwise false.
-     */
-    public boolean isLanguageDetectionReliable() {
-        return languageResult.getConfidence() == LanguageConfidence.HIGH;
-    }
 
     @Override
     public void run() {
         state.set(State.RUNNING);
-        try (var fis = new BufferedInputStream(new FileInputStream(path.toFile()))) {
-            log.info("Start parsing '{}'", path);
-            parse(fis);
-        } catch (Exception e) {
+        Metadata metadata = null;
+        try (var fis = streamFactory.create(path)) {
+            log.debug("Start parsing '{}'", path);
+            metadata = parse(fis);
+        } catch (Throwable e) {
             log.error("Error while parsing '{}'", path, e);
             exceptionWhileParsing.set(e);
         } finally {
-            log.info("End parsing '{}'. File identified as '{}'. Language: {} with confidence {}", path, metadata.get(Metadata.CONTENT_TYPE), languageResult.getLanguage(), languageResult.getConfidence());
+            var language = getDetectedLanguage().map(Locale::toString).orElse("unkown");
+            var contentType = Optional.ofNullable(metadata).map(it -> it.get(Metadata.CONTENT_TYPE)).orElse("unkown");
+            log.debug("End parsing '{}'. File identified as '{}'. Language: {}", path, contentType, language);
             state.set(State.FINISHED);
         }
     }
 
-    protected void parse(InputStream fis) throws IOException, SAXException, TikaException {
-        bodyContentHandler = new BodyContentHandler(-1);
-        var languageHandler = new LanguageHandler();
-        var teeContentHandler = new TeeContentHandler(bodyContentHandler, languageHandler);
-        autoDetectParser.parse(fis, teeContentHandler, metadata);
-        languageResult = languageHandler.getLanguage();
+    protected Metadata parse(InputStream fis) throws IOException, SAXException, TikaException {
+        var metadata = new Metadata();
+        var autoDetectParser = new AutoDetectParser();
+        var bodyContentHandler = new BodyContentHandler(-1); // No content limit
+        autoDetectParser.parse(fis, bodyContentHandler, metadata);
+        var content = bodyContentHandler.toString();
+        detectLanguage(content);
+        contentReader.set(new StringReader(content));
+        return metadata;
+    }
+
+    protected void detectLanguage(String content) {
+        log.debug("Detecting langauge for content of size {}", content.length());
+        var detect = DETECTOR_THREAD_LOCAL.get().getProbabilities(content);
+        log.debug("Detected languages '{}'", detect);
+        detectedLanguage.set(Optional.ofNullable(detect)
+            .orElse(List.of())
+            .stream()
+            .filter(it -> SUPPORTED_LANGUAGES.contains(it.getLocale()))
+            .findFirst()
+            .map(DetectedLanguage::getLocale)
+            .map(LdLocale::getLanguage)
+            .map(Locale::of)
+        );
+        DETECTOR_THREAD_LOCAL.remove();
     }
 }
