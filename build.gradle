@@ -111,6 +111,7 @@ dependencies {
     implementation "io.github.g00fy2:versioncompare:${g00fy2VersionCompareVersion}"
     implementation "commons-io:commons-io:${commonsIoVersion}"
     implementation "net.java.dev.jna:jna-platform-jpms:${jnaVersion}"
+    implementation 'io.github.mkpaz:atlantafx-base:2.1.0'
 
     //  ===================================================================================
     //  Operating system dependent runtime

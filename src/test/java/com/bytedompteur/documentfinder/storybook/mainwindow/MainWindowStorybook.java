@@ -1,5 +1,7 @@
 package com.bytedompteur.documentfinder.storybook.mainwindow;
 
+import atlantafx.base.theme.PrimerDark;
+import atlantafx.base.theme.PrimerLight;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -53,11 +55,11 @@ public class MainWindowStorybook {
       borderPane.setCenter(node);
       borderPane.autosize();
 
-      Scene scene = new Scene(borderPane);
-      scene.getStylesheets().add(getClass().getResource("/css/default-light.css").toExternalForm());
-//      scene.getStylesheets().add(getClass().getResource("/css/default-dark.css").toExternalForm());
+      Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+//        Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+        Scene scene = new Scene(borderPane);
+      scene.getStylesheets().add(getClass().getResource("/css/theme-customizations.css").toExternalForm());
       primaryStage.setScene(scene);
-//      primaryStage.show();
     }
 
   }

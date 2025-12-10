@@ -1,7 +1,6 @@
 package com.bytedompteur.documentfinder.ui.mainwindow;
 
 import com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in.FulltextSearchService;
-import com.bytedompteur.documentfinder.settings.adapter.out.PlatformAdapter;
 import com.bytedompteur.documentfinder.ui.adapter.out.FileSystemAdapter;
 import com.bytedompteur.documentfinder.ui.FxController;
 import com.bytedompteur.documentfinder.ui.WindowManager;
@@ -9,6 +8,7 @@ import com.bytedompteur.documentfinder.ui.mainwindow.dagger.MainWindowScope;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -16,6 +16,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
@@ -29,6 +30,7 @@ import java.util.function.Function;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 @MainWindowScope
+@Slf4j
 @SuppressWarnings("java:S1172")
 public class MainWindowController implements FxController {
 
@@ -49,18 +51,43 @@ public class MainWindowController implements FxController {
     @FXML
     public Button findLastUpdatedButton;
 
+    @FXML
+    public Node mainWindowResultTable;
+
+    @FXML
+    public Node mainWindowLittleHelpArea;
+
     private Disposable disposable;
 
     public void clearView() {
         Platform.runLater(() -> {
+            log.info("Clearing view");
             clearSearchResults();
             searchTextField.clear();
+            showLittleHelpNotification();
         });
+    }
+
+    private void showLittleHelpNotification() {
+//        Platform.runLater(() -> {
+            log.info("Showing Little Help Notification");
+            mainWindowResultTable.setVisible(false);
+            mainWindowLittleHelpArea.setVisible(true);
+//        });
+    }
+
+    private void hideLittleHelpNotification() {
+//        Platform.runLater(() -> {
+            log.info("Hiding Little Help Notification");
+            mainWindowResultTable.setVisible(true);
+            mainWindowLittleHelpArea.setVisible(false);
+//        });
     }
 
     public void showFilesLastUpdated() {
         ignoreNextSearchAsYouTypeKeyEvent.set(true);
         Platform.runLater(() -> {
+            hideLittleHelpNotification();
             findLastUpdatedButton.requestFocus();
             findLastUpdatedButton.fire();
         });
@@ -97,6 +124,7 @@ public class MainWindowController implements FxController {
 
     public void addToSearchResults(SearchResult it) {
         Platform.runLater(() -> {
+            hideLittleHelpNotification();
             searchResultTable.getSearchResults().add(it);
             numberOfSearchResultsLabel.setText(searchResultTable.getSearchResults().size() + " " + SEARCH_RESULTS_TEXT);
         });
@@ -104,12 +132,15 @@ public class MainWindowController implements FxController {
 
     public void clearSearchResults() {
         Platform.runLater(() -> {
+            showLittleHelpNotification();
             searchResultTable.getSearchResults().clear();
             numberOfSearchResultsLabel.setText("0 " + SEARCH_RESULTS_TEXT);
         });
     }
 
     public void searchForFilesMatchingSearchText() {
+        log.info("Searching for files matching search text");
+//        hideLittleHelpNotification();
         Mono
             .just(searchTextField.getCharacters())
             .doOnEach(it -> clearSearchResults())
@@ -125,7 +156,9 @@ public class MainWindowController implements FxController {
     }
 
     public void handleFindLastUpdatedButtonClick(ActionEvent ignore) {
+        log.info("Finding last updated");
         clearView();
+//        hideLittleHelpNotification();
         Platform.runLater(() -> {
             fulltextSearchService
                 .findLastUpdated()

@@ -7,7 +7,7 @@
 <?import javafx.scene.text.*?>
 <BorderPane fx:id="optionWindow" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="446.0" prefWidth="576.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bytedompteur.documentfinder.ui.optionswindow.OptionsWindowController">
    <left>
-      <VBox fx:id="navigationBar" prefHeight="200.0" prefWidth="100.0" spacing="10.0" BorderPane.alignment="CENTER_LEFT">
+      <VBox fx:id="navigationBar" prefHeight="200.0" prefWidth="100.0" spacing="14.0" BorderPane.alignment="CENTER_LEFT">
          <children>
             <Hyperlink maxWidth="1.7976931348623157E308" minWidth="-Infinity" onAction="#handleFileTypeOptionsSectionClick" text="File types">
                <graphic>

@@ -33,6 +33,7 @@ module DocumentFinder.main {
   requires java.desktop;
   requires language.detector;
   requires org.apache.commons.logging; // for apache apis
+  requires atlantafx.base;
 
   opens com.bytedompteur.documentfinder.ui.mainwindow to javafx.fxml, javafx.base;
   opens com.bytedompteur.documentfinder.ui.optionswindow to javafx.fxml, javafx.base;
