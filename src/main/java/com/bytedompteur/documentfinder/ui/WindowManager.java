@@ -1,11 +1,14 @@
 package com.bytedompteur.documentfinder.ui;
 
+import atlantafx.base.theme.PrimerDark;
+import atlantafx.base.theme.PrimerLight;
 import com.bytedompteur.documentfinder.ui.adapter.out.JavaFxPlatformAdapter;
 import com.bytedompteur.documentfinder.ui.mainwindow.dagger.MainWindowComponent;
 import com.bytedompteur.documentfinder.ui.optionswindow.dagger.OptionsWindowComponent;
 import com.bytedompteur.documentfinder.ui.systemtray.SystemTrayIconController;
 import com.bytedompteur.documentfinder.ui.systemtray.dagger.SystemTrayComponent;
 import com.jthemedetecor.OsThemeDetector;
+import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -157,12 +160,14 @@ public class WindowManager {
 
     private static void applyStylesheet(Scene scene, boolean useDarkTheme) {
         try {
-            var stylesheetPath = useDarkTheme ? "/css/default-dark.css" : "/css/default-light.css";
-            var stylesheetURL = Objects
-                .requireNonNull(WindowManager.class.getResource(stylesheetPath))
-                .toExternalForm();
             scene.getStylesheets().clear();
-            scene.getStylesheets().add(stylesheetURL);
+            scene.getStylesheets().add(WindowManager.class.getResource("/css/theme-customizations.css").toExternalForm());
+
+            if (!useDarkTheme) {
+                Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+            } else {
+                Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+            }
         } catch (Exception e) {
             log.error("Could not load default.css", e);
         }

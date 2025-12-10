@@ -1,0 +1,33 @@
+#mainWindow {
+    -fx-background-color: -color-bg-subtle;
+}
+
+#resultTable {
+    -color-header-bg: -color-cell-bg;
+    -color-cell-border: -color-cell-bg;
+    -fx-background-color: -color-bg-default;
+}
+
+#mainWindowApplicationCenterArea {
+    -fx-background-color: -color-bg-default;
+    -fx-border-color: -color-border-default;
+    -fx-border-width: 1px 0 1px 0;
+}
+
+#mainWindowApplicationToolbar .button .glyph-icon {
+    -fx-fill: -color-fg-default;
+}
+
+#mainWindowApplicationToolbar .custom-text-field .glyph-icon {
+    -fx-fill: -color-fg-default;
+}
+
+#optionWindow #navigationBar {
+    -fx-background-color: -color-bg-subtle;
+    -fx-border-color: -color-border-default;
+    -fx-border-width: 0 1px 0 0;
+}
+
+#optionWindow #navigationBar .glyph-icon {
+    -fx-fill: -color-fg-default;
+}

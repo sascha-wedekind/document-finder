@@ -4,55 +4,105 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane fx:id="mainWindows" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="528.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bytedompteur.documentfinder.ui.mainwindow.MainWindowController">
-   <top>
-      <HBox spacing="10.0" BorderPane.alignment="CENTER">
-         <children>
-            <TextField fx:id="searchTextField" minWidth="10.0" onAction="#handleSearchTextFieldAction" onKeyTyped="#searchAsYouType" promptText="text to search" HBox.hgrow="ALWAYS">
-            </TextField>
-            <Button fx:id="clearSearchTextFieldButton" mnemonicParsing="false" onAction="#handleClearSearchTextButtonClick" HBox.hgrow="NEVER">
-               <graphic>
-                  <MaterialIconView glyphName="CLEAR" size="17" />
-               </graphic>
-               <tooltip>
-                  <Tooltip text="Clear search result" />
-               </tooltip></Button>
-            <Button fx:id="findLastUpdatedButton" layoutX="432.0" layoutY="10.0" mnemonicParsing="false" onAction="#handleFindLastUpdatedButtonClick">
-               <graphic>
-                  <MaterialIconView glyphName="HISTORY" size="17" />
-               </graphic>
-               <tooltip>
-                  <Tooltip text="Last updated" />
-               </tooltip>
-            </Button>
-            <Button fx:id="showOptionsButton" mnemonicParsing="false" onAction="#handleOptionsButtonClick" HBox.hgrow="NEVER">
-               <graphic>
-                  <MaterialIconView glyphName="SETTINGS" size="17" />
-               </graphic>
-               <tooltip>
-                  <Tooltip text="Settings" />
-               </tooltip>
-            </Button>
-         </children>
-         <BorderPane.margin>
-            <Insets bottom="15.0" />
-         </BorderPane.margin>
-      </HBox>
-   </top>
-   <center>
-      <fx:include minHeight="10.0" minWidth="10.0" prefHeight="480.0" prefWidth="785.0" source="SearchResultTable.fxml" />
-   </center>
-   <padding>
-      <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-   </padding>
-   <bottom>
-      <HBox minHeight="10.0" minWidth="10.0" translateY="10.0">
-         <fx:include source="ProgressBar.fxml" HBox.hgrow="ALWAYS" />
-         <VBox alignment="CENTER">
+<?import java.lang.String?>
+<?import atlantafx.base.controls.CustomTextField?>
+<?import javafx.scene.control.Separator?>
+<BorderPane fx:id="mainWindow" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="480.0" prefWidth="528.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.bytedompteur.documentfinder.ui.mainwindow.MainWindowController">
+    <top>
+        <VBox>
             <children>
-               <Label fx:id="numberOfSearchResultsLabel" text="2 search results">2 results</Label>
+                <HBox fx:id="mainWindowApplicationToolbar" spacing="5.0" BorderPane.alignment="CENTER">
+                    <children>
+                        <CustomTextField fx:id="searchTextField" minWidth="10.0" onAction="#handleSearchTextFieldAction"
+                                         onKeyTyped="#searchAsYouType" promptText="text to search" HBox.hgrow="ALWAYS"
+                                         styleClass="rounded">
+                            <left>
+                                <MaterialIconView glyphName="SEARCH" size="25"/>
+                            </left>
+                        </CustomTextField>
+                        <Button fx:id="clearSearchTextFieldButton" mnemonicParsing="false"
+                                onAction="#handleClearSearchTextButtonClick" HBox.hgrow="NEVER">
+                            <styleClass>
+                                <String fx:value="flat"/>
+                                <String fx:value="button-icon"/>
+                                <String fx:value="button-circle"/>
+                            </styleClass>
+                            <graphic>
+                                <MaterialIconView glyphName="DELETE" size="25"/>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip text="Clear search result"/>
+                            </tooltip>
+                        </Button>
+                        <Button fx:id="findLastUpdatedButton" layoutX="432.0" layoutY="10.0" mnemonicParsing="false"
+                                onAction="#handleFindLastUpdatedButtonClick">
+                            <styleClass>
+                                <String fx:value="flat"/>
+                                <String fx:value="button-icon"/>
+                                <String fx:value="button-circle"/>
+                            </styleClass>
+                            <graphic>
+                                <MaterialIconView glyphName="HISTORY" size="25"/>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip text="Last updated"/>
+                            </tooltip>
+                        </Button>
+                        <Button fx:id="showOptionsButton" mnemonicParsing="false" onAction="#handleOptionsButtonClick"
+                                HBox.hgrow="NEVER">
+                            <styleClass>
+                                <String fx:value="flat"/>
+                                <String fx:value="button-icon"/>
+                                <String fx:value="button-circle"/>
+                            </styleClass>
+                            <graphic>
+                                <MaterialIconView glyphName="SETTINGS" size="25"/>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip text="Settings"/>
+                            </tooltip>
+                        </Button>
+                    </children>
+                    <padding>
+                        <Insets bottom="25.0" left="20.0" right="20.0" top="10.0"/>
+                    </padding>
+                </HBox>
             </children>
-         </VBox>
-      </HBox>
-   </bottom>
+        </VBox>
+    </top>
+    <center>
+        <VBox fx:id="mainWindowApplicationCenterArea">
+            <fx:include minHeight="10.0" minWidth="10.0" prefHeight="480.0" prefWidth="785.0"
+                        source="SearchResultTable.fxml" fx:id="mainWindowResultTable">
+            </fx:include>
+            <VBox fx:id="mainWindowLittleHelpArea" visible="false">
+                <Label>Her is the little help area</Label>
+            </VBox>
+            <padding>
+                <Insets bottom="0.0" left="20.0" right="20.0" top="5.0"/>
+            </padding>
+        </VBox>
+    </center>
+    <padding>
+        <Insets bottom="15.0" left="0.0" right="0.0" top="15.0"/>
+    </padding>
+    <bottom>
+        <VBox>
+            <children>
+                <HBox fx:id="mainWindowApplicationStatusbar" minHeight="10.0" minWidth="10.0" translateY="10.0">
+                    <fx:include source="ProgressBar.fxml" HBox.hgrow="ALWAYS"/>
+                    <VBox alignment="CENTER">
+                        <children>
+                            <Label fx:id="numberOfSearchResultsLabel" text="2 search results">2 results</Label>
+                        </children>
+                    </VBox>
+                </HBox>
+            </children>
+            <padding>
+                <Insets bottom="0.0" left="20.0" right="20.0" top="0.0"/>
+            </padding>
+        </VBox>
+    </bottom>
 </BorderPane>
