@@ -24,7 +24,7 @@ ext {
     junitVersion = '5.11.4'
     assertjVersion = '3.26.3'
     reactorVersion = '3.7.2'
-    guavaVersion = '33.3.0-jre'
+    guavaVersion = '33.5.0-jre'
     tikaVersion = '3.2.2'
     daggerVersion = '2.52'
     javaFxVersion = '25'
