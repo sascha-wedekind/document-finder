@@ -13,6 +13,15 @@
     <top>
         <VBox>
             <children>
+                <MenuBar useSystemMenuBar="true">
+                    <menus>
+                        <Menu mnemonicParsing="false" text="Help">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#handleOpenLogDirectoryAction" text="Open log directory" />
+                            </items>
+                        </Menu>
+                    </menus>
+                </MenuBar>
                 <HBox fx:id="mainWindowApplicationToolbar" spacing="5.0" BorderPane.alignment="CENTER">
                     <children>
                         <CustomTextField fx:id="searchTextField" minWidth="10.0" onAction="#handleSearchTextFieldAction"

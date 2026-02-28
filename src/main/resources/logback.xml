@@ -6,8 +6,14 @@
     </encoder>
   </appender>
 
-  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${APPLICATION_HOME_DIRECTORY_FOR_LOGGING}/document-finder.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!-- monthly rollover -->
+      <fileNamePattern>${APPLICATION_HOME_DIRECTORY_FOR_LOGGING}/document-finder.%d{yyyy-MM}.log.gz</fileNamePattern>
+      <!-- keep 12 months' worth of history -->
+      <maxHistory>3</maxHistory>
+    </rollingPolicy>
 
     <encoder>
       <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
