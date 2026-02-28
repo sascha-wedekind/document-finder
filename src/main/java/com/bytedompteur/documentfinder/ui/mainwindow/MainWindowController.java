@@ -15,20 +15,20 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
-@RequiredArgsConstructor(onConstructor = @__(@Inject))
 @MainWindowScope
 @Slf4j
 @SuppressWarnings("java:S1172")
@@ -40,7 +40,25 @@ public class MainWindowController implements FxController {
     private final FulltextSearchService fulltextSearchService;
     private final FileSystemAdapter fileSystemAdapter;
     private final WindowManager windowManager;
+    private final String applicationHomeDirectory;
     private final AtomicBoolean ignoreNextSearchAsYouTypeKeyEvent = new AtomicBoolean(false);
+
+    @Inject
+    public MainWindowController(
+        SearchResultTableController searchResultTable,
+        AnalyzeFilesProgressBarController progressBarController,
+        FulltextSearchService fulltextSearchService,
+        FileSystemAdapter fileSystemAdapter,
+        WindowManager windowManager,
+        @Named("applicationHomeDirectory") String applicationHomeDirectory
+    ) {
+        this.searchResultTable = searchResultTable;
+        this.progressBarController = progressBarController;
+        this.fulltextSearchService = fulltextSearchService;
+        this.fileSystemAdapter = fileSystemAdapter;
+        this.windowManager = windowManager;
+        this.applicationHomeDirectory = applicationHomeDirectory;
+    }
 
     @FXML
     public TextField searchTextField;
@@ -174,6 +192,11 @@ public class MainWindowController implements FxController {
     @SuppressWarnings("java:S1172")
     public void handleOptionsButtonClick(ActionEvent ignore) {
         windowManager.showOptionsWindow();
+    }
+
+    @SuppressWarnings("java:S1172")
+    public void handleOpenLogDirectoryAction(ActionEvent ignore) {
+        fileSystemAdapter.openInOperatingSystem(Path.of(applicationHomeDirectory));
     }
 
     @FXML
