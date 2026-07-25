@@ -101,7 +101,9 @@ public class MainWindowController implements FxController {
 //        Platform.runLater(() -> {
             log.info("Showing Little Help Notification");
             mainWindowResultTable.setVisible(false);
+            mainWindowResultTable.setManaged(false);
             mainWindowLittleHelpArea.setVisible(true);
+            mainWindowLittleHelpArea.setManaged(true);
 //        });
     }
 
@@ -109,7 +111,9 @@ public class MainWindowController implements FxController {
 //        Platform.runLater(() -> {
             log.info("Hiding Little Help Notification");
             mainWindowResultTable.setVisible(true);
+            mainWindowResultTable.setManaged(true);
             mainWindowLittleHelpArea.setVisible(false);
+            mainWindowLittleHelpArea.setManaged(false);
 //        });
     }
 

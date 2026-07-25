@@ -83,6 +83,10 @@ public class QueueRepositoryImpl implements AutoCloseable, com.bytedompteur.docu
     return result;
   }
 
+  public void clear() {
+    deleteLog(createFilePath());
+  }
+
   @Override
   public void close() throws Exception {
     if (nonNull(writer)) {
@@ -100,6 +104,10 @@ public class QueueRepositoryImpl implements AutoCloseable, com.bytedompteur.docu
 
   private void deleteLog(Path filePath) {
     try {
+      if (nonNull(writer)) {
+        writer.close();
+        writer = null;
+      }
       filesReadWriteAdapter.deleteIfExists(filePath);
       log.info("Deleted '{}'", filePath);
     } catch (IOException e) {

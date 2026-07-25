@@ -1,5 +1,6 @@
 package com.bytedompteur.documentfinder.ui.mainwindow;
 
+import atlantafx.base.theme.Styles;
 import com.bytedompteur.documentfinder.ui.mainwindow.dagger.MainWindowScope;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -68,6 +69,7 @@ public class DateRangeFilterPopup extends ContextMenu {
         toDatePicker.setManaged(false);
 
         applyButton.setOnAction(event -> handleApply());
+        applyButton.getStyleClass().add(Styles.ACCENT);
         clearButton.setOnAction(event -> handleClear());
         ButtonBar.setButtonData(clearButton, ButtonBar.ButtonData.LEFT);
         ButtonBar.setButtonData(applyButton, ButtonBar.ButtonData.OK_DONE);
@@ -79,6 +81,7 @@ public class DateRangeFilterPopup extends ContextMenu {
         var content = new VBox(10.0, presetComboBox, customDatesBox, buttonBar);
         content.setPadding(new Insets(10.0));
         content.setPrefWidth(260.0);
+        content.getStyleClass().add(Styles.ELEVATED_2);
 
         var menuItem = new CustomMenuItem(content);
         menuItem.setHideOnClick(false);
