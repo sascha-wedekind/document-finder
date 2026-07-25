@@ -14,10 +14,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
+import reactor.core.publisher.Flux;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(ApplicationExtension.class)
@@ -26,10 +29,14 @@ class MainWindowControllerTest {
     private static final String APPLICATION_HOME_DIR = "/test/home";
     private MainWindowController sut;
     private FileSystemAdapter mockedFileSystemAdapter;
+    private FulltextSearchService mockedFulltextSearchService;
+    private DateRangeFilterPopup mockedDateRangeFilterPopup;
 
     @Start
     void start(Stage stage) {
         mockedFileSystemAdapter = mock(FileSystemAdapter.class);
+        mockedFulltextSearchService = mock(FulltextSearchService.class);
+        mockedDateRangeFilterPopup = mock(DateRangeFilterPopup.class);
         var mockedSearchResultTableController = mock(SearchResultTableController.class);
         var mockedProgressBarController = mock(AnalyzeFilesProgressBarController.class);
 
@@ -39,9 +46,10 @@ class MainWindowControllerTest {
         sut = new MainWindowController(
             mockedSearchResultTableController,
             mockedProgressBarController,
-            mock(FulltextSearchService.class),
+            mockedFulltextSearchService,
             mockedFileSystemAdapter,
             mock(WindowManager.class),
+            mockedDateRangeFilterPopup,
             APPLICATION_HOME_DIR
         );
 
@@ -67,5 +75,34 @@ class MainWindowControllerTest {
 
         // Assert
         verify(mockedFileSystemAdapter).openInOperatingSystem(Path.of(APPLICATION_HOME_DIR));
+    }
+
+    @Test
+    void searchForFilesMatchingSearchText_searchesWithDateRange_whenSearchTextIsEmptyButDateFilterIsActive(FxRobot robot) {
+        // Arrange
+        var updatedFrom = LocalDate.of(2024, 6, 1);
+        var updatedTo = LocalDate.of(2024, 6, 30);
+        when(mockedDateRangeFilterPopup.isActive()).thenReturn(true);
+        when(mockedDateRangeFilterPopup.getSelectedFrom()).thenReturn(updatedFrom);
+        when(mockedDateRangeFilterPopup.getSelectedTo()).thenReturn(updatedTo);
+        when(mockedFulltextSearchService.findFilesWithNamesOrContentMatching(any(), any(), any())).thenReturn(Flux.empty());
+
+        // Act
+        sut.searchForFilesMatchingSearchText();
+
+        // Assert
+        verify(mockedFulltextSearchService).findFilesWithNamesOrContentMatching(any(), eq(updatedFrom), eq(updatedTo));
+    }
+
+    @Test
+    void searchForFilesMatchingSearchText_doesNotSearch_whenSearchTextIsEmptyAndDateFilterIsInactive(FxRobot robot) {
+        // Arrange
+        when(mockedDateRangeFilterPopup.isActive()).thenReturn(false);
+
+        // Act
+        sut.searchForFilesMatchingSearchText();
+
+        // Assert
+        verify(mockedFulltextSearchService, never()).findFilesWithNamesOrContentMatching(any(), any(), any());
     }
 }
