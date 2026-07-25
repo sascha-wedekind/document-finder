@@ -62,6 +62,20 @@
                                 <Tooltip text="Filter by last modified date"/>
                             </tooltip>
                         </Button>
+                        <Button fx:id="dateRangeFilterButton" mnemonicParsing="false"
+                                onAction="#handleDateRangeFilterButtonClick" HBox.hgrow="NEVER">
+                            <styleClass>
+                                <String fx:value="flat"/>
+                                <String fx:value="button-icon"/>
+                                <String fx:value="button-circle"/>
+                            </styleClass>
+                            <graphic>
+                                <MaterialIconView glyphName="DATE_RANGE" size="25"/>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip text="Filter by last modified date"/>
+                            </tooltip>
+                        </Button>
                         <Button fx:id="findLastUpdatedButton" layoutX="432.0" layoutY="10.0" mnemonicParsing="false"
                                 onAction="#handleFindLastUpdatedButtonClick">
                             <styleClass>
