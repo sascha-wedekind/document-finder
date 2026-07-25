@@ -8,6 +8,7 @@ import com.bytedompteur.documentfinder.ui.mainwindow.dagger.MainWindowScope;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -15,6 +16,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
@@ -40,6 +42,7 @@ public class MainWindowController implements FxController {
     private final FulltextSearchService fulltextSearchService;
     private final FileSystemAdapter fileSystemAdapter;
     private final WindowManager windowManager;
+    private final DateRangeFilterPopup dateRangeFilterPopup;
     private final String applicationHomeDirectory;
     private final AtomicBoolean ignoreNextSearchAsYouTypeKeyEvent = new AtomicBoolean(false);
 
@@ -50,6 +53,7 @@ public class MainWindowController implements FxController {
         FulltextSearchService fulltextSearchService,
         FileSystemAdapter fileSystemAdapter,
         WindowManager windowManager,
+        DateRangeFilterPopup dateRangeFilterPopup,
         @Named("applicationHomeDirectory") String applicationHomeDirectory
     ) {
         this.searchResultTable = searchResultTable;
@@ -57,6 +61,7 @@ public class MainWindowController implements FxController {
         this.fulltextSearchService = fulltextSearchService;
         this.fileSystemAdapter = fileSystemAdapter;
         this.windowManager = windowManager;
+        this.dateRangeFilterPopup = dateRangeFilterPopup;
         this.applicationHomeDirectory = applicationHomeDirectory;
     }
 
@@ -68,6 +73,12 @@ public class MainWindowController implements FxController {
 
     @FXML
     public Button findLastUpdatedButton;
+
+    @FXML
+    public Button dateRangeFilterButton;
+
+    @FXML
+    public Label activeDateFilterChip;
 
     @FXML
     public Node mainWindowResultTable;
@@ -125,7 +136,7 @@ public class MainWindowController implements FxController {
                 disposable = Mono
                     .delay(Duration.ofMillis(300))
                     .subscribe(it -> {
-                        if (searchTextField.getCharacters().isEmpty()) {
+                        if (searchTextField.getCharacters().isEmpty() && !dateRangeFilterPopup.isActive()) {
                             clearSearchResults();
                         } else {
                             searchForFilesMatchingSearchText();
@@ -162,8 +173,12 @@ public class MainWindowController implements FxController {
         Mono
             .just(searchTextField.getCharacters())
             .doOnEach(it -> clearSearchResults())
-            .filter(it -> !it.isEmpty())
-            .flatMapMany(fulltextSearchService::findFilesWithNamesOrContentMatching)
+            .filter(it -> !it.isEmpty() || dateRangeFilterPopup.isActive())
+            .flatMapMany(it -> fulltextSearchService.findFilesWithNamesOrContentMatching(
+                it,
+                dateRangeFilterPopup.getSelectedFrom(),
+                dateRangeFilterPopup.getSelectedTo()
+            ))
             .filter(it -> it.getPath().toFile().exists()) // Exclude if file does not exist
             .map(it -> SearchResult.build(
                 it.getPath(),
@@ -195,6 +210,25 @@ public class MainWindowController implements FxController {
     }
 
     @SuppressWarnings("java:S1172")
+    public void handleDateRangeFilterButtonClick(ActionEvent ignore) {
+        dateRangeFilterPopup.show(dateRangeFilterButton, Side.BOTTOM, 0, 0);
+    }
+
+    @SuppressWarnings("java:S1172")
+    public void handleActiveDateFilterChipClick(MouseEvent ignore) {
+        dateRangeFilterPopup.clear();
+    }
+
+    private void updateActiveDateFilterChip() {
+        var active = dateRangeFilterPopup.isActive();
+        activeDateFilterChip.setVisible(active);
+        activeDateFilterChip.setManaged(active);
+        if (active) {
+            activeDateFilterChip.setText(dateRangeFilterPopup.getActiveFilterDescription());
+        }
+    }
+
+    @SuppressWarnings("java:S1172")
     public void handleOpenLogDirectoryAction(ActionEvent ignore) {
         fileSystemAdapter.openInOperatingSystem(Path.of(applicationHomeDirectory));
     }
@@ -202,6 +236,10 @@ public class MainWindowController implements FxController {
     @FXML
     public void initialize() {
         clearSearchResults();
+        dateRangeFilterPopup.setOnFilterApplied(() -> {
+            updateActiveDateFilterChip();
+            searchForFilesMatchingSearchText();
+        });
     }
 
     @Override

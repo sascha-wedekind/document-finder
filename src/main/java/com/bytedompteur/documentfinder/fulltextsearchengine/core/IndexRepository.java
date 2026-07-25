@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -86,6 +88,10 @@ public class IndexRepository {
             UPDATED_FIELD_NAME,
             toLuceneDate(value.updated())
         );
+        var updatedRangeField = new LongPoint(
+            UPDATED_FIELD_NAME,
+            toLuceneDate(value.updated())
+        );
         var updatedDisplayField = new StringField(
             UPDATED_DISPLAY_FIELD_NAME,
             DATE_FORMATTER.format(value.updated().atZone(ZoneId.systemDefault())),
@@ -100,6 +106,7 @@ public class IndexRepository {
         document.add(createdField);
         document.add(createdDisplayField);
         document.add(updatedField);
+        document.add(updatedRangeField);
         document.add(updatedDisplayField);
 
         log.debug("Adding entry for '{}'", pathString);
@@ -116,12 +123,14 @@ public class IndexRepository {
     }
 
 
-    public Flux<SearchResult> findByFileNameOrContent(CharSequence searchText) {
+    public Flux<SearchResult> findByFileNameOrContent(CharSequence searchText, LocalDate updatedFrom, LocalDate updatedTo) {
         Flux<SearchResult> result = Flux.empty();
-        if (isNotBlank(searchText) && (searchText.length() >= MINIMUM_LENGTH_FOR_SEARCH || NUMERIC.matcher(searchText).matches())) {
+        var hasSearchText = isNotBlank(searchText) && (searchText.length() >= MINIMUM_LENGTH_FOR_SEARCH || NUMERIC.matcher(searchText).matches());
+        var hasDateRange = updatedFrom != null || updatedTo != null;
+        if (hasSearchText || hasDateRange) {
             try {
-                var searchTextString = searchText.toString();
-                Query query = createQueryFromParseSearchText(searchTextString);
+                var searchTextString = searchText == null ? "" : searchText.toString();
+                Query query = createQuery(hasSearchText ? searchTextString : null, updatedFrom, updatedTo);
                 result = executeSearch(query, MAX_RESULT_LIMIT);
             } catch (ParseException e) {
                 // IGNORE - this error will be thrown search text could not be parsed by lucene.
@@ -164,6 +173,17 @@ public class IndexRepository {
             .doOnCancel(() -> closeReader(indexSearcher));
     }
 
+    private Query createQuery(String searchText, LocalDate updatedFrom, LocalDate updatedTo) throws ParseException {
+        var builder = new BooleanQuery.Builder();
+        if (isNotBlank(searchText)) {
+            builder.add(createQueryFromParseSearchText(searchText), BooleanClause.Occur.MUST);
+        }
+        if (updatedFrom != null || updatedTo != null) {
+            builder.add(LongPoint.newRangeQuery(UPDATED_FIELD_NAME, toLowerLuceneBound(updatedFrom), toUpperLuceneBound(updatedTo)), BooleanClause.Occur.MUST);
+        }
+        return builder.build();
+    }
+
     private Query createQueryFromParseSearchText(String searchText) throws ParseException {
         Query query;
         var parser = new MultiFieldQueryParser(new String[]{PATH_FIELD_NAME, PAYLOAD_FIELD_NAME_GERMAN, PAYLOAD_FIELD_NAME_ENGLISH}, new StandardAnalyzer());
@@ -171,6 +191,14 @@ public class IndexRepository {
         parser.setAllowLeadingWildcard(true);
         query = parser.parse(searchText);
         return query;
+    }
+
+    private static long toLowerLuceneBound(LocalDate date) {
+        return date == null ? Long.MIN_VALUE : toLuceneDate(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
+
+    private static long toUpperLuceneBound(LocalDate date) {
+        return date == null ? Long.MAX_VALUE : toLuceneDate(date.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant());
     }
 
     protected Flux<SearchResult> createSearchResultFlux(IndexSearcher indexSearcher, ScoreDoc[] scoreDocs) {

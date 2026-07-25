@@ -3,6 +3,7 @@ package com.bytedompteur.documentfinder.fulltextsearchengine.adapter.in;
 import reactor.core.publisher.Flux;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
 
 public interface FulltextSearchService {
 
@@ -24,7 +25,7 @@ public interface FulltextSearchService {
 
   Flux<Path> getCurrentPathProcessed();
 
-  Flux<SearchResult> findFilesWithNamesOrContentMatching(CharSequence charSequence);
+  Flux<SearchResult> findFilesWithNamesOrContentMatching(CharSequence charSequence, LocalDate updatedFrom, LocalDate updatedTo);
 
   Flux<SearchResult> findLastUpdated();
 
