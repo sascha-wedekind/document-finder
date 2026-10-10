@@ -9,6 +9,7 @@
       <TableView fx:id="resultTable" items="${controller.searchResults}" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
           <styleClass>
               <String fx:value="edge-to-edge"/>
+              <String fx:value="striped"/>
           </styleClass>
           <columns>
               <TableColumn fx:id="pathIconColumn" editable="false" maxWidth="38.0" minWidth="38.0" prefWidth="38.0" resizable="false" text="">

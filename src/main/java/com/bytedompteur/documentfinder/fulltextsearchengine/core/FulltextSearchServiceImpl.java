@@ -7,6 +7,7 @@ import reactor.core.publisher.Flux;
 
 import jakarta.inject.Inject;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
@@ -51,8 +52,8 @@ public class FulltextSearchServiceImpl implements FulltextSearchService {
   }
 
   @Override
-  public Flux<SearchResult> findFilesWithNamesOrContentMatching(CharSequence charSequence) {
-    return indexRepository.findByFileNameOrContent(charSequence);
+  public Flux<SearchResult> findFilesWithNamesOrContentMatching(CharSequence charSequence, LocalDate updatedFrom, LocalDate updatedTo) {
+    return indexRepository.findByFileNameOrContent(charSequence, updatedFrom, updatedTo);
   }
 
   @Override

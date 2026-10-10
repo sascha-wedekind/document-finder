@@ -22,6 +22,20 @@
     -fx-fill: -color-fg-default;
 }
 
+#mainWindowLittleHelpArea .glyph-icon {
+    -fx-fill: -color-fg-muted;
+}
+
+#activeDateFilterChip {
+    -fx-background-color: -color-accent-subtle;
+    -fx-text-fill: -color-accent-fg;
+    -fx-padding: 4px 10px 4px 10px;
+}
+
+#activeDateFilterChip .glyph-icon {
+    -fx-fill: -color-accent-fg;
+}
+
 #optionWindow #navigationBar {
     -fx-background-color: -color-bg-subtle;
     -fx-border-color: -color-border-default;
