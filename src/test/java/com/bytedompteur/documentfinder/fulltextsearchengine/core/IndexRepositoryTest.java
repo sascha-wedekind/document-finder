@@ -18,6 +18,7 @@ import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -140,18 +141,18 @@ class IndexRepositoryTest {
   }
 
   @Test
-  void findByFileNameOrContent_returnsEmptyFlux_whenSearchTextIsNull() {
+  void findByFileNameOrContent_returnsEmptyFlux_whenSearchTextIsNullAndNoDateRangeGiven() {
     // Act
-    var result = StepVerifier.create(sut.findByFileNameOrContent(null));
+    var result = StepVerifier.create(sut.findByFileNameOrContent(null, null, null));
 
     // Assert
     result.verifyComplete();
   }
 
   @Test
-  void findByFileNameOrContent_returnsEmptyFlux_whenSearchTextIsEmpty() {
+  void findByFileNameOrContent_returnsEmptyFlux_whenSearchTextIsEmptyAndNoDateRangeGiven() {
     // Act
-    var result = StepVerifier.create(sut.findByFileNameOrContent("    "));
+    var result = StepVerifier.create(sut.findByFileNameOrContent("    ", null, null));
 
     // Assert
     result.verifyComplete();
@@ -169,10 +170,41 @@ class IndexRepositoryTest {
       .thenThrow(new IOException("Expected exception from unit test"));
 
     // Act
-    var result = StepVerifier.create(sut.findByFileNameOrContent("a search text"));
+    var result = StepVerifier.create(sut.findByFileNameOrContent("a search text", null, null));
 
     // Assert
     result.verifyComplete();
+  }
+
+  @Test
+  void findByFileNameOrContent_searches_whenSearchTextIsEmptyButDateRangeIsGiven() throws IOException {
+    // Arrange
+    Mockito
+      .when(mockedIndexSearcher.storedFields()).thenReturn(mockedStoredFields);
+    Mockito
+      .when(mockedStoredFields.document(anyInt(), anySet()))
+      .thenReturn(new Document());
+
+    Mockito
+      .when(mockedIndexSearchFactory.build())
+      .thenReturn(mockedIndexSearcher);
+
+    var scoreDocs = new ScoreDoc[]{new ScoreDoc(1, 1.0F)};
+    Mockito
+      .when(mockedIndexSearcher.search(any(), anyInt(), any(Sort.class)))
+      .thenReturn(new TopFieldDocs(new TotalHits(1L, TotalHits.Relation.EQUAL_TO), scoreDocs, new SortField[0]));
+
+    Mockito
+      .when(mockedIndexSearcher.getIndexReader())
+      .thenReturn(new MultiReader());
+
+    // Act
+    var result = StepVerifier.create(sut.findByFileNameOrContent("", LocalDate.now().minusDays(7), LocalDate.now()));
+
+    // Assert
+    result
+      .expectNextCount(1)
+      .verifyComplete();
   }
 
   @Test
@@ -208,7 +240,7 @@ class IndexRepositoryTest {
       .thenReturn(new MultiReader());
 
     // Act
-    var result = StepVerifier.create(sut.findByFileNameOrContent("a search text"));
+    var result = StepVerifier.create(sut.findByFileNameOrContent("a search text", null, null));
 
     // Assert
     result

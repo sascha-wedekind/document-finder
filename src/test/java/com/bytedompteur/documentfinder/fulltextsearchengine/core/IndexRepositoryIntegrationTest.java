@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -96,7 +98,7 @@ class IndexRepositoryIntegrationTest {
         indexWriter.close();
 
         // Act
-        var result = StepVerifier.create(sut.findByFileNameOrContent(searchText));
+        var result = StepVerifier.create(sut.findByFileNameOrContent(searchText, null, null));
 
         // Assert
         result.expectNextCount(numberOfExpectedResults).verifyComplete();
@@ -203,7 +205,7 @@ class IndexRepositoryIntegrationTest {
 
 
         // Act
-        var firstStep = StepVerifier.create(sut.findByFileNameOrContent("pdf"));
+        var firstStep = StepVerifier.create(sut.findByFileNameOrContent("pdf", null, null));
 
         // Assert
         firstStep
@@ -211,6 +213,152 @@ class IndexRepositoryIntegrationTest {
             .assertNext(it -> assertThat(it.getPath()).isEqualTo(Path.of("/a/3.pdf")))
             .assertNext(it -> assertThat(it.getPath()).isEqualTo(Path.of("/a/2.pdf")))
             .assertNext(it -> assertThat(it.getPath()).isEqualTo(Path.of("/a/1.pdf")))
+            .verifyComplete();
+    }
+
+    @Test
+    void findByFileNameOrContent_excludesFilesOutsideDateRange_whenUpdatedFromAndUpdatedToGiven() throws IOException {
+        // Arrange
+        when(mockedIndexSearchFactory.build()).thenAnswer(param -> new IndexSearcher(DirectoryReader.open(fsDirectory)));
+
+        var zone = ZoneId.systemDefault();
+        var inRange = new FileRecord(Path.of("/a/in-range.pdf"), new StringReader(" pdf "), Locale.ENGLISH,
+            LocalDate.of(2024, 6, 15).atTime(12, 0).atZone(zone).toInstant(),
+            LocalDate.of(2024, 6, 15).atTime(12, 0).atZone(zone).toInstant());
+        var tooEarly = new FileRecord(Path.of("/a/too-early.pdf"), new StringReader(" pdf "), Locale.ENGLISH,
+            LocalDate.of(2024, 6, 1).atTime(12, 0).atZone(zone).toInstant(),
+            LocalDate.of(2024, 6, 1).atTime(12, 0).atZone(zone).toInstant());
+        var tooLate = new FileRecord(Path.of("/a/too-late.pdf"), new StringReader(" pdf "), Locale.ENGLISH,
+            LocalDate.of(2024, 7, 1).atTime(12, 0).atZone(zone).toInstant(),
+            LocalDate.of(2024, 7, 1).atTime(12, 0).atZone(zone).toInstant());
+
+        for (FileRecord record : List.of(inRange, tooEarly, tooLate)) {
+            sut.save(record);
+        }
+        indexWriter.flush();
+        indexWriter.commit();
+        indexWriter.close();
+
+        // Act
+        var result = StepVerifier.create(sut.findByFileNameOrContent("pdf", LocalDate.of(2024, 6, 10), LocalDate.of(2024, 6, 20)));
+
+        // Assert
+        result
+            .assertNext(it -> assertThat(it.getPath()).isEqualTo(Path.of("/a/in-range.pdf")))
+            .verifyComplete();
+    }
+
+    @Test
+    void findByFileNameOrContent_includesFilesUpdatedAtStartAndEndOfBoundaryDay_whenUpdatedFromAndUpdatedToGiven() throws IOException {
+        // Arrange
+        when(mockedIndexSearchFactory.build()).thenAnswer(param -> new IndexSearcher(DirectoryReader.open(fsDirectory)));
+
+        var zone = ZoneId.systemDefault();
+        var atStartOfLowerBoundDay = new FileRecord(Path.of("/a/start.pdf"), new StringReader(" pdf "), Locale.ENGLISH,
+            LocalDate.of(2024, 6, 10).atStartOfDay(zone).toInstant(),
+            LocalDate.of(2024, 6, 10).atStartOfDay(zone).toInstant());
+        var atEndOfUpperBoundDay = new FileRecord(Path.of("/a/end.pdf"), new StringReader(" pdf "), Locale.ENGLISH,
+            LocalDate.of(2024, 6, 20).atTime(23, 59, 59).atZone(zone).toInstant(),
+            LocalDate.of(2024, 6, 20).atTime(23, 59, 59).atZone(zone).toInstant());
+
+        for (FileRecord record : List.of(atStartOfLowerBoundDay, atEndOfUpperBoundDay)) {
+            sut.save(record);
+        }
+        indexWriter.flush();
+        indexWriter.commit();
+        indexWriter.close();
+
+        // Act
+        var result = StepVerifier.create(sut.findByFileNameOrContent("pdf", LocalDate.of(2024, 6, 10), LocalDate.of(2024, 6, 20)));
+
+        // Assert
+        result.expectNextCount(2).verifyComplete();
+    }
+
+    @Test
+    void findByFileNameOrContent_returnsOnlyFilesFromUpdatedFromOnwards_whenOnlyUpdatedFromGiven() throws IOException {
+        // Arrange
+        when(mockedIndexSearchFactory.build()).thenAnswer(param -> new IndexSearcher(DirectoryReader.open(fsDirectory)));
+
+        var zone = ZoneId.systemDefault();
+        var before = new FileRecord(Path.of("/a/before.pdf"), new StringReader(" pdf "), Locale.ENGLISH,
+            LocalDate.of(2024, 6, 1).atTime(12, 0).atZone(zone).toInstant(),
+            LocalDate.of(2024, 6, 1).atTime(12, 0).atZone(zone).toInstant());
+        var after = new FileRecord(Path.of("/a/after.pdf"), new StringReader(" pdf "), Locale.ENGLISH,
+            LocalDate.of(2024, 6, 30).atTime(12, 0).atZone(zone).toInstant(),
+            LocalDate.of(2024, 6, 30).atTime(12, 0).atZone(zone).toInstant());
+
+        for (FileRecord record : List.of(before, after)) {
+            sut.save(record);
+        }
+        indexWriter.flush();
+        indexWriter.commit();
+        indexWriter.close();
+
+        // Act
+        var result = StepVerifier.create(sut.findByFileNameOrContent("pdf", LocalDate.of(2024, 6, 10), null));
+
+        // Assert
+        result
+            .assertNext(it -> assertThat(it.getPath()).isEqualTo(Path.of("/a/after.pdf")))
+            .verifyComplete();
+    }
+
+    @Test
+    void findByFileNameOrContent_returnsOnlyFilesUpToUpdatedTo_whenOnlyUpdatedToGiven() throws IOException {
+        // Arrange
+        when(mockedIndexSearchFactory.build()).thenAnswer(param -> new IndexSearcher(DirectoryReader.open(fsDirectory)));
+
+        var zone = ZoneId.systemDefault();
+        var before = new FileRecord(Path.of("/a/before.pdf"), new StringReader(" pdf "), Locale.ENGLISH,
+            LocalDate.of(2024, 6, 1).atTime(12, 0).atZone(zone).toInstant(),
+            LocalDate.of(2024, 6, 1).atTime(12, 0).atZone(zone).toInstant());
+        var after = new FileRecord(Path.of("/a/after.pdf"), new StringReader(" pdf "), Locale.ENGLISH,
+            LocalDate.of(2024, 6, 30).atTime(12, 0).atZone(zone).toInstant(),
+            LocalDate.of(2024, 6, 30).atTime(12, 0).atZone(zone).toInstant());
+
+        for (FileRecord record : List.of(before, after)) {
+            sut.save(record);
+        }
+        indexWriter.flush();
+        indexWriter.commit();
+        indexWriter.close();
+
+        // Act
+        var result = StepVerifier.create(sut.findByFileNameOrContent("pdf", null, LocalDate.of(2024, 6, 10)));
+
+        // Assert
+        result
+            .assertNext(it -> assertThat(it.getPath()).isEqualTo(Path.of("/a/before.pdf")))
+            .verifyComplete();
+    }
+
+    @Test
+    void findByFileNameOrContent_returnsFilesInDateRange_whenSearchTextIsBlank() throws IOException {
+        // Arrange
+        when(mockedIndexSearchFactory.build()).thenAnswer(param -> new IndexSearcher(DirectoryReader.open(fsDirectory)));
+
+        var zone = ZoneId.systemDefault();
+        var inRange = new FileRecord(Path.of("/a/in-range.pdf"), new StringReader(" pdf "), Locale.ENGLISH,
+            LocalDate.of(2024, 6, 15).atTime(12, 0).atZone(zone).toInstant(),
+            LocalDate.of(2024, 6, 15).atTime(12, 0).atZone(zone).toInstant());
+        var tooLate = new FileRecord(Path.of("/a/too-late.pdf"), new StringReader(" pdf "), Locale.ENGLISH,
+            LocalDate.of(2024, 7, 1).atTime(12, 0).atZone(zone).toInstant(),
+            LocalDate.of(2024, 7, 1).atTime(12, 0).atZone(zone).toInstant());
+
+        for (FileRecord record : List.of(inRange, tooLate)) {
+            sut.save(record);
+        }
+        indexWriter.flush();
+        indexWriter.commit();
+        indexWriter.close();
+
+        // Act
+        var result = StepVerifier.create(sut.findByFileNameOrContent("", LocalDate.of(2024, 6, 10), LocalDate.of(2024, 6, 20)));
+
+        // Assert
+        result
+            .assertNext(it -> assertThat(it.getPath()).isEqualTo(Path.of("/a/in-range.pdf")))
             .verifyComplete();
     }
 

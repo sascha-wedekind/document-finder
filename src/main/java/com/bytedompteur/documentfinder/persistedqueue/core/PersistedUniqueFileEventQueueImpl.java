@@ -117,7 +117,14 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
         knownPaths.remove(getPathHash(event));
         queueRepository.save(event, QueueModificationType.REMOVED);
         numberOfFilesRemoved++;
-        flushRepoWhenCounterExceedThreshold();
+        if (inMemoryEventsQueue.isEmpty()) {
+          log.info("Queue is empty - deleting the persisted log");
+          numberOfFilesAdded = 0L;
+          numberOfFilesRemoved = 0L;
+          queueRepository.clear();
+        } else {
+          flushRepoWhenCounterExceedThreshold();
+        }
       }
     } catch (IOException e) {
       log.error("While marking '{}' as removed in repository ", result.get(), e);
@@ -136,7 +143,7 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
     var readLock = rwLock.readLock();
     try {
       readLock.lock();
-      var result = Objects.equals(getNumberOfFilesAdded(), getNumberOfFilesRemoved());
+      var result = inMemoryEventsQueue.isEmpty();
       log.debug("Is empty? Items added {} == items removed {} -> result {} -> items in actual in list {}", getNumberOfFilesAdded(), getNumberOfFilesRemoved(), result, inMemoryEventsQueue.size());
       flushRepository();
       return result;
@@ -164,18 +171,12 @@ public class PersistedUniqueFileEventQueueImpl implements PersistedUniqueFileEve
       writeLock.lock();
       log.info("Start clearing the queue");
       var queueItemsRemoved = inMemoryEventsQueue.size();
-      inMemoryEventsQueue.forEach(fileEvent -> {
-        try {
-          queueRepository.save(fileEvent, QueueModificationType.REMOVED);
-        } catch (IOException e) {
-          // Ignore
-        }
-      });
       inMemoryEventsQueue.clear();
+      knownPaths.clear();
       numberOfFilesAdded = 0L;
       numberOfFilesRemoved = 0L;
-      flushRepository();
-      log.info("Removed {} items from the queue", queueItemsRemoved);
+      queueRepository.clear();
+      log.info("Removed {} items from the queue and deleted the persisted log", queueItemsRemoved);
     } finally {
       writeLock.unlock();
     }
