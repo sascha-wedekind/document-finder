@@ -14,7 +14,7 @@ plugins {
 }
 
 ext {
-    lombokVersion = '1.18.42'
+    lombokVersion = '1.18.48'
     slf4jVersion = '2.0.17'
     jclOverSlf4jVersion = '2.0.17'
     logbackVersion = '1.5.21'
@@ -27,7 +27,7 @@ ext {
     guavaVersion = '33.5.0-jre'
     tikaVersion = '3.2.3'
     daggerVersion = '2.59.2'
-    javaFxVersion = '25'
+    javaFxVersion = '27.0.1'
     fontAwesomeFxVersion = '2.2.0-9.1.2'
     testFxVersion = '4.0.18'
     gsonVersion = '2.14.0'
@@ -68,7 +68,7 @@ repositories {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
+        languageVersion = JavaLanguageVersion.of(27)
     }
 }
 
