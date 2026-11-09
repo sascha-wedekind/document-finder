@@ -176,3 +176,6 @@ src/main/generated
 /.idea/modules.xml
 /.idea/modules
 /.idea/.name
+
+# macOS
+.DS_Store
