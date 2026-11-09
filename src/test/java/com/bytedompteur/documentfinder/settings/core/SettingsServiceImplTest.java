@@ -201,4 +201,30 @@ class SettingsServiceImplTest {
     assertThat(result).isEqualTo(expectedSettings);
   }
 
+  @Test
+  void fromJson_returnsSettingsWithEmptyListsAndDisabledDebugLogging_whenJsonContainsNoKeys() {
+    // Arrange
+    var json = "{}";
+
+    // Act
+    var result = sut.fromJson(json);
+
+    // Assert
+    assertThat(result.getFolders()).isEmpty();
+    assertThat(result.getFileTypes()).isEmpty();
+    assertThat(result.isDebugLoggingEnabled()).isFalse();
+  }
+
+  @Test
+  void fromJson_returnsNull_whenJsonIsEmpty() {
+    // Arrange
+    var json = "";
+
+    // Act
+    var result = sut.fromJson(json);
+
+    // Assert
+    assertThat(result).isNull();
+  }
+
 }

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 
 import static java.nio.file.Files.notExists;
@@ -61,11 +62,32 @@ public class SettingsServiceImpl implements SettingsService {
   }
 
   protected String toJson(Settings value) {
-    return gson.toJson(value);
+    return gson.toJson(SettingsJson.of(value));
   }
 
   protected Settings fromJson(String value) {
-    return gson.fromJson(value, Settings.class);
+    var settingsJson = gson.fromJson(value, SettingsJson.class);
+    return isNull(settingsJson) ? null : settingsJson.toSettings();
+  }
+
+  /**
+   * The persisted format of {@link Settings}. Gson creates records through their canonical constructor, which works
+   * without sun.misc.Unsafe (module jdk.unsupported) and without reflectively mutating final fields.
+   */
+  private record SettingsJson(List<String> folders, List<String> fileTypes, boolean debugLoggingEnabled) {
+
+    static SettingsJson of(Settings settings) {
+      return new SettingsJson(settings.getFolders(), settings.getFileTypes(), settings.isDebugLoggingEnabled());
+    }
+
+    Settings toSettings() {
+      return Settings
+        .builder()
+        .folders(folders)
+        .fileTypes(fileTypes)
+        .debugLoggingEnabled(debugLoggingEnabled)
+        .build();
+    }
   }
 
   protected Path createSettingsFilePath() {
