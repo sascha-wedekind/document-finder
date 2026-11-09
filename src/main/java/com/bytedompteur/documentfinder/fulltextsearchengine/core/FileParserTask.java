@@ -10,6 +10,8 @@ import com.optimaize.langdetect.profiles.LanguageProfile;
 import com.optimaize.langdetect.profiles.LanguageProfileReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.exception.TikaException;
+import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.HttpHeaders;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.sax.BodyContentHandler;
@@ -98,7 +100,7 @@ public class FileParserTask implements Runnable {
             exceptionWhileParsing.set(e);
         } finally {
             var language = getDetectedLanguage().map(Locale::toString).orElse("unkown");
-            var contentType = Optional.ofNullable(metadata).map(it -> it.get(Metadata.CONTENT_TYPE)).orElse("unkown");
+            var contentType = Optional.ofNullable(metadata).map(it -> it.get(HttpHeaders.CONTENT_TYPE)).orElse("unkown");
             log.debug("End parsing '{}'. File identified as '{}'. Language: {}", path, contentType, language);
             state.set(State.FINISHED);
         }
@@ -108,7 +110,9 @@ public class FileParserTask implements Runnable {
         var metadata = new Metadata();
         var autoDetectParser = new AutoDetectParser();
         var bodyContentHandler = new BodyContentHandler(-1); // No content limit
-        autoDetectParser.parse(fis, bodyContentHandler, metadata);
+        try (var tikaInputStream = TikaInputStream.get(fis)) {
+            autoDetectParser.parse(tikaInputStream, bodyContentHandler, metadata);
+        }
         var content = bodyContentHandler.toString();
         detectLanguage(content);
         contentReader.set(new StringReader(content));

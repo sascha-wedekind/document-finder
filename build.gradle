@@ -78,6 +78,7 @@ configurations.all {
     exclude group: 'org.purejava' // org.purejava:kdewallet
     exclude group: 'de.swiesend' // de.swiesend:secret-service
     exclude group: 'commons-logging', module: 'commons-logging' // replaced by jcl-over-slf4j
+    exclude group: 'org.apache.tika', module: 'tika-annotation-processor' // Since Tika 4.0.0 tika-core ships the same org.apache.tika.annotation package, which leads to a split package error
 }
 
 dependencies {

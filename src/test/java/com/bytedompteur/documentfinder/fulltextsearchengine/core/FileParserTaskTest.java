@@ -1,12 +1,19 @@
 package com.bytedompteur.documentfinder.fulltextsearchengine.core;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.ReaderInputStream;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.tika.exception.TikaException;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.assertj.core.api.InstanceOfAssertFactory;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -51,6 +58,38 @@ class FileParserTaskTest {
 
         // Assert
         assertThat(sut.getDetectedLanguage()).contains(Locale.of(expectedLanguage));
+    }
+
+    @Test
+    void run_extractsTextContent_whenParsingPdfFile(@TempDir Path tempDir) throws IOException {
+        // Arrange
+        var expectedText = "The quick brown fox jumps over the lazy dog";
+        var pdfFile = createPdfWithText(tempDir.resolve("test.pdf"), expectedText);
+        var sut = FileParserTask.create(pdfFile);
+
+        // Act
+        sut.run();
+
+        // Assert
+        assertThat(sut.getState()).isEqualTo(FileParserTask.State.FINISHED);
+        assertThat(sut.getExceptionThrownWhileParsing()).isEmpty();
+        assertThat(IOUtils.toString(sut.getReader())).contains(expectedText);
+    }
+
+    private static Path createPdfWithText(Path target, String text) throws IOException {
+        try (var document = new PDDocument()) {
+            var page = new PDPage();
+            document.addPage(page);
+            try (var contentStream = new PDPageContentStream(document, page)) {
+                contentStream.beginText();
+                contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
+                contentStream.newLineAtOffset(50, 700);
+                contentStream.showText(text);
+                contentStream.endText();
+            }
+            document.save(target.toFile());
+        }
+        return target;
     }
 
     @Test
