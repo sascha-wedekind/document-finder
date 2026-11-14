@@ -10,6 +10,26 @@ you search across file names and file contents from a single search box.
 |:-------------------------------------------------------------:|:-------------------------------------------------------------------:|:-------------------------------------------------------------------:|
 | ![Application view without a search result](doc/img1.png) | ![Search result showing the last 20 modified files](doc/img2.png) | ![Context menu of a selected search result](doc/img3.png) |
 
+## Installation
+
+Download the installer for your system from the
+[latest release](https://github.com/sascha-wedekind/document-finder/releases/latest): a `.dmg` for
+macOS (Apple silicon), an `.msi` for Windows or a `.deb` for Debian and Ubuntu.
+
+### macOS: "Not Opened" or "Apple could not verify ..."
+
+The application is not signed with an Apple Developer ID and is not notarized, so macOS blocks it
+after the download and only offers to move it to the Trash. Copy `DocumentFinder.app` from the
+`.dmg` to the `Applications` folder and remove the quarantine flag once:
+
+```shell
+xattr -dr com.apple.quarantine /Applications/DocumentFinder.app
+```
+
+After that the application starts normally. Alternatively, choose "Done" in the dialog, open
+*System Settings → Privacy & Security*, scroll down to the *Security* section and click
+*Open Anyway* next to the message about Document Finder.
+
 ## Features
 
 - **Full-text search** across file names and file contents, powered by Apache Lucene for indexing
