@@ -282,6 +282,8 @@ jlink {
 }
 
 
+apply from: 'gradle/aot-cache.gradle'
+
 /*
  * The Bouncy Castle multi-release jars (bcprov, bcpkix, bcutil, bcjmail since 1.85) contain
  * 'META-INF/versions/<n>/OSGI-INF/MANIFEST.MF'. jlink treats 'OSGI-INF' as a package, which then exists in several

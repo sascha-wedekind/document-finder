@@ -15,10 +15,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class DocumentFinderUIMain
   extends Application {
+
+  private static final String AOT_TRAINING_PROPERTY = "documentfinder.aot.training";
+  private static final int AOT_TRAINING_SECONDS = 2;
 
   /**
    * Runs on the JavaFX launcher thread while the JavaFX toolkit is starting.
@@ -50,6 +54,10 @@ public class DocumentFinderUIMain
       });
 
       log.info("Started DocumentFinder");
+
+      if (Boolean.getBoolean(AOT_TRAINING_PROPERTY)) {
+        exitAfterAotTraining(exitApplicationCommand.get());
+      }
     } catch (Exception e) {
       log.error("Could not start DocumentFinder, shutting down", e);
       exitApplicationCommand.ifPresentOrElse(ExitApplicationCommand::run, Platform::exit);
@@ -67,6 +75,22 @@ public class DocumentFinderUIMain
         task.run();
       } catch (Exception e) {
         log.warn("Warm-up of '{}' failed", name, e);
+      }
+    });
+  }
+
+  /**
+   * Training run for the JDK AOT cache, see 'gradle/aot-cache.gradle'. Leaves the application cleanly once the main
+   * window had time to appear, so the JVM can write down which classes it has loaded.
+   */
+  private void exitAfterAotTraining(ExitApplicationCommand exitApplicationCommand) {
+    log.info("AOT cache training run. Exiting in {} seconds", AOT_TRAINING_SECONDS);
+    Thread.ofPlatform().daemon().name("aot-training-exit").start(() -> {
+      try {
+        TimeUnit.SECONDS.sleep(AOT_TRAINING_SECONDS);
+        Platform.runLater(exitApplicationCommand);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
       }
     });
   }

@@ -1,0 +1,139 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
+import java.nio.file.Files
+import java.util.concurrent.TimeUnit
+
+/*
+ * Adds a JDK AOT cache (JEP 483) to the jpackage app image. The cache shortens the application start by about 25%.
+ * It is created only if the project property 'aotCache' is set:
+ *
+ *     ./gradlew jpackage -PaotCache
+ *
+ * The built app image is started twice. The first run records which classes get loaded and the second run writes the
+ * cache from that recording. The cache is bound to the exact runtime of the app image, so it has to be created on the
+ * operating system the application is built for. The recording run shows the main window and needs a display (on Linux
+ * for example 'xvfb-run').
+ *
+ * If anything goes wrong, a warning is logged and the app image stays as it was, just without a cache.
+ * See 'create-aot-cache.md' in the documentation directory.
+ */
+
+def aotCacheFileName = 'document-finder.aot'
+def operatingSystem = DefaultNativePlatform.currentOperatingSystem
+
+def runApp = { File launcher, File workDir, String phase, List<String> jvmOptions ->
+    def logFile = new File(workDir, "${phase}.log")
+    def processBuilder = new ProcessBuilder(launcher.absolutePath)
+        .directory(workDir)
+        .redirectErrorStream(true)
+        .redirectOutput(logFile)
+    processBuilder.environment().put('JAVA_TOOL_OPTIONS', jvmOptions.collect { it.contains(' ') ? "\"${it}\"" : it }.join(' '))
+
+    def process = processBuilder.start()
+    if (!process.waitFor(120, TimeUnit.SECONDS)) {
+        process.destroyForcibly()
+        throw new GradleException("The ${phase} run did not finish within 120 seconds")
+    }
+    if (process.exitValue() != 0) {
+        throw new GradleException("The ${phase} run failed with exit code ${process.exitValue()}:\n${logFile.readLines().takeRight(15).join('\n')}")
+    }
+}
+
+def registerCacheInLauncherConfig = { File appDir ->
+    def launcherConfig = appDir.listFiles().find { it.name.endsWith('.cfg') }
+    if (launcherConfig == null) {
+        throw new GradleException("No launcher configuration (*.cfg) found in '${appDir}'")
+    }
+    def lines = launcherConfig.readLines()
+    def lastJavaOption = lines.findLastIndexOf { it.startsWith('java-options=') }
+    if (lastJavaOption < 0) {
+        throw new GradleException("No 'java-options' found in '${launcherConfig}'")
+    }
+    lines.add(lastJavaOption + 1, "java-options=-XX:AOTCache=\$APPDIR/${aotCacheFileName}")
+    launcherConfig.text = lines.join(System.lineSeparator()) + System.lineSeparator()
+}
+
+// Changing the content of a macOS app bundle invalidates its signature. jpackage signs the app image ad hoc.
+def signAdHoc = { File appImage ->
+    def process = new ProcessBuilder('codesign', '--force', '--deep', '--sign', '-', appImage.absolutePath)
+        .redirectErrorStream(true)
+        .start()
+    def output = process.inputStream.text
+    if (process.waitFor() != 0) {
+        throw new GradleException("Signing the app image failed:\n${output}")
+    }
+}
+
+def createAotCache = { File appImage ->
+    def name = appImage.name.replaceAll(/\.app$/, '')
+    File appDir
+    File launcher
+    if (operatingSystem.isMacOsX()) {
+        appDir = new File(appImage, 'Contents/app')
+        launcher = new File(appImage, "Contents/MacOS/${name}")
+    } else if (operatingSystem.isWindows()) {
+        appDir = new File(appImage, 'app')
+        launcher = new File(appImage, "${name}.exe")
+    } else {
+        appDir = new File(appImage, 'lib/app')
+        launcher = new File(appImage, "bin/${name}")
+    }
+    def aotCache = new File(appDir, aotCacheFileName)
+
+    // The path must stay short, because the application opens a unix domain socket in its home directory
+    def workDir = Files.createTempDirectory('dfaot').toFile()
+    try {
+        new File(workDir, 'settings.json').text = '{"folders":[],"fileTypes":["pdf"],"debugLoggingEnabled":false}'
+        def aotConfiguration = new File(workDir, 'document-finder.aotconf')
+        def commonOptions = ['-XX:-AOTClassLinking', "-Ddocumentfinder.homedir=${workDir}"]
+
+        logger.lifecycle('AOT cache: recording a training run of the app image')
+        runApp(launcher, workDir, 'record', commonOptions + ['-XX:AOTMode=record', "-XX:AOTConfiguration=${aotConfiguration}", '-Ddocumentfinder.aot.training=true'])
+
+        // A run that ends with exit code 0 is not enough. The cache would be of little use if the application did not start
+        def applicationLog = new File(workDir, 'document-finder.log')
+        if (!applicationLog.file || !applicationLog.text.contains('Started DocumentFinder')) {
+            throw new GradleException("The application did not start completely during the recording run:\n${applicationLog.file ? applicationLog.readLines().takeRight(15).join('\n') : 'no application log written'}")
+        }
+
+        logger.lifecycle('AOT cache: writing the cache')
+        runApp(launcher, workDir, 'create', commonOptions + ['-XX:AOTMode=create', "-XX:AOTConfiguration=${aotConfiguration}", "-XX:AOTCache=${aotCache}"])
+        if (!aotCache.file || aotCache.length() == 0) {
+            throw new GradleException("The cache file '${aotCache}' was not written")
+        }
+
+        registerCacheInLauncherConfig(appDir)
+        if (operatingSystem.isMacOsX()) {
+            signAdHoc(appImage)
+        }
+        logger.lifecycle("AOT cache: added ${aotCache.length().intdiv(1024 * 1024)} MB cache to '${appImage.name}'")
+    } catch (Exception e) {
+        aotCache.delete()
+        throw e
+    } finally {
+        workDir.deleteDir()
+    }
+}
+
+tasks.named('jpackageImage') {
+    // Without this input, switching the property would not rebuild an app image that is up to date
+    inputs.property('aotCache', project.hasProperty('aotCache'))
+}
+
+if (project.hasProperty('aotCache')) {
+    tasks.named('jpackageImage') {
+        doLast {
+            def jpackageDir = layout.buildDirectory.dir('jpackage').get().asFile
+            def appImage = jpackageDir.listFiles().find { it.directory && it.name.startsWith('DocumentFinder') }
+            if (appImage == null) {
+                logger.warn("AOT cache: no app image found in '${jpackageDir}'. The app image stays without cache")
+                return
+            }
+            try {
+                createAotCache(appImage)
+            } catch (Exception e) {
+                logger.warn("AOT cache: could not be created. The app image stays without cache. ${e.message}")
+            }
+        }
+    }
+}
