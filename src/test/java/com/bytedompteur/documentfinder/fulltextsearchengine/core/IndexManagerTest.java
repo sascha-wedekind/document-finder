@@ -4,18 +4,49 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class IndexManagerTest {
+
+    /**
+     * The directory 'lucene-index-10.1.0' in the test resources contains an index with one document, written by Lucene
+     * 10.1.0 (codec Lucene101). Newer Lucene versions can only read it with the library 'lucene-backward-codecs'.
+     * Without it, existing users could no longer open their index.
+     */
+    @Test
+    void buildIndexWriter_opensIndexOfOlderLuceneVersion_whenIndexWasWrittenByLucene101(@TempDir Path applicationHomeDirectory) throws IOException {
+        // Arrange
+        var indexDirectory = Files.createDirectories(applicationHomeDirectory.resolve("index"));
+        for (var fileName : List.of("segments_1", "_0.si", "_0.cfe", "_0.cfs")) {
+            try (var resource = getClass().getResourceAsStream("/lucene-index-10.1.0/" + fileName)) {
+                Files.copy(Objects.requireNonNull(resource), indexDirectory.resolve(fileName));
+            }
+        }
+        var sut = new IndexManager(applicationHomeDirectory.toString());
+        sut.init();
+
+        // Act
+        int numberOfDocuments;
+        try (var writer = sut.buildIndexWriter(); var reader = sut.buildIndexReader(writer)) {
+            numberOfDocuments = reader.numDocs();
+        }
+
+        // Assert
+        assertThat(numberOfDocuments).isEqualTo(1);
+    }
 
     @Test
     void tmp() throws IOException {

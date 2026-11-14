@@ -10,6 +10,7 @@ module DocumentFinder.main {
   requires org.apache.lucene.queryparser;
   requires org.apache.commons.lang3;
   requires org.apache.lucene.analysis.common;
+  requires org.apache.lucene.backward_codecs;
   requires org.apache.tika.core;
   requires transitive  com.google.gson;
   requires transitive  javafx.fxml;
