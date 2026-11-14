@@ -262,6 +262,13 @@ jlink {
             installerOptions = ['--about-url', 'https://github.com/sascha-wedekind/document-finder', '--mac-package-name', 'DocumentFinder', '--mac-package-identifier', 'com.bytedompteur.documentfinder.DocumentFinderMain', '--mac-app-category', 'public.app-category.productivity']
             osSpecificCryptomatorIntegrationsPackageRequired = 'org.cryptomator.integrations.mac'
         }
+
+        // A future JDK release denies native access by default. Until then the JVM prints a warning for each of these modules.
+        def nativeAccessModules = ['javafx.graphics', 'com.bytedompteur.merged.module', 'org.apache.lucene.core']
+        if (osSpecificCryptomatorIntegrationsPackageRequired != null) {
+            nativeAccessModules += osSpecificCryptomatorIntegrationsPackageRequired
+        }
+        jvmArgs.add("--enable-native-access=${nativeAccessModules.join(',')}".toString())
     }
     /*
      * All setting are found out in trial and error process. See also 'create-image-with-jlink.md' in the documentation
