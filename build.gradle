@@ -1,14 +1,19 @@
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
+import java.nio.file.Files
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import java.util.regex.Pattern
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
 
 plugins {
     id 'java'
     id 'idea'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
-    id 'org.beryx.jlink' version '3.1.4-rc'
+    id 'org.beryx.jlink' version '4.2.0'
     id 'me.qoomon.git-versioning' version '6.4.4'
     id 'org.gradlex.extra-java-module-info' version '1.14.2'
 }
@@ -276,6 +281,34 @@ jlink {
     forceMerge("jcl-over-slf4")
 }
 
+
+/*
+ * The Bouncy Castle multi-release jars (bcprov, bcpkix, bcutil, bcjmail since 1.85) contain
+ * 'META-INF/versions/<n>/OSGI-INF/MANIFEST.MF'. jlink treats 'OSGI-INF' as a package, which then exists in several
+ * modules and makes jlink fail with 'Multiple modules contain non-empty package: OSGI-INF'. The OSGi metadata is not
+ * needed at runtime and gets removed from the jars copied to the jlink modules directory.
+ */
+tasks.named('prepareModulesDir') {
+    doLast {
+        def jlinkJarsDir = layout.buildDirectory.dir('jlinkbase/jlinkjars').get().asFile
+        def osgiInfEntry = ~/^META-INF\/versions\/\d+\/OSGI-INF\/.*/
+        (jlinkJarsDir.listFiles() ?: []).findAll { it.name.startsWith('bc') && it.name.endsWith('.jar') }.each { jar ->
+            def strippedJar = new File(jar.parentFile, "${jar.name}.stripped")
+            new ZipFile(jar).withCloseable { zip ->
+                new ZipOutputStream(strippedJar.newOutputStream()).withCloseable { out ->
+                    zip.entries().each { entry ->
+                        if (!(entry.name ==~ osgiInfEntry)) {
+                            out.putNextEntry(new ZipEntry(entry.name))
+                            zip.getInputStream(entry).withCloseable { out << it }
+                            out.closeEntry()
+                        }
+                    }
+                }
+            }
+            Files.move(strippedJar.toPath(), jar.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        }
+    }
+}
 
 tasks.register('createVersionInfoPropertiesFile', WriteProperties) {
     description "Creates a version properties file in the build resources directory"
