@@ -4,6 +4,7 @@ import com.bytedompteur.documentfinder.DocumentFinderMain;
 import com.bytedompteur.documentfinder.commands.ExitApplicationCommand;
 import com.bytedompteur.documentfinder.ui.dagger.DaggerUIComponent;
 import com.bytedompteur.documentfinder.ui.dagger.UIComponent;
+import com.jthemedetecor.OsThemeDetector;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
@@ -14,16 +15,29 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class DocumentFinderUIMain
   extends Application {
+
+  private static final String AOT_TRAINING_PROPERTY = "documentfinder.aot.training";
+  private static final int AOT_TRAINING_SECONDS = 2;
+
+  /**
+   * Runs on the JavaFX launcher thread while the JavaFX toolkit is starting.
+   */
+  @Override
+  public void init() {
+    startWarmUp("os-theme-detector", OsThemeDetector::getDetector);
+  }
 
   @Override
   public void start(Stage primaryStage) {
     Optional<ExitApplicationCommand> exitApplicationCommand = Optional.empty();
     try {
       UIComponent uiComponent = createUIComponent(primaryStage);
+      startWarmUp("fulltext-search-service", uiComponent::startFulltextSearchServiceCommand);
       exitApplicationCommand = Optional.of(uiComponent.exitApplicationCommand());
       configureStage(primaryStage, uiComponent, exitApplicationCommand.get());
 
@@ -31,7 +45,7 @@ public class DocumentFinderUIMain
       uiComponent.startFulltextSearchServiceCommand().run();
       uiComponent.startDirectoryWatcherCommand().run();
       uiComponent.windowManager().showMainWindow();
-      uiComponent.windowManager().showSystemTrayIcon();
+      Platform.runLater(() -> showSystemTrayIcon(uiComponent));
       registerJVMShutdownHook(uiComponent);
 
       Screen.getScreens().addListener((ListChangeListener<Screen>) c -> {
@@ -40,9 +54,52 @@ public class DocumentFinderUIMain
       });
 
       log.info("Started DocumentFinder");
+
+      if (Boolean.getBoolean(AOT_TRAINING_PROPERTY)) {
+        exitAfterAotTraining(exitApplicationCommand.get());
+      }
     } catch (Exception e) {
       log.error("Could not start DocumentFinder, shutting down", e);
       exitApplicationCommand.ifPresentOrElse(ExitApplicationCommand::run, Platform::exit);
+    }
+  }
+
+  /**
+   * Creates objects that are expensive to build and needed later on a separate thread, while the JavaFX thread does
+   * other work. Dagger singletons are thread safe, so a later request for the same object waits for the result. A failure
+   * is only logged here, because the later request on the JavaFX thread fails the same way and is handled there.
+   */
+  private static void startWarmUp(String name, Runnable task) {
+    Thread.ofPlatform().daemon().name("warm-up-" + name).start(() -> {
+      try {
+        task.run();
+      } catch (Exception e) {
+        log.warn("Warm-up of '{}' failed", name, e);
+      }
+    });
+  }
+
+  /**
+   * Training run for the JDK AOT cache, see 'gradle/aot-cache.gradle'. Leaves the application cleanly once the main
+   * window had time to appear, so the JVM can write down which classes it has loaded.
+   */
+  private void exitAfterAotTraining(ExitApplicationCommand exitApplicationCommand) {
+    log.info("AOT cache training run. Exiting in {} seconds", AOT_TRAINING_SECONDS);
+    Thread.ofPlatform().daemon().name("aot-training-exit").start(() -> {
+      try {
+        TimeUnit.SECONDS.sleep(AOT_TRAINING_SECONDS);
+        Platform.runLater(exitApplicationCommand);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    });
+  }
+
+  private void showSystemTrayIcon(UIComponent uiComponent) {
+    try {
+      uiComponent.windowManager().showSystemTrayIcon();
+    } catch (Exception e) {
+      log.error("Could not show system tray icon", e);
     }
   }
 
